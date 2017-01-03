@@ -1,0 +1,27 @@
+                           .text:00010790 f0 47 2d e9                      push	{r4, r5, r6, r7, r8, r9, sl, lr}
+                           .text:00010794 00 70 a0 e1                      mov	r7, r0
+                           .text:00010798 01 80 a0 e1                      mov	r8, r1
+                           .text:0001079c 02 90 a0 e1                      mov	r9, r2
+                           .text:000107a0 48 60 9f e5                      ldr	r6, [pc, #72]	; 0x000107f0 <$d>
+                           .text:000107a4 66 ff ff eb                      bl	0x00010544 <_init>
+                           .text:000107a8 44 30 9f e5                      ldr	r3, [pc, #68]	; 0x000107f4
+                           .text:000107ac 06 60 8f e0                      add	r6, pc, r6
+                           .text:000107b0 03 30 8f e0                      add	r3, pc, r3
+                           .text:000107b4 03 60 46 e0                      sub	r6, r6, r3
+                           .text:000107b8 46 61 b0 e1                      asrs	r6, r6, #2
+                           .text:000107bc f0 87 bd 08                      popeq	{r4, r5, r6, r7, r8, r9, sl, pc}
+                           .text:000107bc f0 87 bd 08                      popeq	{r4, r5, r6, r7, r8, r9, sl, pc}
+                           .text:000107bc f0 87 bd 08                      popeq	{r4, r5, r6, r7, r8, r9, sl, pc}
+                           .text:000107bc f0 87 bd 18                      popne	{r4, r5, r6, r7, r8, r9, sl, pc}
+                           .text:000107c0 00 40 a0 e3                      mov	r4, #0
+                           .text:000107c4 2c 50 9f e5                      ldr	r5, [pc, #44]	; 0x000107f8
+                           .text:000107c8 05 50 8f e0                      add	r5, pc, r5
+                           .text:000107cc 01 40 84 e2                      add	r4, r4, #1
+                           .text:000107d0 04 30 95 e4                      ldr	r3, [r5], #4
+                           .text:000107d4 09 20 a0 e1                      mov	r2, r9
+                           .text:000107d8 08 10 a0 e1                      mov	r1, r8
+                           .text:000107dc 07 00 a0 e1                      mov	r0, r7
+                           .text:000107e0 33 ff 2f e1                      blx	r3
+                           .text:000107e4 06 00 54 e1                      cmp	r4, r6
+                           .text:000107e8 f7 ff ff 1a                      bne	0x000107cc
+                           .text:000107ec f0 87 bd e8                      pop	{r4, r5, r6, r7, r8, r9, sl, pc}

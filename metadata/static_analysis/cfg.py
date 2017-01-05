@@ -2,20 +2,25 @@ from pygraph.classes.digraph import digraph
 from metadata.arm_instruction import AOpType
 
 
-class ARMControlFlowGraphBuilder(object):
+class ARMControlFlowGraph(digraph):
     """
-    Computes the control flow graph of an ARM Instruction code segment
+    Control flow graph of an ARM Instruction code segment
     """
 
     def __init__(self, instructions):
+        super().__init__()
         self._instructions = instructions
         self._root_node = CFGBlock([], kind=CFGBlock.ROOT)
-        self._cfg = None
         self._pending_jumps = {}
+        self._has_computed_dominators = False
+
+    @property
+    def has_computed_dominators(self):
+        return self._has_computed_dominators
 
     @property
     def cfg(self):
-        return self._cfg
+        return self
 
     @property
     def root_node(self):
@@ -25,8 +30,8 @@ class ARMControlFlowGraphBuilder(object):
         """
         Convenience method
         """
-        if not n in self._cfg:
-            self._cfg.add_node(n)
+        if not n in self:
+            self.add_node(n)
         return n
 
     def _get_node_with_inst(self, instruction):
@@ -34,7 +39,7 @@ class ARMControlFlowGraphBuilder(object):
         Get a node containing a certain instruction
         """
         # TODO: Replace with a bin search if needed for performance reasons
-        for b in self._cfg:
+        for b in self:
             if instruction in b.instructions:
                 return b
         return None
@@ -59,13 +64,13 @@ class ARMControlFlowGraphBuilder(object):
         split.instructions = split.instructions[index:]
 
         successors = []
-        successors.extend(self._cfg.incidents(split))
+        successors.extend(self.incidents(split))
         for i in successors:
-            self._cfg.del_edge((i, split))
-            self._cfg.add_edge((i, up))
+            self.del_edge((i, split))
+            self.add_edge((i, up))
 
-        self._cfg.add_edge((up, split))
-        self._cfg.add_edge((branch, split))
+        self.add_edge((up, split))
+        self.add_edge((branch, split))
 
     def _branch_conditional(self, inst, cb, last_conditional):
         """
@@ -74,7 +79,7 @@ class ARMControlFlowGraphBuilder(object):
         # Second case, the conditional field is different
         # Create a new block and add it to the graph
         b = self._add_node(CFGBlock(inst))
-        r = self._cfg
+        r = self
         # Case 2.1 the new condition is not ALWAYS, therefore a new conditional node must be created
         if inst.conditional_field != (AOpType.ALWAYS >> 28):
             # Create the new conditional field
@@ -131,7 +136,7 @@ class ARMControlFlowGraphBuilder(object):
         # Third case, the BRANCHES
         # ----------------------------
         # Explicit branch i.e. because of a branch instruction
-        r = self._cfg
+        r = self
         # Create the node with the explicit branch
         if branch is None:
             branch = self._add_node(CFGBlock([inst]))
@@ -163,7 +168,7 @@ class ARMControlFlowGraphBuilder(object):
                 self._add_pending_jump(inst, branch)
             elif to_node.kind == CFGBlock.COND:
                 # the node is a conditional
-                self._cfg.add_edge(branch, to_node)
+                self.add_edge(branch, to_node)
             else:
                 # the node is a block of instructions
                 self._split_node(to_node, branch, instruction_to_branch)
@@ -175,8 +180,8 @@ class ARMControlFlowGraphBuilder(object):
         Build a edges going from all the nodes in "sources" to the "dest"
         """
         for s in sources:
-            if not self._cfg.has_edge((s, dest)):
-                self._cfg.add_edge((s, dest))
+            if not self.has_edge((s, dest)):
+                self.add_edge((s, dest))
 
     def build(self, count=-1):
         """
@@ -202,7 +207,7 @@ class ARMControlFlowGraphBuilder(object):
         count = len(self._instructions) if count == -1 else count
 
         # TODO: Missing the jumps due to MOVs writing to PC
-        self._cfg = r = digraph()
+        r = self #
         if len(self._instructions) == 0:
             return r
 
@@ -240,7 +245,7 @@ class ARMControlFlowGraphBuilder(object):
 
         if not r.has_edge((cb, end)):
             r.add_edge((cb, end))
-        return self._cfg
+        return self
 
 
 class CFGBlock(object):
@@ -314,6 +319,9 @@ class CFGBlock(object):
         if self.first == self.last:
             return "{}-{}".format(self._globalid, self.first)
         return "{}- {} ... {}".format(self._globalid, self.first, self.last)
+
+    def __repr__(self):
+        return str(self)
 
     @property
     def kind(self):

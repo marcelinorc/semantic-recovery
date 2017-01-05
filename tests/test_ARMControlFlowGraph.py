@@ -3,10 +3,10 @@ from unittest import TestCase
 
 from dot.dotio import write
 from metadata.disassembler_readers import TextDisassembleReader
-from metadata.static_analysis.analysis import ARMControlFlowGraphBuilder, CFGBlock
+from metadata.static_analysis.cfg import ARMControlFlowGraph, CFGBlock
 
 
-class TestARMControlFlowGraphBuilder(TestCase):
+class TestARMControlFlowGraph(TestCase):
 
     @staticmethod
     def _count_conditional_nodes(cfg):
@@ -27,20 +27,21 @@ class TestARMControlFlowGraphBuilder(TestCase):
 
     def test_build_simple(self):
         instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly.armasm')).read()
-        builder = ARMControlFlowGraphBuilder(instructions)
-        cfg = builder.build()
+        cfg = ARMControlFlowGraph(instructions)
+        cfg.build()
 
         print(write(cfg))
         self.assertTrue(18 < len(cfg.edges()))
         self.assertTrue(15 < len(cfg.nodes()))
         self.assertEqual(2, self._count_conditional_nodes(cfg))
         # This one is to catch a bug
-        self.assertEqual(0, len(builder.root_node.instructions))
+        self.assertEqual(0, len(cfg.root_node.instructions))
         self._assert_instructions_are_not_repeated(cfg, instructions)
 
     def test_build_complex(self):
         instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly_cfg.armasm')).read()
-        cfg = ARMControlFlowGraphBuilder(instructions).build()
+        cfg = ARMControlFlowGraph(instructions)
+        cfg.build()
         # print(write(cfg))
         self.assertTrue(10 < len(cfg.edges()))
         self.assertTrue(9 < len(cfg.nodes()))

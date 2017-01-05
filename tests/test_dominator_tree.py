@@ -3,7 +3,8 @@ from unittest import TestCase
 
 from dot.dotio import write
 from metadata.disassembler_readers import TextDisassembleReader
-from metadata.static_analysis.analysis import ARMControlFlowGraphBuilder, DominatorTreeBuilder
+from metadata.static_analysis.cfg import ARMControlFlowGraph
+from metadata.static_analysis.dominators import build_dominator_tree
 
 
 class TestDominatorTreeBuilder(TestCase):
@@ -14,12 +15,11 @@ class TestDominatorTreeBuilder(TestCase):
         Build the dominator tree
         """
         instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly.armasm')).read()
-        graph_builder = ARMControlFlowGraphBuilder(instructions)
+        graph_builder = ARMControlFlowGraph(instructions)
         graph_builder.build()
-        dom_tree = DominatorTreeBuilder(graph_builder.cfg, graph_builder.root_node).build()
+        dom_tree = build_dominator_tree(graph_builder.cfg, graph_builder.root_node)
         self.assertTrue(7 < len(dom_tree.edges()))
         self.assertTrue(8 < len(dom_tree.nodes()))
-
         print(write(dom_tree))
 
 

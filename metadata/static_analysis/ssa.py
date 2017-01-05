@@ -1,5 +1,67 @@
 from pygraph.classes.digraph import digraph
-from metadata.static_analysis.dominators import DominatorTreeBuilder
+from metadata.static_analysis.dominators import build_dominator_tree
+
+
+def build_dominance_frontier(graph):
+    """
+    Finds the dominance frontiers for an smart phi function placement in the SSA form.
+
+    It assumes that the CFGBlocks have already their dominators computed
+    """
+    if not graph.has_computed_dominators:
+        raise RuntimeError("Cannot compute dominance frontier in a graph without computed dominators")
+
+    for n in graph:
+        if len(n.predecessors) > 0:
+            for p in n.predecessors:
+                runner = p
+                while runner != n.idom:
+                    runner.dom_frontier.append(n)
+                    runner = runner.idom
+
+
+def place_phi_nodes(graph):
+    """
+    Find those variables that are used in more than one block
+    """
+    blocks = {}
+    globals_vars = []
+    for node in graph:
+        var_kill = []
+        for inst in node.instructions:
+            read = inst.registers_read()
+            written = inst.registers_written()
+
+            for r in read:
+                if r not in globals_vars and r not in var_kill:
+                    globals_vars.append(r)
+            for w in written:
+                if w not in var_kill:
+                    var_kill.append(w)
+                if w in blocks:
+                    if node not in blocks[w]:
+                        blocks[w].append(node)
+                else:
+                    blocks[w] = [node]
+
+    # place the nodes
+    for x in globals_vars:
+        if x in blocks:
+            work_list = blocks[x]
+            i = 0
+            while i < len(work_list):
+                b = work_list[i]
+                for d in b.dom_frontier:
+                    j, k = 0, list(d.phi_functions.keys())
+                    while j < len(d.phi_functions) and k[j][0] != x:
+                        j += 1
+                    if i >= len(d.phi_functions):
+                        d.phi_functions[(x, 0)] = []
+                        if d not in work_list:
+                            work_list.append(d)
+                i += 1
+
+    return globals_vars
 
 
 class SSAFormBuilder(object):
@@ -14,12 +76,11 @@ class SSAFormBuilder(object):
 
     def build(self):
         # Compute the Dominators tree
-        DominatorTreeBuilder(self._graph, self._root).build()
+        build_dominator_tree(self._graph, self._root)
         # Compute dominance frontiers
-        self._dominance_frontiers()
-
+        build_dominance_frontier(self._graph)
         # Find global names tpo minimize phi function emplacement
-        global_vars = self._place_phi_nodes()
+        global_vars = place_phi_nodes(self._graph)
 
         self._rename_vars(global_vars)
 
@@ -36,57 +97,7 @@ class SSAFormBuilder(object):
         return d
 
     def _place_phi_nodes(self):
-        # Find those variables that are used in more than one block
-        blocks = {}
-        globals_vars = []
-        for node in self._graph:
-            var_kill = []
-            for inst in node.instructions:
-                read = inst.registers_read()
-                written = inst.registers_written()
-
-                for r in read:
-                    if r not in globals_vars and r not in var_kill:
-                        globals_vars.append(r)
-                for w in written:
-                    if w not in var_kill:
-                        var_kill.append(w)
-                    if w in blocks:
-                        if node not in blocks[w]:
-                            blocks[w].append(node)
-                    else:
-                        blocks[w] = [node]
-
-        # place the nodes
-        for x in globals_vars:
-            if x in blocks:
-                work_list = blocks[x]
-                i = 0
-                while i < len(work_list):
-                    b = work_list[i]
-                    for d in b.dom_frontier:
-                        j, k = 0, list(d.phi_functions.keys())
-                        while j < len(d.phi_functions) and k[j][0] != x:
-                            j += 1
-                        if i >= len(d.phi_functions):
-                            d.phi_functions[(x, 0)] = []
-                            if d not in work_list:
-                                work_list.append(d)
-                    i += 1
-
-        return globals_vars
-
-    def _dominance_frontiers(self):
-        """
-        Finds the dominance frontiers for an smart phi function placement in the SSA form
-        """
-        for n in self._graph:
-            if len(n.predecessors) > 0:
-                for p in n.predecessors:
-                    runner = p
-                    while runner != n.idom:
-                        runner.dom_frontier.append(n)
-                        runner = runner.idom
+        pass
 
     @staticmethod
     def _new_name(n, counter, stack):

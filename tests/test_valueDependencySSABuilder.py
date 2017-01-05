@@ -1,10 +1,9 @@
 import os
 from unittest import TestCase
-from pygraph.classes.digraph import digraph
 
 from dot.dotio import write
-from metadata.analysis import ARMControlFlowGraphBuilder, DominatorTreeBuilder, SSAFormBuilder
 from metadata.disassembler_readers import TextDisassembleReader
+from metadata.static_analysis.analysis import ARMControlFlowGraphBuilder, DominatorTreeBuilder, SSAFormBuilder
 
 
 class TestValueDependencySSABuilder(TestCase):

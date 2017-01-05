@@ -1,8 +1,9 @@
 import os
 from unittest import TestCase
-from metadata.analysis import ARMControlFlowGraphBuilder, CFGBlock
-from metadata.disassembler_readers import TextDisassembleReader
+
 from dot.dotio import write
+from metadata.disassembler_readers import TextDisassembleReader
+from metadata.static_analysis.analysis import ARMControlFlowGraphBuilder, CFGBlock
 
 
 class TestARMControlFlowGraphBuilder(TestCase):
@@ -33,20 +34,18 @@ class TestARMControlFlowGraphBuilder(TestCase):
         self.assertTrue(18 < len(cfg.edges()))
         self.assertTrue(15 < len(cfg.nodes()))
         self.assertEqual(2, self._count_conditional_nodes(cfg))
-
         # This one is to catch a bug
         self.assertEqual(0, len(builder.root_node.instructions))
-
         self._assert_instructions_are_not_repeated(cfg, instructions)
 
     def test_build_complex(self):
         instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly_cfg.armasm')).read()
         cfg = ARMControlFlowGraphBuilder(instructions).build()
-        print(write(cfg))
+        # print(write(cfg))
         self.assertTrue(10 < len(cfg.edges()))
         self.assertTrue(9 < len(cfg.nodes()))
         self.assertEqual(3, self._count_conditional_nodes(cfg))
-
+        # This one is to catch a bug
         self._assert_instructions_are_not_repeated(cfg, instructions)
 
 

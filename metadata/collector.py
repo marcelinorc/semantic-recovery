@@ -1,7 +1,3 @@
-from metadata.analysis import SSAFormBuilder
-from metadata.darm_instruction import DARMInstruction
-
-
 class MetadataCollector(object):
 
     """

@@ -13,6 +13,24 @@ class ARMControlFlowGraph(digraph):
         self._root_node = CFGBlock([], kind=CFGBlock.ROOT)
         self._pending_jumps = {}
         self._has_computed_dominators = False
+        self._has_computed_dominance_frontier = False
+        self._last_idx = 0
+
+        self.node_printer = None
+
+
+    def get_dict_nodes(self):
+        """
+        Returns a dictionary containing the nodes indexed by their idx value
+        """
+        d = {}
+        for n in self:
+            d[n.idx] = n
+        return d
+
+    @property
+    def has_computed_dominance_frontier(self):
+        return self._has_computed_dominance_frontier
 
     @property
     def has_computed_dominators(self):
@@ -30,6 +48,9 @@ class ARMControlFlowGraph(digraph):
         """
         Convenience method
         """
+        self._last_idx += 1
+        n.idx = self._last_idx
+        n.printer = self.node_printer
         if not n in self:
             self.add_node(n)
         return n
@@ -259,10 +280,14 @@ class CFGBlock(object):
 
     _GLOBAL_IDX = 0
 
-    def __init__(self, instructions, kind=BLOCK):
+    def __init__(self, instructions, kind=BLOCK, index=_GLOBAL_IDX):
 
         CFGBlock._GLOBAL_IDX += 1
-        self._globalid = CFGBlock._GLOBAL_IDX
+        # An index given to the node
+        self._idx = index
+
+        # Object in charge of printing this node
+        self.printer = None
 
         # Data for special kinds of nodes
         self._kind = kind
@@ -308,17 +333,20 @@ class CFGBlock(object):
         return k
 
     def __str__(self):
+        if self.printer:
+            return self.printer.print(self)
+
         if self._kind == CFGBlock.ROOT:
-            return "{}-ROOT".format(self._globalid)
+            return "{}-ROOT".format(self._idx)
         elif self._kind == CFGBlock.COND:
-            return " <{}> ".format(self._globalid)
+            return " <{}> ".format(self._idx)
         elif self._kind == CFGBlock.UNKNOWN_BRANCH:
-            return "{}-UNKWN".format(self._globalid)
+            return "{}-UNKWN".format(self._idx)
         elif self._kind == CFGBlock.END:
-            return "{}-END".format(self._globalid)
+            return "{}-END".format(self._idx)
         if self.first == self.last:
-            return "{}-{}".format(self._globalid, self.first)
-        return "{}- {} ... {}".format(self._globalid, self.first, self.last)
+            return "{}-{}".format(self._idx, self.first)
+        return "{}- {} ... {}".format(self._idx, self.first, self.last)
 
     def __repr__(self):
         return str(self)
@@ -354,3 +382,10 @@ class CFGBlock(object):
         """
         return False if len(self.instructions) == 0 else self.instructions[-1].is_branch_with_link
 
+    @property
+    def idx(self):
+        return self._idx
+
+    @idx.setter
+    def idx(self, v):
+        self._idx = v

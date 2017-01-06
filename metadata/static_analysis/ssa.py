@@ -16,14 +16,20 @@ def build_dominance_frontier(graph):
             for p in n.predecessors:
                 runner = p
                 while runner != n.idom:
-                    runner.dom_frontier.append(n)
+                    if n not in runner.dom_frontier:
+                        runner.dom_frontier.append(n)
                     runner = runner.idom
+
+    graph._has_computed_dominance_frontier = True
 
 
 def place_phi_nodes(graph):
     """
     Find those variables that are used in more than one block
     """
+    if not graph.has_computed_dominators:
+        raise RuntimeError("Cannot compute dominance PHI functions without dominance frontiers")
+
     blocks = {}
     globals_vars = []
     for node in graph:

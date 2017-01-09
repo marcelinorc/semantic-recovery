@@ -1,7 +1,8 @@
 from unittest import TestCase
 
-from metadata.darm_instruction import DARMInstruction
-from metadata.instruction import Instruction
+from architecture.arm_instruction import AReg
+from architecture.darm_instruction import DARMInstruction
+from architecture.instruction import Instruction
 
 
 class TestDARMInstruction(TestCase):
@@ -14,14 +15,44 @@ class TestDARMInstruction(TestCase):
 
     def test_reglist(self):
         d = DARMInstruction("03 30 8f e0", Instruction.HEX_STR)
-        self.assertTrue(15 in d.registers_used())
-        self.assertTrue(3 in d.registers_used())
+        self.assertTrue(AReg.R15 in d.registers_used())
+        self.assertTrue(AReg.R3 in d.registers_used())
 
     def test_reg_read_write_pop_push(self):
         darm = DARMInstruction("f0 87 bd 08", Instruction.HEX_STR)
-        self.assertEqual(1, len(darm.registers_read()))
-        self.assertEqual(13, darm.registers_read()[0])
+        self.assertEqual(2, len(darm.registers_read()))
+        self.assertTrue(AReg.R13 in darm.registers_read())
+        self.assertTrue(AReg.CPSR in darm.registers_read())
         self.assertEqual(8, len(darm.registers_written()))
+
+    def test_registers_written_ldr(self):
+        # ldr	r5, [pc, #44]
+        arm1 = DARMInstruction("2c 50 9f e5", Instruction.HEX_STR)
+        r1 = arm1.registers_written()
+        self.assertTrue(AReg.R5 in r1)
+        # ldr	r6, [pc, #72]
+        arm2 = DARMInstruction("48 60 9f e5", Instruction.HEX_STR)
+        r2 = arm2.registers_written()
+        self.assertTrue(AReg.R6 in r2)
+
+    def test_read_from_memory(self):
+        # ldr	r6, [pc, #72]	; 0x000107f0 <$d>
+        self.assertTrue(AReg.STORE in DARMInstruction("48 60 9f e5", Instruction.HEX_STR).storages_read())
+        # popeq	{r4, r5, r6, r7, r8, r9, sl, pc}
+        self.assertTrue(AReg.STORE in DARMInstruction("f0 87 bd 08", Instruction.HEX_STR).storages_read())
+        # ldr	r3, [r5], #4
+        self.assertTrue(AReg.STORE in DARMInstruction("04 30 95 e4", Instruction.HEX_STR).storages_read())
+        # pop	{r4, r5, r6, r7, r8, r9, sl, pc}
+        self.assertTrue(AReg.STORE in DARMInstruction("f0 87 bd e8", Instruction.HEX_STR).storages_read())
+
+        # push	{r4, r5, r6, r7, r8, r9, sl, lr}
+        self.assertFalse(AReg.STORE in DARMInstruction("f0 47 2d e9", Instruction.HEX_STR).storages_read())
+        # mov	r1, r8
+        self.assertFalse(AReg.STORE in DARMInstruction("08 10 a0 e1", Instruction.HEX_STR).storages_read())
+
+    def test_writes_to_memory(self):
+        # push	{r4, r5, r6, r7, r8, r9, sl, lr}
+        self.assertTrue(AReg.STORE in DARMInstruction("f0 47 2d e9", Instruction.HEX_STR).storages_written())
 
     def test_is_branch(self):
             self.assertTrue(DARMInstruction("f7 ff ff 1a", Instruction.HEX_STR).is_branch)

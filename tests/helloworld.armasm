@@ -1,0 +1,246 @@
+.init:00010544 <_init>:
+                           .init:00010544 08 40 2d e9                      push	{r3, lr}
+                           .init:00010548 33 00 00 eb                      bl	0x0001061c <call_weak_fn>
+
+.init:0001054c <$a>:
+                           .init:0001054c 08 80 bd e8                      pop	{r3, pc}
+
+.plt:00010550 <$a>:
+                            .plt:00010550 04 e0 2d e5                      push	{lr}		; (str lr, [sp, #-4]!)
+                            .plt:00010554 04 e0 9f e5                      ldr	lr, [pc, #4]	; 0x00010560 <$d>
+                            .plt:00010558 0e e0 8f e0                      add	lr, pc, lr
+                            .plt:0001055c 08 f0 be e5                      ldr	pc, [lr, #8]!
+
+.plt:00010560 <$d>:
+                            .plt:00010560 ec 03 01 00                      andeq	r0, r1, ip, ror #7
+
+.plt:00010564 <$t>:
+                            .plt:00010564 78 47 c0 46                      		; <UNDEFINED> instruction: 0x46c04778
+
+.plt:00010568 <$a>:
+                            .plt:00010568 00 c6 8f e2                      add	ip, pc, #0, 12
+                            .plt:0001056c 10 ca 8c e2                      add	ip, ip, #16, 20	; 0x10000
+                            .plt:00010570 e8 f3 bc e5                      ldr	pc, [ip, #1000]!	; 0x3e8
+                            .plt:00010574 00 c6 8f e2                      add	ip, pc, #0, 12
+                            .plt:00010578 10 ca 8c e2                      add	ip, ip, #16, 20	; 0x10000
+                            .plt:0001057c e0 f3 bc e5                      ldr	pc, [ip, #992]!	; 0x3e0
+                            .plt:00010580 00 c6 8f e2                      add	ip, pc, #0, 12
+                            .plt:00010584 10 ca 8c e2                      add	ip, ip, #16, 20	; 0x10000
+                            .plt:00010588 d8 f3 bc e5                      ldr	pc, [ip, #984]!	; 0x3d8
+
+.plt:0001058c <$t>:
+                            .plt:0001058c 78 47 c0 46                      		; <UNDEFINED> instruction: 0x46c04778
+
+.plt:00010590 <$a>:
+                            .plt:00010590 00 c6 8f e2                      add	ip, pc, #0, 12
+                            .plt:00010594 10 ca 8c e2                      add	ip, ip, #16, 20	; 0x10000
+                            .plt:00010598 cc f3 bc e5                      ldr	pc, [ip, #972]!	; 0x3cc
+
+.plt:0001059c <$t>:
+                            .plt:0001059c 78 47 c0 46                      		; <UNDEFINED> instruction: 0x46c04778
+
+.plt:000105a0 <$a>:
+                            .plt:000105a0 00 c6 8f e2                      add	ip, pc, #0, 12
+                            .plt:000105a4 10 ca 8c e2                      add	ip, ip, #16, 20	; 0x10000
+                            .plt:000105a8 c0 f3 bc e5                      ldr	pc, [ip, #960]!	; 0x3c0
+
+.plt:000105ac <$t>:
+                            .plt:000105ac 78 47 c0 46                      		; <UNDEFINED> instruction: 0x46c04778
+
+.plt:000105b0 <$a>:
+                            .plt:000105b0 00 c6 8f e2                      add	ip, pc, #0, 12
+                            .plt:000105b4 10 ca 8c e2                      add	ip, ip, #16, 20	; 0x10000
+                            .plt:000105b8 b4 f3 bc e5                      ldr	pc, [ip, #948]!	; 0x3b4
+                            .plt:000105bc 00 c6 8f e2                      add	ip, pc, #0, 12
+                            .plt:000105c0 10 ca 8c e2                      add	ip, ip, #16, 20	; 0x10000
+                            .plt:000105c4 ac f3 bc e5                      ldr	pc, [ip, #940]!	; 0x3ac
+                            .plt:000105c8 00 c6 8f e2                      add	ip, pc, #0, 12
+                            .plt:000105cc 10 ca 8c e2                      add	ip, ip, #16, 20	; 0x10000
+                            .plt:000105d0 a4 f3 bc e5                      ldr	pc, [ip, #932]!	; 0x3a4
+                            .plt:000105d4 00 c6 8f e2                      add	ip, pc, #0, 12
+                            .plt:000105d8 10 ca 8c e2                      add	ip, ip, #16, 20	; 0x10000
+                            .plt:000105dc 9c f3 bc e5                      ldr	pc, [ip, #924]!	; 0x39c
+
+.text:000105e0 <_start>:
+                           .text:000105e0 00 b0 a0 e3                      mov	fp, #0
+                           .text:000105e4 00 e0 a0 e3                      mov	lr, #0
+                           .text:000105e8 04 10 9d e4                      pop	{r1}		; (ldr r1, [sp], #4)
+                           .text:000105ec 0d 20 a0 e1                      mov	r2, sp
+                           .text:000105f0 04 20 2d e5                      push	{r2}		; (str r2, [sp, #-4]!)
+                           .text:000105f4 04 00 2d e5                      push	{r0}		; (str r0, [sp, #-4]!)
+                           .text:000105f8 10 c0 9f e5                      ldr	ip, [pc, #16]	; 0x00010610 <$d>
+                           .text:000105fc 04 c0 2d e5                      push	{ip}		; (str ip, [sp, #-4]!)
+                           .text:00010600 0c 00 9f e5                      ldr	r0, [pc, #12]	; 0x00010614
+                           .text:00010604 0c 30 9f e5                      ldr	r3, [pc, #12]	; 0x00010618
+                           .text:00010608 eb ff ff eb                      bl	0x000105bc
+                           .text:0001060c db ff ff eb                      bl	0x00010580
+
+.text:00010610 <$d>:
+                           .text:00010610 fc 07 01 00                      strdeq	r0, [r1], -ip
+                           .text:00010614 05 07 01 00                      andeq	r0, r1, r5, lsl #14
+                           .text:00010618 90 07 01 00                      muleq	r1, r0, r7
+
+.text:0001061c <call_weak_fn>:
+                           .text:0001061c 14 30 9f e5                      ldr	r3, [pc, #20]	; 0x00010638 <$d>
+                           .text:00010620 14 20 9f e5                      ldr	r2, [pc, #20]	; 0x0001063c
+                           .text:00010624 03 30 8f e0                      add	r3, pc, r3
+                           .text:00010628 02 20 93 e7                      ldr	r2, [r3, r2]
+                           .text:0001062c 00 00 52 e3                      cmp	r2, #0
+                           .text:00010630 1e ff 2f 01                      bxeq	lr
+                           .text:00010634 e3 ff ff ea                      b	0x000105c8
+
+.text:00010638 <$d>:
+                           .text:00010638 20 03 01 00                      andeq	r0, r1, r0, lsr #6
+                           .text:0001063c 30 00 00 00                      andeq	r0, r0, r0, lsr r0
+
+.text:00010640 <deregister_tm_clones>:
+                           .text:00010640 1c 00 9f e5                      ldr	r0, [pc, #28]	; 0x00010664 <$d>
+                           .text:00010644 1c 30 9f e5                      ldr	r3, [pc, #28]	; 0x00010668
+                           .text:00010648 00 30 43 e0                      sub	r3, r3, r0
+                           .text:0001064c 06 00 53 e3                      cmp	r3, #6
+                           .text:00010650 1e ff 2f 91                      bxls	lr
+                           .text:00010654 10 30 9f e5                      ldr	r3, [pc, #16]	; 0x0001066c
+                           .text:00010658 00 00 53 e3                      cmp	r3, #0
+                           .text:0001065c 1e ff 2f 01                      bxeq	lr
+                           .text:00010660 13 ff 2f e1                      bx	r3
+
+.text:00010664 <$d>:
+                           .text:00010664 88 09 02 00                      andeq	r0, r2, r8, lsl #19
+                           .text:00010668 8b 09 02 00                      andeq	r0, r2, fp, lsl #19
+                           .text:0001066c 00 00 00 00                      andeq	r0, r0, r0
+
+.text:00010670 <register_tm_clones>:
+                           .text:00010670 24 00 9f e5                      ldr	r0, [pc, #36]	; 0x0001069c <$d>
+                           .text:00010674 24 10 9f e5                      ldr	r1, [pc, #36]	; 0x000106a0
+                           .text:00010678 00 10 41 e0                      sub	r1, r1, r0
+                           .text:0001067c 41 11 a0 e1                      asr	r1, r1, #2
+                           .text:00010680 a1 1f 81 e0                      add	r1, r1, r1, lsr #31
+                           .text:00010684 c1 10 b0 e1                      asrs	r1, r1, #1
+                           .text:00010688 1e ff 2f 01                      bxeq	lr
+                           .text:0001068c 10 30 9f e5                      ldr	r3, [pc, #16]	; 0x000106a4
+                           .text:00010690 00 00 53 e3                      cmp	r3, #0
+                           .text:00010694 1e ff 2f 01                      bxeq	lr
+                           .text:00010698 13 ff 2f e1                      bx	r3
+
+.text:0001069c <$d>:
+                           .text:0001069c 88 09 02 00                      andeq	r0, r2, r8, lsl #19
+                           .text:000106a0 88 09 02 00                      andeq	r0, r2, r8, lsl #19
+                           .text:000106a4 00 00 00 00                      andeq	r0, r0, r0
+
+.text:000106a8 <__do_global_dtors_aux>:
+                           .text:000106a8 10 40 2d e9                      push	{r4, lr}
+                           .text:000106ac 18 40 9f e5                      ldr	r4, [pc, #24]	; 0x000106cc <$d>
+                           .text:000106b0 00 30 d4 e5                      ldrb	r3, [r4]
+                           .text:000106b4 00 00 53 e3                      cmp	r3, #0
+                           .text:000106b8 10 80 bd 18                      popne	{r4, pc}
+                           .text:000106bc df ff ff eb                      bl	0x00010640 <deregister_tm_clones>
+                           .text:000106c0 01 30 a0 e3                      mov	r3, #1
+                           .text:000106c4 00 30 c4 e5                      strb	r3, [r4]
+                           .text:000106c8 10 80 bd e8                      pop	{r4, pc}
+
+.text:000106cc <$d>:
+                           .text:000106cc 14 0a 02 00                      andeq	r0, r2, r4, lsl sl
+
+.text:000106d0 <frame_dummy>:
+                           .text:000106d0 24 00 9f e5                      ldr	r0, [pc, #36]	; 0x000106fc <$d>
+                           .text:000106d4 00 30 90 e5                      ldr	r3, [r0]
+                           .text:000106d8 00 00 53 e3                      cmp	r3, #0
+                           .text:000106dc 05 00 00 0a                      beq	0x000106f8
+                           .text:000106e0 18 30 9f e5                      ldr	r3, [pc, #24]	; 0x00010700
+                           .text:000106e4 00 00 53 e3                      cmp	r3, #0
+                           .text:000106e8 02 00 00 0a                      beq	0x000106f8
+                           .text:000106ec 10 40 2d e9                      push	{r4, lr}
+                           .text:000106f0 33 ff 2f e1                      blx	r3
+                           .text:000106f4 10 40 bd e8                      pop	{r4, lr}
+                           .text:000106f8 dc ff ff ea                      b	0x00010670 <register_tm_clones>
+
+.text:000106fc <$d>:
+                           .text:000106fc 48 08 02 00                      andeq	r0, r2, r8, asr #16
+                           .text:00010700 00 00 00 00                      andeq	r0, r0, r0
+
+.text:00010704 <main>:
+                           .text:00010704 80 b5 00 af                      svcge	0x0000b580
+                           .text:00010708 07 4a 08 4b                      blmi	0x00222f2c
+                           .text:0001070c 11 00 18 00                      andseq	r0, r8, r1, lsl r0
+                           .text:00010710 ff f7 3c ff                      		; <UNDEFINED> instruction: 0xff3cf7ff
+                           .text:00010714 02 00 06 4b                      blmi	0x00190724
+                           .text:00010718 19 00 10 00                      andseq	r0, r0, r9, lsl r0
+                           .text:0001071c ff f7 3e ff                      		; <UNDEFINED> instruction: 0xff3ef7ff
+                           .text:00010720 00 23 18 00                      andseq	r2, r8, r0, lsl #6
+                           .text:00010724 bd 46 80 bd                      stclt	6, cr4, [r0, #756]	; 0x2f4
+
+.text:00010728 <$d>:
+                           .text:00010728 10 08 01 00                      andeq	r0, r1, r0, lsl r8
+                           .text:0001072c 88 09 02 00                      andeq	r0, r2, r8, lsl #19
+                           .text:00010730 74 05 01 00                      andeq	r0, r1, r4, ror r5
+
+.text:00010734 <_Z41__static_initialization_and_destruction_0ii>:
+                           .text:00010734 80 b5 82 b0                      addlt	fp, r2, r0, lsl #11
+                           .text:00010738 00 af 78 60                      rsbsvs	sl, r8, r0, lsl #30
+                           .text:0001073c 39 60 7b 68                      ldmdavs	fp!, {r0, r3, r4, r5, sp, lr}^
+                           .text:00010740 01 2b 0d d1                      tstle	sp, r1, lsl #22
+                           .text:00010744 3b 68 08 4a                      bmi	0x0022a838
+                           .text:00010748 93 42 09 d1                      		; <UNDEFINED> instruction: 0xd1094293
+                           .text:0001074c 07 4b 18 00                      andseq	r4, r8, r7, lsl #22
+                           .text:00010750 ff f7 2c ff                      		; <UNDEFINED> instruction: 0xff2cf7ff
+                           .text:00010754 06 4a 07 49                      stmdbmi	r7, {r1, r2, r9, fp, lr}
+                           .text:00010758 04 4b 18 00                      andseq	r4, r8, r4, lsl #22
+                           .text:0001075c ff f7 02 ff                      		; <UNDEFINED> instruction: 0xff02f7ff
+                           .text:00010760 c0 46 bd 46                      ldrtmi	r4, [sp], r0, asr #13
+                           .text:00010764 02 b0 80 bd                      stclt	0, cr11, [r0, #8]
+
+.text:00010768 <$d>:
+                           .text:00010768 ff ff 00 00                      strdeq	pc, [r0], -pc	; <UNPREDICTABLE>
+                           .text:0001076c 18 0a 02 00                      andeq	r0, r2, r8, lsl sl
+                           .text:00010770 84 09 02 00                      andeq	r0, r2, r4, lsl #19
+                           .text:00010774 d4 05 01 00                      ldrdeq	r0, [r1], -r4
+
+.text:00010778 <_GLOBAL__sub_I_main>:
+                           .text:00010778 80 b5 00 af                      svcge	0x0000b580
+                           .text:0001077c 03 4b 19 00                      andseq	r4, r9, r3, lsl #22
+                           .text:00010780 01 20 ff f7                      		; <UNDEFINED> instruction: 0xf7ff2001
+                           .text:00010784 d7 ff bd 46                      ssatmi	pc, #30, r7, asr #31	; <UNPREDICTABLE>
+                           .text:00010788 80 bd c0 46                      strbmi	fp, [r0], r0, lsl #27
+
+.text:0001078c <$d>:
+                           .text:0001078c ff ff 00 00                      strdeq	pc, [r0], -pc	; <UNPREDICTABLE>
+
+.text:00010790 <__libc_csu_init>:
+                           .text:00010790 f0 47 2d e9                      push	{r4, r5, r6, r7, r8, r9, sl, lr}
+                           .text:00010794 00 70 a0 e1                      mov	r7, r0
+                           .text:00010798 01 80 a0 e1                      mov	r8, r1
+                           .text:0001079c 02 90 a0 e1                      mov	r9, r2
+                           .text:000107a0 48 60 9f e5                      ldr	r6, [pc, #72]	; 0x000107f0 <$d>
+                           .text:000107a4 66 ff ff eb                      bl	0x00010544 <_init>
+                           .text:000107a8 44 30 9f e5                      ldr	r3, [pc, #68]	; 0x000107f4
+                           .text:000107ac 06 60 8f e0                      add	r6, pc, r6
+                           .text:000107b0 03 30 8f e0                      add	r3, pc, r3
+                           .text:000107b4 03 60 46 e0                      sub	r6, r6, r3
+                           .text:000107b8 46 61 b0 e1                      asrs	r6, r6, #2
+                           .text:000107bc f0 87 bd 08                      popeq	{r4, r5, r6, r7, r8, r9, sl, pc}
+                           .text:000107c0 00 40 a0 e3                      mov	r4, #0
+                           .text:000107c4 2c 50 9f e5                      ldr	r5, [pc, #44]	; 0x000107f8
+                           .text:000107c8 05 50 8f e0                      add	r5, pc, r5
+                           .text:000107cc 01 40 84 e2                      add	r4, r4, #1
+                           .text:000107d0 04 30 95 e4                      ldr	r3, [r5], #4
+                           .text:000107d4 09 20 a0 e1                      mov	r2, r9
+                           .text:000107d8 08 10 a0 e1                      mov	r1, r8
+                           .text:000107dc 07 00 a0 e1                      mov	r0, r7
+                           .text:000107e0 33 ff 2f e1                      blx	r3
+                           .text:000107e4 06 00 54 e1                      cmp	r4, r6
+                           .text:000107e8 f7 ff ff 1a                      bne	0x000107cc
+                           .text:000107ec f0 87 bd e8                      pop	{r4, r5, r6, r7, r8, r9, sl, pc}
+
+.text:000107f0 <$d>:
+                           .text:000107f0 90 00 01 00                      muleq	r1, r0, r0
+                           .text:000107f4 84 00 01 00                      andeq	r0, r1, r4, lsl #1
+                           .text:000107f8 6c 00 01 00                      andeq	r0, r1, ip, rrx
+
+.text:000107fc <__libc_csu_fini>:
+                           .text:000107fc 1e ff 2f e1                      bx	lr
+
+.fini:00010800 <_fini>:
+                           .fini:00010800 08 40 2d e9                      push	{r3, lr}
+
+.fini:00010804 <$a>:
+                           .fini:00010804 08 80 bd e8                      pop	{r3, pc}

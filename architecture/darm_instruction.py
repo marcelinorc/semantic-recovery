@@ -1,6 +1,7 @@
+from architecture.arm_instruction import AOpType, AReg
+from architecture.bits import Bits
+from architecture.instruction import Instruction
 from darm import darm
-from metadata.bits import Bits
-from metadata.instruction import Instruction
 
 
 class DARMInstruction(Instruction):
@@ -57,10 +58,17 @@ class DARMInstruction(Instruction):
         Returns registers written
         :return: A list of the index of the registers written
         """
+
         result = []
+
+        # special cases
+        if self._inst_is(['tst', 'teq', 'cmp', 'cmn']):
+            result.append(AReg.CPSR)
+        if self._darm.Rt:
+            result.append(self._darm.Rt.idx)
         if self._darm.Rd:
             result.append(self._darm.Rd.idx)
-        if self._darm.reglist.reglist > 0:
+        if self._darm.reglist.reglist > 0 and not self._inst_is('push'):
             result.extend(Instruction._get_register_list(self._darm.reglist.reglist))
         return result
 
@@ -76,7 +84,34 @@ class DARMInstruction(Instruction):
             result.append(self._darm.Rs.idx)
         if self._darm.Rm:
             result.append(self._darm.Rm.idx)
+
+        if self.conditional_field != AOpType.COND_ALWAYS:
+            result.append(AReg.CPSR)
+
+        if self._inst_is('push'):
+            if self._darm.reglist.reglist > 0:
+                result.extend(Instruction._get_register_list(self._darm.reglist.reglist))
+
         return result
+
+    def _inst_is(self, inst):
+        str_lw = str(self._darm.instr).lower()
+        if type(inst) == list:
+            for i in inst:
+                if i in str_lw:
+                    return True
+        else:
+            return inst in str_lw
+
+    def _writes_to_memory(self):
+        # I'll use this cheap trick to avoid having to parse the instruction myself
+        p = str(self._darm).split(',')
+        return  len(p) > 1  and ('[' in p[0] or ']' in p[0] or self._inst_is('push'))
+
+    def _read_from_memory(self):
+        # I'll use this cheap trick to avoid having to parse the instruction myself
+        p = str(self._darm).split(',')
+        return len(p) > 1 and (('[' in p[1] or ']' in p[1]) or self._inst_is('pop'))
 
     @property
     def is_branch(self):

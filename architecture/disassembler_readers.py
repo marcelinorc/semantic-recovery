@@ -1,7 +1,7 @@
 """
 Readers of disassemble files
 """
-from metadata.darm_instruction import DARMInstruction
+from architecture.darm_instruction import DARMInstruction
 
 
 class DisassembleReader (object):
@@ -44,7 +44,10 @@ class TextDisassembleReader(DisassembleReader):
         result = []
 
         for line in open(self._filename):
-            e = line.rstrip('\n').split(".text:", 1)[1].split("  ", 1)[0].split(" ", 1)
-            result.append(DARMInstruction(e[1], position=int(e[0], 16)))
+            if line[0] == ' ':
+                e = line.rstrip('\n').split(":", 1)[1].split("  ", 1)[0].split(" ", 1)
+                result.append(DARMInstruction(e[1], position=int(e[0], 16)))
+            else:
+                print("Not an instruction: " + line)
 
         return result

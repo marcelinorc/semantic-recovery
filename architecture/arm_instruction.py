@@ -1,5 +1,32 @@
-from metadata.bits import Bits
-from metadata.instruction import Instruction
+from architecture.bits import Bits
+
+from architecture.instruction import Instruction
+
+class AReg:
+    """
+    ARM registers names. The cryptic AOp name is to have short code
+    """
+    R1 = A1 = 1
+    R2 = A2 = 2
+    R3 = A3 = 3
+    R4 = V1 = 4
+    R5 = V2 = 5
+    R6 = V3 = 6
+    R7 = WR = V4 = 7
+    R8 = V5 = 8
+    R9 = SB = V6 = 9
+    R10 = SL = V7 = 10
+    R11 = FP = V8 = 11
+    R12 = IP = 12
+    R13 = SP = 13
+    R14 = LR = 14
+    R15 = PC = 15
+    STORE = 16
+    CPSR = 17
+
+    STORAGE_NAMES = ["R{}".format(x) for x in range(0, 16)]
+    STORAGE_NAMES.extend(['STORE', 'CPSR'])
+    STORAGE_COUNT = len(STORAGE_NAMES)
 
 class AOp(object):
     """
@@ -22,15 +49,13 @@ class AOp(object):
     MOV = 0b1101 << 21
     MVN = 0b1111 << 21
 
-class ACond(object):
-    ALWAYS = 0b1110
-
 
 class AOpType(object):
     """
     ARM Opcodes types. The cryptic AOpType name is to have short code
     """
     ALWAYS = Bits.set(31, 29)
+    COND_ALWAYS = 0b1110
 
     LOAD_STORE_MULTIPLE = Bits.on(27)
     LOAD_STORE = Bits.on(26)

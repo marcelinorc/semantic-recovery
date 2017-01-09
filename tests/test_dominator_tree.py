@@ -1,10 +1,9 @@
 import os
 from unittest import TestCase
-
+from architecture.disassembler_readers import TextDisassembleReader
 from dot.dotio import write
-from metadata.disassembler_readers import TextDisassembleReader
-from metadata.static_analysis.cfg import ARMControlFlowGraph
-from metadata.static_analysis.dominators import build_dominator_tree
+from static_analysis.cfg import ARMControlFlowGraph
+from static_analysis.dominators import build_dominator_tree
 
 
 class TestDominatorTreeBuilder(TestCase):

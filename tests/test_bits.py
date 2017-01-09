@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from metadata.bits import Bits
+from architecture.bits import Bits
 
 
 class TestBits(TestCase):

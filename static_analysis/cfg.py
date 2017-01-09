@@ -1,5 +1,6 @@
 from pygraph.classes.digraph import digraph
-from metadata.arm_instruction import AOpType
+
+from architecture.arm_instruction import AOpType
 
 
 class ARMControlFlowGraph(digraph):
@@ -102,7 +103,7 @@ class ARMControlFlowGraph(digraph):
         b = self._add_node(CFGBlock(inst))
         r = self
         # Case 2.1 the new condition is not ALWAYS, therefore a new conditional node must be created
-        if inst.conditional_field != (AOpType.ALWAYS >> 28):
+        if inst.conditional_field != (AOpType.COND_ALWAYS):
             # Create the new conditional field
             new_cond = self._add_node(CFGBlock([], kind=CFGBlock.COND))
             # Add an outgoing edge to the new block from the conditional
@@ -203,6 +204,22 @@ class ARMControlFlowGraph(digraph):
         for s in sources:
             if not self.has_edge((s, dest)):
                 self.add_edge((s, dest))
+
+    def remove_conditionals(self):
+        """
+        Modifies the graph, removing al conditional nodes, which may improve the SSA forming
+        """
+        rem = []
+        for n in self:
+            if n.kind == CFGBlock.COND:
+                rem.append(n)
+                for p in self.incidents(n):
+                    for s in self.neighbors(n):
+                        if not self.has_edge((p, s)):
+                            self.add_edge((p, s))
+
+        for n in rem:
+            self.del_node(n)
 
     def build(self, count=-1):
         """

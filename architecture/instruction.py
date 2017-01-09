@@ -1,5 +1,6 @@
 import re
-from metadata.bits import Bits
+
+from architecture.bits import Bits
 
 
 class Instruction(object):
@@ -78,6 +79,12 @@ class Instruction(object):
         """
         return self._position
 
+    def _read_from_memory(self):
+        pass
+
+    def _writes_to_memory(self):
+        pass
+
     def registers_used(self):
         pass
 
@@ -86,6 +93,33 @@ class Instruction(object):
 
     def registers_written(self):
         pass
+
+    def storages_used(self):
+        """
+        An storage is either a register or the system memory
+        """
+        result = []
+        result.extend(self.registers_used())
+        if self._writes_to_memory() or self._read_from_memory():
+            result.append(16)
+        return result
+
+    def storages_written(self):
+        """
+        An storage is either a register or the system memory
+        """
+        result = []
+        result.extend(self.registers_written())
+        if self._writes_to_memory():
+            result.append(16)
+        return result
+
+    def storages_read(self):
+        result = []
+        result.extend(self.registers_read())
+        if self._read_from_memory():
+            result.append(16)
+        return result
 
     @property
     def is_branch(self):

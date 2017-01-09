@@ -1,8 +1,9 @@
 import os
 from unittest import TestCase
 
-from metadata.disassembler_readers import TextDisassembleReader
-from metadata.instruction import Instruction
+from architecture.disassembler_readers import TextDisassembleReader
+
+from architecture.instruction import Instruction
 
 
 class TestInstruction(TestCase):

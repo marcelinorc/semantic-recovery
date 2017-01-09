@@ -1,8 +1,8 @@
 import os
 from unittest import TestCase
 
+from architecture.disassembler_readers import TextDisassembleReader
 from metadata.collector import MetadataCollector
-from metadata.disassembler_readers import TextDisassembleReader
 
 
 class TestMetadataCollector(TestCase):

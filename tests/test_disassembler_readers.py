@@ -17,3 +17,7 @@ class TestTextDisassembleReader(unittest.TestCase):
         self.assertEqual(177, len(instructions))
         for inst in instructions:
             print(inst)
+            if not str(inst.darm):
+                print("Jony, la gente esta muy loka")
+            if inst.is_undefined:
+                print('Undefined')

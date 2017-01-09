@@ -47,7 +47,5 @@ class TextDisassembleReader(DisassembleReader):
             if line[0] == ' ':
                 e = line.rstrip('\n').split(":", 1)[1].split("  ", 1)[0].split(" ", 1)
                 result.append(DARMInstruction(e[1], position=int(e[0], 16)))
-            else:
-                print("Not an instruction: " + line)
 
         return result

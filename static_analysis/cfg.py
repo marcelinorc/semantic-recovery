@@ -82,16 +82,16 @@ class ARMControlFlowGraph(digraph):
         Split a node that receives in the middle a jump from a jumping instruction
         """
         index = split.instructions.index(instruction)
-        up = self._add_node(CFGBlock(split.instructions[:index]))
-        split.instructions = split.instructions[index:]
+        if index > 0:
+            up = self._add_node(CFGBlock(split.instructions[:index]))
+            split.instructions = split.instructions[index:]
+            successors = []
+            successors.extend(self.incidents(split))
+            for i in successors:
+                self.del_edge((i, split))
+                self.add_edge((i, up))
+            self.add_edge((up, split))
 
-        successors = []
-        successors.extend(self.incidents(split))
-        for i in successors:
-            self.del_edge((i, split))
-            self.add_edge((i, up))
-
-        self.add_edge((up, split))
         self.add_edge((branch, split))
 
     def _branch_conditional(self, inst, cb, last_conditional):
@@ -180,7 +180,8 @@ class ARMControlFlowGraph(digraph):
             # 1 - Branch to the known address
             # if we branch with link we must put the next instruction in the pending jumps
             if inst.is_branch_with_link:
-                raise RuntimeError("Not implemented yey")
+                cb = branch
+                # raise RuntimeError("Not implemented yey")
                 # cb = self._add_pending_jump(self._next_instruction(i), branch_node)
 
             # find out to what node the address jumps to
@@ -259,6 +260,8 @@ class ARMControlFlowGraph(digraph):
 
         for i in range(0, count):
             inst = self._instructions[i]
+            if inst.is_undefined:
+                continue  # Ignore undefined instructions
             if inst.conditional_field == last_cond_field:
                 last_cond_field = inst.conditional_field
                 # First case, just add the instruction to the current block
@@ -319,6 +322,9 @@ class CFGBlock(object):
 
         # Instructions belonging to the node
         self.instructions = instructions if type(instructions) is list else [instructions]
+
+        if len(self.instructions) == 0 and kind == CFGBlock.BLOCK:
+            raise RuntimeError("A block instruction must have instructions")
 
         # Predecessors and successors in the CFG graph
         self.successors = []
@@ -382,10 +388,14 @@ class CFGBlock(object):
 
     @property
     def first(self):
+        if len(self.instructions) == 0:
+            raise RuntimeError("Calling the first on an empty instruction list")
         return self.instructions[0]
 
     @property
     def last(self):
+        if len(self.instructions) == 0:
+            raise RuntimeError("Calling the last on an empty instruction list")
         return self.instructions[-1]
 
     @property

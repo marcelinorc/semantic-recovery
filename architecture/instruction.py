@@ -122,11 +122,18 @@ class Instruction(object):
         return result
 
     @property
+    def is_undefined(self):
+        """
+        Determine if an instruction is undefined
+        """
+        raise RuntimeError("Not implemented")
+
+    @property
     def is_branch(self):
         """
         Determine if an instruction is branch
         """
-        pass
+        raise RuntimeError("Not implemented")
 
     @property
     def is_branch_with_link(self):

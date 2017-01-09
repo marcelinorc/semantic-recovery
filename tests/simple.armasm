@@ -1,0 +1,11 @@
+                           .text:00010670 24 00 9f e5                      ldr	r0, [pc, #36]	; 0x0001069c <$d>
+                           .text:00010674 24 10 9f e5                      ldr	r1, [pc, #36]	; 0x000106a0
+                           .text:00010678 00 10 41 e0                      sub	r1, r1, r0
+                           .text:0001067c 41 11 a0 e1                      asr	r1, r1, #2
+                           .text:00010680 a1 1f 81 e0                      add	r1, r1, r1, lsr #31
+                           .text:00010684 c1 10 b0 e1                      asrs	r1, r1, #1
+                           .text:00010688 1e ff 2f 01                      bxeq	lr
+                           .text:0001068c 10 30 9f e5                      ldr	r3, [pc, #16]	; 0x000106a4
+                           .text:00010690 00 00 53 e3                      cmp	r3, #0
+                           .text:00010694 1e ff 2f 01                      bxeq	lr
+                           .text:00010698 13 ff 2f e1                      bx	r3

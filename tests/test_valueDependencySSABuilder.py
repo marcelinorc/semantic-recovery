@@ -84,4 +84,20 @@ class TestValueDependencySSABuilder(TestCase):
         self.assertTrue(value_dep_graph is not None)
         self.fail("Not sure...")
 
+    def test_build_simpler_code(self):
+        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'simple.armasm')).read()
+        cfg = ARMControlFlowGraph(instructions)
+        cfg.node_printer = self
+        cfg.build()
+        d = cfg.get_dict_nodes()
+        cfg.remove_conditionals()
+        value_dep_graph = SSAFormBuilder(instructions, cfg, cfg.root_node).build()
+        print(write(cfg))
+
+        # Check that there are no dead phi nodes
+#        self.assertTrue(SSAVar(3, 3) not in )
+        print(write(value_dep_graph))
+        self.assertTrue(value_dep_graph is not None)
+        self.fail("Not sure...")
+
 

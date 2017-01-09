@@ -106,7 +106,7 @@ class DARMInstruction(Instruction):
     def _writes_to_memory(self):
         # I'll use this cheap trick to avoid having to parse the instruction myself
         p = str(self._darm).split(',')
-        return  len(p) > 1  and ('[' in p[0] or ']' in p[0] or self._inst_is('push'))
+        return len(p) > 1 and ('[' in p[0] or ']' in p[0] or self._inst_is('push'))
 
     def _read_from_memory(self):
         # I'll use this cheap trick to avoid having to parse the instruction myself
@@ -120,7 +120,14 @@ class DARMInstruction(Instruction):
         """
         # The magic numbers 10 and 11 are due to the internal desing of the DARM library
         # see function "darm_enctype_name" in armv7.c
-        return self._darm.instr_type.idx in [10, 11]
+        return self._darm.instr_type.idx in [10, 11] or AReg.PC in self.registers_written()
+
+    @property
+    def is_undefined(self):
+        """
+        Determine if an instruction is undefined
+        """
+        return not self._darm
 
     @property
     def jumping_address(self):

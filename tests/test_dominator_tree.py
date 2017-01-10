@@ -6,17 +6,17 @@ from semantic_codec.static_analysis.cfg import ARMControlFlowGraph
 from semantic_codec.static_analysis.dominators import build_dominator_tree
 
 from libs.dot.dotio import write
-from tests.test_ARMControlFlowGraph import TestARMControlFlowGraph
 
 
 class TestDominatorTreeBuilder(TestCase):
 
+    ASM_PATH = os.path.join(os.path.dirname(__file__), 'data/dissasembly.armasm')
 
     def test_build(self):
         """
         Build the dominator tree
         """
-        instructions = TextDisassembleReader(TestARMControlFlowGraph.ASM_PATH).read()
+        instructions = TextDisassembleReader(self.ASM_PATH).read()
         graph_builder = ARMControlFlowGraph(instructions)
         graph_builder.build()
         dom_tree = build_dominator_tree(graph_builder.cfg, graph_builder.root_node)

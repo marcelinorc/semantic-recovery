@@ -1,6 +1,8 @@
 import os
 from unittest import TestCase
 
+from pygraph.classes import digraph
+
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
 from semantic_codec.static_analysis.cfg import ARMControlFlowGraph
 from semantic_codec.static_analysis.dominators import build_dominator_tree
@@ -36,6 +38,10 @@ class TestValueDependencySSABuilder(TestCase):
             if not n in visited:
                 visited.append(n)
                 self._is_connected_graph(graph, n, visited)
+        for n in graph.incidents(root):
+            if not n in visited:
+                visited.append(n)
+                self._is_connected_graph(graph, n, visited)
 
         return len(visited) == len(graph)
 
@@ -50,29 +56,28 @@ class TestValueDependencySSABuilder(TestCase):
         return cfg, instructions
 
     def test_dominance_frontier(self):
-        graph, instructions = self._build_cfg_with_dominators('dissasembly.armasm')
+        graph, instructions = self._build_cfg_with_dominators('data/dissasembly.armasm')
         build_dominance_frontier(graph)
-
+        print(write(graph))
         d = graph.get_dict_nodes()
-        # for n in graph:
-        #    print('<< {} >> - {}'.format(n, n.dom_frontier))
+        for n in graph:
+            print('<< {} >> - {}'.format(n, n.dom_frontier))
         # The root as no frontier
         self.assertEqual(0, len(d[1].dom_frontier))
         # A random node's frontier pick to evaluate
-        self.assertTrue(d[2] in d[14].dom_frontier)
-        self.assertTrue(d[9] in d[14].dom_frontier)
+        self.assertTrue(d[2] in d[15].dom_frontier)
+        self.assertTrue(d[10] in d[15].dom_frontier)
         # A node who's frontier contains himself
-        self.assertTrue(d[9] in d[9].dom_frontier)
+        self.assertTrue(d[10] in d[10].dom_frontier)
 
     def test_phi_node_placement(self):
-        graph, instructions = self._build_cfg_with_dominators('dissasembly.armasm', self, remove_conditionals=True)
+        graph, instructions = self._build_cfg_with_dominators('data/dissasembly.armasm', self, remove_conditionals=True)
         build_dominance_frontier(graph)
         place_phi_nodes(graph)
 
         d = graph.get_dict_nodes()
         # Nodes with phi functions
-        self.assertTrue(len(d[15].phi_functions) > 0)
-        self.assertTrue(len(d[9].phi_functions) > 0)
+        self.assertTrue(len(d[10].phi_functions) > 0)
 #        self.assertTrue(len(d[2].phi_functions) > 0)
         # Nodes without phi functions
         self.assertTrue(len(d[4].phi_functions) == 0)
@@ -92,15 +97,17 @@ class TestValueDependencySSABuilder(TestCase):
         return cfg, value_dep_graph
 
     def test_build(self):
-        cfg, value_dep_graph = self._build_ssa('dissasembly.armasm')
+        cfg, value_dep_graph = self._build_ssa('data/dissasembly.armasm')
         print(write(cfg))
         print(write(value_dep_graph))
-        self.assertTrue(self._is_connected_graph(value_dep_graph, value_dep_graph[0]))
+        self.assertEqual(digraph, type(value_dep_graph))
+        self.fail(" Under development ")
+        # self.assertTrue(self._is_connected_graph(value_dep_graph, value_dep_graph.nodes()[0]))
 
     def test_build_simpler_code(self):
-        cfg, value_dep_graph = self._build_ssa('simple.armasm')
+        cfg, value_dep_graph = self._build_ssa('data/simple.armasm')
         print(write(cfg))
         print(write(value_dep_graph))
-        self.assertTrue(self._is_connected_graph(value_dep_graph, value_dep_graph[0]))
+        self.assertTrue(self._is_connected_graph(value_dep_graph, value_dep_graph.nodes()[0]))
 
 

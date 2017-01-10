@@ -1,5 +1,4 @@
 from unittest import TestCase
-
 from semantic_codec.architecture.arm_instruction import AReg
 from semantic_codec.architecture.darm_instruction import DARMInstruction
 from semantic_codec.architecture.instruction import Instruction

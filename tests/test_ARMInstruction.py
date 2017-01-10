@@ -1,8 +1,7 @@
 from unittest import TestCase
 
-from architecture.arm_instruction import ARMInstruction, AOpType
-
-from architecture.instruction import Instruction
+from semantic_codec.architecture.arm_instruction import ARMInstruction, AOpType
+from semantic_codec.architecture.instruction import Instruction
 
 
 class TestARMInstruction(TestCase):

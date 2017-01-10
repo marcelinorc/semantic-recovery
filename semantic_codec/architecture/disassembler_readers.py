@@ -1,7 +1,7 @@
 """
 Readers of disassemble files
 """
-from architecture.darm_instruction import DARMInstruction
+from semantic_codec.architecture.darm_instruction import DARMInstruction
 
 
 class DisassembleReader (object):

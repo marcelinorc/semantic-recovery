@@ -1,9 +1,8 @@
 import os
 from unittest import TestCase
 
-from architecture.disassembler_readers import TextDisassembleReader
-
-from architecture.instruction import Instruction
+from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
+from semantic_codec.architecture.instruction import Instruction
 
 
 class TestInstruction(TestCase):

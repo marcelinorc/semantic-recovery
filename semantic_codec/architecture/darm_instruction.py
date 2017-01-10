@@ -1,7 +1,8 @@
-from architecture.arm_instruction import AOpType, AReg
-from architecture.bits import Bits
-from architecture.instruction import Instruction
-from darm import darm
+from semantic_codec.architecture.arm_instruction import AOpType, AReg
+from semantic_codec.architecture.bits import Bits
+from semantic_codec.architecture.instruction import Instruction
+
+from libs.darm import darm
 
 
 class DARMInstruction(Instruction):

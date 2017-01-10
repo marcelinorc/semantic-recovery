@@ -1,8 +1,7 @@
+from semantic_codec.architecture.arm_instruction import AReg
 from pygraph.classes.digraph import digraph
-
-from architecture.arm_instruction import AReg
-from static_analysis.cfg import CFGBlock
-from static_analysis.dominators import build_dominator_tree
+from semantic_codec.static_analysis.cfg import CFGBlock
+from semantic_codec.static_analysis.dominators import build_dominator_tree
 
 
 def build_dominance_frontier(graph):

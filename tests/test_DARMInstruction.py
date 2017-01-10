@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from architecture.arm_instruction import AReg
-from architecture.darm_instruction import DARMInstruction
-from architecture.instruction import Instruction
+from semantic_codec.architecture.arm_instruction import AReg
+from semantic_codec.architecture.darm_instruction import DARMInstruction
+from semantic_codec.architecture.instruction import Instruction
 
 
 class TestDARMInstruction(TestCase):

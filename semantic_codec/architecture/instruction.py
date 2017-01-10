@@ -1,6 +1,5 @@
 import re
-
-from architecture.bits import Bits
+from semantic_codec.architecture.bits import Bits
 
 
 class Instruction(object):

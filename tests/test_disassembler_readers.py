@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from architecture.disassembler_readers import TextDisassembleReader
+from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
 
 
 class TestTextDisassembleReader(unittest.TestCase):

@@ -1,6 +1,5 @@
+from semantic_codec.architecture.arm_instruction import AOpType
 from pygraph.classes.digraph import digraph
-
-from architecture.arm_instruction import AOpType
 
 
 class ARMControlFlowGraph(digraph):

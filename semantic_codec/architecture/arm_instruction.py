@@ -1,6 +1,5 @@
-from architecture.bits import Bits
-
-from architecture.instruction import Instruction
+from semantic_codec.architecture.bits import Bits
+from semantic_codec.architecture.instruction import Instruction
 
 class AReg:
     """

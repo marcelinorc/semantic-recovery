@@ -1,9 +1,9 @@
 import os
 from unittest import TestCase
 
-from architecture.disassembler_readers import TextDisassembleReader
-from dot.dotio import write
-from static_analysis.cfg import ARMControlFlowGraph, CFGBlock
+from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
+from semantic_codec.static_analysis.cfg import ARMControlFlowGraph, CFGBlock
+from libs.dot.dotio import write
 
 
 class TestARMControlFlowGraph(TestCase):

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from architecture.bits import Bits
+from semantic_codec.architecture.bits import Bits
 
 
 class TestBits(TestCase):

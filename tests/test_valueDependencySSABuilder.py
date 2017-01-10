@@ -1,11 +1,12 @@
 import os
 from unittest import TestCase
 
-from architecture.disassembler_readers import TextDisassembleReader
-from dot.dotio import write
-from static_analysis.cfg import ARMControlFlowGraph
-from static_analysis.ssa import SSAFormBuilder, build_dominance_frontier, place_phi_nodes
-from static_analysis.dominators import build_dominator_tree
+from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
+from semantic_codec.static_analysis.cfg import ARMControlFlowGraph
+from semantic_codec.static_analysis.dominators import build_dominator_tree
+from semantic_codec.static_analysis.ssa import SSAFormBuilder, build_dominance_frontier, place_phi_nodes
+
+from libs.dot.dotio import write
 
 
 class TestValueDependencySSABuilder(TestCase):
@@ -17,7 +18,6 @@ class TestValueDependencySSABuilder(TestCase):
         for inst in node.instructions:
             result += "{} -- {} == {} \n ".format(inst, inst.ssa_written, inst.ssa_read)
 
-
         if not result:
             node.printer = None
             result += str(node)
@@ -25,6 +25,19 @@ class TestValueDependencySSABuilder(TestCase):
         else:
             result += "{}".format(node.idx)
         return result
+
+    def _is_connected_graph(self, graph, root, visited=None):
+        """
+        Checks that the graph is connected
+        """
+        if not visited:
+            visited = []
+        for n in graph.neighbors(root):
+            if not n in visited:
+                visited.append(n)
+                self._is_connected_graph(graph, n, visited)
+
+        return len(visited) == len(graph)
 
     def _build_cfg_with_dominators(self, path, printer=None, remove_conditionals=False):
         instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), path)).read()
@@ -68,36 +81,26 @@ class TestValueDependencySSABuilder(TestCase):
 
         print(write(graph))
 
-    def test_build(self):
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly.armasm')).read()
+    def _build_ssa(self, path):
+        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), path)).read()
         cfg = ARMControlFlowGraph(instructions)
         cfg.node_printer = self
         cfg.build()
         d = cfg.get_dict_nodes()
         cfg.remove_conditionals()
         value_dep_graph = SSAFormBuilder(instructions, cfg, cfg.root_node).build()
-        print(write(cfg))
+        return cfg, value_dep_graph
 
-        # Check that there are no dead phi nodes
-#        self.assertTrue(SSAVar(3, 3) not in )
+    def test_build(self):
+        cfg, value_dep_graph = self._build_ssa('dissasembly.armasm')
+        print(write(cfg))
         print(write(value_dep_graph))
-        self.assertTrue(value_dep_graph is not None)
-        self.fail("Not sure...")
+        self.assertTrue(self._is_connected_graph(value_dep_graph, value_dep_graph[0]))
 
     def test_build_simpler_code(self):
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'simple.armasm')).read()
-        cfg = ARMControlFlowGraph(instructions)
-        cfg.node_printer = self
-        cfg.build()
-        d = cfg.get_dict_nodes()
-        cfg.remove_conditionals()
-        value_dep_graph = SSAFormBuilder(instructions, cfg, cfg.root_node).build()
+        cfg, value_dep_graph = self._build_ssa('simple.armasm')
         print(write(cfg))
-
-        # Check that there are no dead phi nodes
-#        self.assertTrue(SSAVar(3, 3) not in )
         print(write(value_dep_graph))
-        self.assertTrue(value_dep_graph is not None)
-        self.fail("Not sure...")
+        self.assertTrue(self._is_connected_graph(value_dep_graph, value_dep_graph[0]))
 
 

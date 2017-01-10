@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
 from semantic_codec.architecture.instruction import Instruction
+from tests.test_ARMControlFlowGraph import TestARMControlFlowGraph
 
 
 class TestInstruction(TestCase):
@@ -32,7 +33,7 @@ class TestInstruction(TestCase):
         """
         Test that the branch_to method returns an actual instruction from the instruction lit if the address is static
         """
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly.armasm')).read()
+        instructions = TextDisassembleReader(TestARMControlFlowGraph.ASM_PATH).read()
         bne = instructions[22]
         jump_to = bne.branch_to(instructions)
         self.assertEqual(jump_to, instructions[15])
@@ -41,6 +42,6 @@ class TestInstruction(TestCase):
         """
         Test that the branch_to method returns an actual instruction from the instruction lit if the address is static
         """
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly.armasm')).read()
+        instructions = TextDisassembleReader(TestARMControlFlowGraph.ASM_PATH).read()
         jump_to = instructions[20].branch_to(instructions)
         self.assertEqual(jump_to, None)

@@ -3,12 +3,13 @@ from unittest import TestCase
 
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
 from semantic_codec.metadata.collector import MetadataCollector
+from tests.test_ARMControlFlowGraph import TestARMControlFlowGraph
 
 
 class TestMetadataCollector(TestCase):
 
     def test_collect(self):
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly.armasm')).read()
+        instructions = TextDisassembleReader(TestARMControlFlowGraph.ASM_PATH).read()
         # Collect the metadata
         collector = MetadataCollector()
         collector.collect(instructions)

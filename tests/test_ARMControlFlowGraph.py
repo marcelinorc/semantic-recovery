@@ -7,6 +7,9 @@ from libs.dot.dotio import write
 
 
 class TestARMControlFlowGraph(TestCase):
+    
+    ASM_PATH = os.path.join(os.path.dirname(__file__), 'data/dissasembly.armasm')
+    
     @staticmethod
     def _count_conditional_nodes(cfg):
         result = 0
@@ -25,7 +28,7 @@ class TestARMControlFlowGraph(TestCase):
                         self.fail("Instructions repeated")
 
     def test_build_helloworld(self):
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'helloworld.armasm')).read()
+        instructions = TextDisassembleReader(TestARMControlFlowGraph.ASM_PATH).read()
         cfg = ARMControlFlowGraph(instructions)
         cfg.build()
 
@@ -33,7 +36,7 @@ class TestARMControlFlowGraph(TestCase):
         self.fail("Inspecting")
 
     def test_build_simple(self):
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly.armasm')).read()
+        instructions = TextDisassembleReader(TestARMControlFlowGraph.ASM_PATH).read()
         cfg = ARMControlFlowGraph(instructions)
         cfg.build()
 
@@ -46,7 +49,7 @@ class TestARMControlFlowGraph(TestCase):
         self._assert_instructions_are_not_repeated(cfg, instructions)
 
     def test_build_complex(self):
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly_cfg.armasm')).read()
+        instructions = TextDisassembleReader(TestARMControlFlowGraph.ASM_PATH).read()
         cfg = ARMControlFlowGraph(instructions)
         cfg.build()
         # print(write(cfg))
@@ -57,7 +60,7 @@ class TestARMControlFlowGraph(TestCase):
         self._assert_instructions_are_not_repeated(cfg, instructions)
 
     def test_remove_conditionals(self):
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), 'dissasembly.armasm')).read()
+        instructions = TextDisassembleReader(TestARMControlFlowGraph.ASM_PATH).read()
         cfg = ARMControlFlowGraph(instructions)
         cfg.build()
         d = cfg.get_dict_nodes()

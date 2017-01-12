@@ -32,7 +32,6 @@ class DisassembleReader (object):
         Disassemble a list of instructions
         """
 
-
 class TextDisassembleReader(DisassembleReader):
     """
     Reads the instructions in text format from the https://onlinedisassembler.com/static/home/,

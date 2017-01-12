@@ -1,4 +1,5 @@
 import re
+
 from semantic_codec.architecture.bits import Bits
 
 
@@ -31,6 +32,15 @@ class Instruction(object):
 
         # If this is a "branch with link" instruction this points to the instruction to return to
         self.link_instruction = None
+
+        # score of the instruction
+        self.scores_by_rule = {}
+
+    def score(self):
+        result = 0
+        for v in self.scores_by_rule.values():
+            result += v
+        return result
 
     @property
     def jumping_address(self):
@@ -148,4 +158,7 @@ class Instruction(object):
             if self.jumping_address == i.position:
                 return i
         return None
+
+    def modifies_flags(self):
+        pass
 

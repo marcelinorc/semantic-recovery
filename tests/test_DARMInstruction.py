@@ -12,6 +12,13 @@ class TestDARMInstruction(TestCase):
         self.assertEqual(0xe08f3003, d.encoding)
         self.assertTrue("add" in str(d.darm.instr).lower())
 
+
+    def test_modifies_flags(self):
+        # cmp	r4, r6
+        self.assertTrue(DARMInstruction("06 00 54 e1", Instruction.HEX_STR).modifies_flags())
+        # asrs	r6, r6, #2
+        self.assertTrue(DARMInstruction("46 61 b0 e1", Instruction.HEX_STR).modifies_flags())
+
     def test_reglist(self):
         d = DARMInstruction("03 30 8f e0", Instruction.HEX_STR)
         self.assertTrue(AReg.R15 in d.registers_used())

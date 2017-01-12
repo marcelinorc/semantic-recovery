@@ -63,8 +63,9 @@ class DARMInstruction(Instruction):
         result = []
 
         # special cases
-        if self._inst_is(['tst', 'teq', 'cmp', 'cmn']):
+        if self._darm.S or self._inst_is(['tst', 'teq', 'cmp', 'cmn']):
             result.append(AReg.CPSR)
+
         if self._darm.Rt:
             result.append(self._darm.Rt.idx)
         if self._darm.Rd:
@@ -139,3 +140,6 @@ class DARMInstruction(Instruction):
             address += self.position + 8
             self._jumping_address = address
         return self._jumping_address
+
+    def modifies_flags(self):
+        return AReg.CPSR in self.storages_written()

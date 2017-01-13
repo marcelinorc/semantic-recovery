@@ -35,8 +35,6 @@ class MetadataCollector(object):
     def collect(self, instructions):
         """
         Collects a series of metadata from an arm assemby program
-        :param encodings:
-        :return:
         """
         self.empty_spaces = []
 

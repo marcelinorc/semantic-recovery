@@ -1,7 +1,10 @@
 """
 File containing the classes representing rules
 """
+import copy
+
 from semantic_codec.architecture.arm_instruction import AOpType
+from semantic_codec.metadata.collector import MetadataCollector
 
 
 def from_instruction_list_to_dict(instructions):
@@ -57,43 +60,119 @@ class Rule(object):
         return updated
 
 
-class ConditionalCount(Rule):
-    """
-    Class that enforces that the conditional count in the program abides to the metadata conditional count
-    """
+class CountingRule(Rule):
 
     def __init__(self, program, model=None, collector=None):
         super().__init__(program, model)
         if collector is None:
-            raise RuntimeError("Must set a collector")
+            raise RuntimeError("Needs a metadata collector")
         self._collector = collector
-        self._remaining_conditionals = []
-        self._total_remaining = 0
+        self._remaining = copy.deepcopy(self._counting_dictionary(self._collector))
 
-    def _compute_remaining_conditionals(self):
+    def total_remaining(self):
+        result = 0
+        for v in self._remaining.values():
+            result += v
+        return result
 
-        if len(self._remaining_conditionals) == 0:
-            self._remaining_conditionals.extend(self._collector.conditional_count)
-            for inst in self._program.values():
-                if len(inst) == 1 and not inst[0].is_undefined:
-                    self._remaining_conditionals[inst[0].conditional_field] -= 1
+    def _compute_remaining(self):
+        """
+        Compute the remaining items to be counted
+        """
+        for inst in self._program.values():
+            if len(inst) == 1 and not inst[0].is_undefined:
+                # Reduce the remaining amount of items in the field being counted
+                for v in self._counting_field(inst[0]):
+                    self._remaining[v] -= 1
 
     def recover(self, address):
-        self._compute_remaining_conditionals()
-        if self._total_remaining == 0:
+
+        if self.total_remaining() == 0:
             return False
+        self._compute_remaining()
+        t = self.total_remaining()
 
         # Score assigned to each conditional field
-        scores = []
-        for i in range(0, 17):
-            scores.append(self._remaining_conditionals[i] / self._total_remaining)
+        scores = {}
+        for k in self._remaining:
+            scores[k] = self._remaining[k] / t
 
-        candidates, i = self._program[address], 0
-        new_score = [0] * len(candidates)
+        candidates, i, new_score = self._program[address], 0, []
         for c in candidates:
-            new_score[i] = scores[c.conditional_field]
-            i += 1
+            inst_score, vals = 0, self._counting_field(c)
+            for v in vals:
+                inst_score += scores[v] if v in scores else 0
+            new_score.append(inst_score)
         return self._update_scores(new_score, candidates)
+
+    def _counting_bin_size(self):
+        """
+        Size of the bin
+        """
+        pass
+
+    def _counting_field(self, instruction):
+        """
+        Return the value of the field that is being counted
+        """
+        pass
+
+    def _counting_dictionary(self, collector):
+        """
+        Return the dictionary containing the field being counted
+        """
+        pass
+
+
+class ConditionalCount(CountingRule):
+    """
+    Class that enforces that the conditional count in the program abides to the metadata conditional count
+    """
+    def _counting_field(self, instruction):
+        """
+        Return the value of the field that is being counted
+        """
+        return [instruction.conditional_field]
+
+    def _counting_dictionary(self, collector):
+        """
+        Return the dictionary containing the field being counted
+        """
+        return collector.condition_count
+
+
+class RegisterCount(CountingRule):
+    """
+    Class that enforces that the conditional count in the program abides to the metadata conditional count
+    """
+    def _counting_field(self, instruction):
+        """
+        Return the value of the field that is being counted
+        """
+        return instruction.registers_used()
+
+    def _counting_dictionary(self, collector):
+        """
+        Return the dictionary containing the field being counted
+        """
+        return collector.register_count
+
+
+class InstructionCount(CountingRule):
+    """
+    Class that enforces that the instruction count in the program abides to the metadata conditional count
+    """
+    def _counting_field(self, instruction):
+        """
+        Return the value of the field that is being counted
+        """
+        return [instruction.opcode_field]
+
+    def _counting_dictionary(self, collector):
+        """
+        Return the dictionary containing the field being counted
+        """
+        return collector.instruction_count
 
 
 class ConditionalFollowsCPSRModifier(Rule):
@@ -124,12 +203,10 @@ class ConditionalFollowsCPSRModifier(Rule):
             # Assign a good score to the conditional equal to the posterior instruction
             conditional_score[post_inst[0].conditional_field] += self._model.NEAR_CONDITIONALS_ARE_EQUALS
 
-        instructions, i = self._program[position], 0
-        new_score = [0] * len(instructions)
-        for c in instructions:
-            new_score[i] = conditional_score[c.conditional_field]
-            i += 1
-        return self._update_scores(new_score, instructions)
+        i, new_score = 0, []
+        for c in self._program[position]:
+            new_score.append(conditional_score[c.conditional_field])
+        return self._update_scores(new_score, self._program[position])
 
 
 class Recuperator(object):

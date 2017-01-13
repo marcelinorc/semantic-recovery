@@ -33,9 +33,31 @@ def corrupt_conditional(amount, instruction):
     return corrupt_bits(31, 28, amount, instruction)
 
 
-def corrupt_instruction(program, original_instruction, address, conditional=True):
+def corrupt_registers(amount, encoding):
+    return corrupt_bits(10, 0, amount, encoding)
+
+
+def corrupt_opcode(amount, encoding):
+    return corrupt_bits(27, 20, amount, encoding)
+
+
+def corrupt_instruction(program, original_instruction, address, conditional=True, registers=False, opcode=False):
     # We corrupt an instruction
-    corrupted = corrupt_conditional(2, original_instruction.encoding)
+    corrupted = [original_instruction.encoding]
+    if conditional:
+        corrupted = corrupt_conditional(2, original_instruction.encoding)
+    if registers:
+        r = []
+        for c in corrupted:
+            r.extend([cc for cc in corrupt_registers(2, c) if cc not in r])
+        corrupted = r
+    if opcode:
+        r = []
+        for c in corrupted:
+            r.extend([cc for cc in corrupt_opcode(2, c) if cc not in r])
+        corrupted = r
+
+
     #program[address] = []
     for i in range(1, len(corrupted)):
         inst = DARMInstruction(corrupted[i])

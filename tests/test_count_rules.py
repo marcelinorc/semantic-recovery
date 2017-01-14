@@ -11,7 +11,7 @@ class TestConditionalCount(TestRule.Common):
         self.do_test(address=0x000107bc, rule=ConditionalCount, needs_collector=True, recover_instruction=True)
 
     def test_recover_RegisterCount(self):
-        self.do_test(address=0x000107ac, rule=RegisterCount, needs_collector=True, recover_instruction=True,
+        self.do_test(address=0x000107ac, rule=RegisterCount, needs_collector=True, recover_instruction=False,
                      corrupt_conditional=False,
                      corrupt_registers=True)
 

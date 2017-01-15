@@ -16,6 +16,6 @@ class TestConditionalCount(TestRule.Common):
                      corrupt_registers=True)
 
     def test_recover_InstructionCount(self):
-        self.do_test(address=0x000107ac, rule=InstructionCount, needs_collector=True, recover_instruction=True,
+        self.do_test(address=0x000107ac, rule=InstructionCount, needs_collector=True, recover_instruction=False,
                      corrupt_conditional=False,
                      corrupt_opcode=True)

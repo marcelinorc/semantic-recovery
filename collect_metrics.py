@@ -15,7 +15,7 @@ def collect_and_print(fun_name, instructions, program):
     c.collect(instructions)
     print(c.condition_count)
     print(c.instruction_count)
-    print(c.register_count)
+    print(c.storage_count)
     prev_inst = None
     for inst in c.empty_spaces:
         if prev_inst is None:
@@ -24,7 +24,7 @@ def collect_and_print(fun_name, instructions, program):
             print('{}; {}; {}'.format(inst.encoding, abs(prev_inst.encoding - inst.encoding), inst))
         prev_inst = inst
 
-    x = [0 if i not in c.register_count else c.register_count[i] for i in range(0, 18)]
+    x = [0 if i not in c.storage_count else c.storage_count[i] for i in range(0, 18)]
     ind = np.arange(18)
     plt.clf()
     plt.bar(ind, x, 0.35)

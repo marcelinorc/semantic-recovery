@@ -155,7 +155,7 @@ class RegisterCount(CountingRule):
         """
         Return the dictionary containing the field being counted
         """
-        return collector.register_count
+        return collector.storage_count
 
 
 class InstructionCount(CountingRule):

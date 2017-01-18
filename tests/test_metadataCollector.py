@@ -31,6 +31,8 @@ class TestMetadataCollector(TestCase):
         # Asser the max, mean, min distance between registers
         for i in range(0, AReg.STORAGE_COUNT):
             if i in c.storage_mean_dist:
+                print("{}: {}, {}, {} ".format(i, c.storage_min_dist[i],
+                                                     c.storage_mean_dist[i],c.storage_max_dist[i]))
                 self.assertTrue(c.storage_min_dist[i] <= c.storage_mean_dist[i] <= c.storage_max_dist[i],
-                                "{}, {}, {} ".format(c.storage_min_dist[i],
+                                "{}: {}, {}, {} ".format(i, c.storage_min_dist[i],
                                                      c.storage_mean_dist[i],c.storage_max_dist[i]))

@@ -41,20 +41,47 @@ def corrupt_opcode(amount, encoding):
     return corrupt_bits(27, 20, amount, encoding)
 
 
+def distribute_random_amount(amount, bin_count):
+    if bin_count == 1:
+        return [amount]
+    # TODO : Fail
+    index = []
+    result = [0] * bin_count
+    for i in range(0, bin_count):
+        k = random.randint(0, bin_count - 1)
+        while k in index:
+            k = random.randint(0, bin_count - 1)
+        index.append(k)
+
+    for i in range(0, bin_count):
+        result[index[i]] = random.randint(0, amount)
+        amount -= result[index[i]]
+        if amount <= 0:
+            break
+    return result
+
+
 def corrupt_instruction(program, original_instruction, address, conditional=True, registers=False, opcode=False, amount=2):
     # We corrupt an instruction
+    bin_c = 1 if conditional else 0
+    bin_c = bin_c + 1 if registers else bin_c
+    bin_c = bin_c + 1 if opcode else bin_c
+    amount = distribute_random_amount(amount, bin_c)
     corrupted = [original_instruction.encoding]
     if conditional:
-        corrupted = corrupt_conditional(amount, original_instruction.encoding)
+        bin_c -= 1
+        corrupted = corrupt_conditional(amount[bin_c], original_instruction.encoding)
     if registers:
+        bin_c -= 1
         r = []
         for c in corrupted:
-            r.extend([cc for cc in corrupt_registers(amount, c) if cc not in r])
+            r.extend([cc for cc in corrupt_registers(amount[bin_c], c) if cc not in r])
         corrupted = r
     if opcode:
+        bin_c -= 1
         r = []
         for c in corrupted:
-            r.extend([cc for cc in corrupt_opcode(amount, c) if cc not in r])
+            r.extend([cc for cc in corrupt_opcode(amount[bin_c], c) if cc not in r])
         corrupted = r
 
 
@@ -63,4 +90,6 @@ def corrupt_instruction(program, original_instruction, address, conditional=True
         inst = DARMInstruction(corrupted[i])
         if inst.darm is not None:
             program[address].append(inst)
+
+    return program[address]
 

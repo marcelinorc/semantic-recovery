@@ -143,3 +143,12 @@ class DARMInstruction(Instruction):
 
     def modifies_flags(self):
         return AReg.CPSR in self.storages_written()
+
+    @staticmethod
+    def encodings_to_darm(encodings, return_undefined=False):
+        result = []
+        for e in encodings:
+            d = DARMInstruction(e)
+            if not d.is_undefined or return_undefined:
+                result.append(d)
+        return result

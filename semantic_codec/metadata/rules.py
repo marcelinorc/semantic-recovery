@@ -16,7 +16,7 @@ def from_instruction_list_to_dict(instructions):
 
 
 class Rule(object):
-    def __init__(self, program, model=None):
+    def __init__(self, program, model=None, collector=None):
         self._model = DefaultProbabilisticModel() if model is None else model
         self._program = program
 
@@ -49,6 +49,10 @@ class Rule(object):
             i += 1
 
         return updated
+
+
+
+
 
 
 # ------------------------------------------------------

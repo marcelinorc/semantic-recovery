@@ -19,6 +19,7 @@ class Rule(object):
     def __init__(self, program, model=None, collector=None):
         self._model = DefaultProbabilisticModel() if model is None else model
         self._program = program
+        self._collector = collector
 
     def recover(self, position):
         """

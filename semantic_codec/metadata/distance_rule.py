@@ -1,3 +1,4 @@
+from semantic_codec.metadata.probabilistic_model import DefaultProbabilisticModel
 from semantic_codec.metadata.rules import Rule
 
 
@@ -6,6 +7,13 @@ class RegisterDistanceRule(Rule):
     Class that enforces that a register read is never farther than what the metadata said.
     It also favors the register write-read closer to the mean
     """
+
+    def __init__(self, program, model=None, collector=None):
+        super().__init__(program, model, collector)
+        if not collector:
+            raise RuntimeError("A collector is required for this rule to work")
+        self._collector = collector
+
     def _get_storages_read(self, candidates):
         """
         Returns a list of all storages used by the candidates
@@ -47,8 +55,10 @@ class RegisterReadDistance(RegisterDistanceRule):
                 # Keep going backwards until we find enough a storage written for a 1 probability
                 # or we go away from the maximum distance
                 if position in self._program:
-                    prev_cand = self._program[position]
-                    if len(prev_cand) == 1:
-                        pass
+                    prev_instructions = self._program[position]
+                    #for prev_c in prev_instructions:
+                    #    if prev_c.storages
+                    #if len(prev_c) == 1:
+                    #    pass
                 else:
                     keep = False

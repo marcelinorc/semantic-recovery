@@ -44,7 +44,6 @@ def corrupt_opcode(amount, encoding):
 def distribute_random_amount(amount, bin_count):
     if bin_count == 1:
         return [amount]
-    # TODO : Fail
     index = []
     result = [0] * bin_count
     for i in range(0, bin_count):
@@ -61,7 +60,8 @@ def distribute_random_amount(amount, bin_count):
     return result
 
 
-def corrupt_instruction(program, original_instruction, address, conditional=True, registers=False, opcode=False, amount=2):
+def corrupt_instruction(program, original_instruction, address,
+                        conditional=True, registers=False, opcode=False, amount=2):
     # We corrupt an instruction
     bin_c = 1 if conditional else 0
     bin_c = bin_c + 1 if registers else bin_c

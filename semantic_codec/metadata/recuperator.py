@@ -1,4 +1,6 @@
-from semantic_codec.metadata.rules import ConditionalFollowsCPSRModifier
+from semantic_codec.metadata.counting_rules import ConditionalCount, InstructionCount, RegisterCount
+from semantic_codec.metadata.distance_rule import RegisterReadDistance
+from semantic_codec.metadata.rules import ControlFlowBehavior
 
 
 class Recuperator(object):
@@ -16,7 +18,11 @@ class Recuperator(object):
         self._collector = collector
         self._program = program
 
-        self._rules = [ConditionalFollowsCPSRModifier()]
+        self._rules = [ControlFlowBehavior(self._program),
+                       ConditionalCount(self._program, collector=collector),
+                       InstructionCount(self._program, collector=collector),
+                       RegisterCount(self._program, collector=collector),
+                       RegisterReadDistance(self._program, collector=collector)]
         # self._errors = 0
         # for pos, val in self._program.items():
         #    self._errors += len(val) - 1
@@ -31,4 +37,4 @@ class Recuperator(object):
             for pos, instructions in self._program.items():
                 if len(instructions) > 1:
                     for r in self._rules:
-                        scores_changed |= r.recover(pos, self._program)
+                        scores_changed |= r.recover(pos)

@@ -77,6 +77,9 @@ class RegisterReadDistance(RegisterDistanceRule):
             candidate_score = 0
 
             while prev_pos >= prev_pos_max and candidate_score < 1:
+                if prev_pos not in self._program:
+                    prev_pos -= 4
+                    continue
                 prev_candidates = self._program[prev_pos]
                 for prev_c in prev_candidates:
                     c_reg_score = [EPSILON] * 17

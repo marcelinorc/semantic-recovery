@@ -1,5 +1,8 @@
 import random
 import math
+
+import sys
+
 from semantic_codec.architecture.bits import Bits
 from semantic_codec.architecture.darm_instruction import DARMInstruction
 
@@ -58,6 +61,41 @@ def distribute_random_amount(amount, bin_count):
         if amount <= 0:
             break
     return result
+
+
+def corrupt_program(program, err_percent, max_amount):
+    """
+    Corrupts a program.
+    :param program: Program to corrupt
+    :param err_percent: Percentage of instructions to be corrupted from 0 - 100.
+                        The routine will always corrupt at least one instruction with one bit of error
+    :param max_amount: Maximal amount of bit errors per instructions, meaning that each corrupted instructions can
+                       have up to this amount of errors
+    """
+    if 0 > err_percent > 100:
+        raise RuntimeError("Percent cannot be larger than 100 or lower than 0")
+
+    max_amount = max(1, max_amount)
+    err_percent /= 100
+
+    len_program = len(program)
+
+    corrupted_amount = math.ceil(max(1, len_program * err_percent))
+
+    # Find the min and max address in the program
+    min_addr = sys.maxsize
+    max_addr = -sys.maxsize
+    for k in program:
+        min_addr = k if min_addr > k else min_addr
+        max_addr = k if max_addr < k else max_addr
+
+    while corrupted_amount > 0:
+        p = random.randint(0, len_program) * 4 + min_addr
+        if p in program and len(program[p]) == 1:
+            a = random.randint(1, max_amount)
+            corrupt_instruction(program, program[p][0], p, True, True, True, a)
+            corrupted_amount -= 1
+
 
 
 def corrupt_instruction(program, original_instruction, address,

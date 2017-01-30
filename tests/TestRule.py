@@ -2,9 +2,9 @@ import os
 from unittest import TestCase
 
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
+from semantic_codec.corruption.corruptor import corrupt_instruction
 from semantic_codec.metadata.collector import MetadataCollector
-from semantic_codec.metadata.rules import from_instruction_list_to_dict, ConditionalFollowsCPSRModifier
-from tests.corruptor import corrupt_instruction
+from semantic_codec.metadata.rules import from_instruction_list_to_dict
 
 
 class TestRule(object):
@@ -26,6 +26,8 @@ class TestRule(object):
                     c = candidates[i]
                     self.assertTrue(original.score() >= c.score(),
                                     "ORIGINAL {} : {} - CANDIDATE {} : {}".format(original, original.score(), c, c.score()))
+            for c in candidates:
+                print("ORIGINAL {} : {} - CANDIDATE {} : {}".format(original, original.score(), c, c.score()))
 
         @staticmethod
         def get_original_instruction(path, address, needs_collector):

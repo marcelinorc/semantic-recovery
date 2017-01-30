@@ -65,12 +65,12 @@ class Rule(object):
 
 # ------------------------------------------------------
 
-class ConditionalFollowsCPSRModifier(Rule):
+class ControlFlowBehavior(Rule):
     """
-    Class that enforces the rule that a conditional instruction must follow
-    another capable of modifying the CPSR register.
-
-    Also it favors instrucions having the same conditional that the nearest ones
+    Class that enforces rewards instructions following a good control flow behavior:
+    1 - Conditionals follow a flag register modifier instruction
+    2 - Conditionals are usually group together
+    TODO: 3 - Jump conditions are likelly to be found after comparison
     """
 
     def recover(self, position):

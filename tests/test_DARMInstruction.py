@@ -12,6 +12,11 @@ class TestDARMInstruction(TestCase):
         self.assertEqual(0xe08f3003, d.encoding)
         self.assertTrue("add" in str(d.darm.instr).lower())
 
+    def test_branch_writes_to_pc(self):
+        # bl	0x00010544 <_init>
+        self.assertTrue(AReg.PC in DARMInstruction("66 ff ff eb", Instruction.HEX_STR).storages_written())
+        # blx	r3
+        self.assertTrue(AReg.PC in DARMInstruction("33 ff 2f e1", Instruction.HEX_STR).storages_written())
 
     def test_modifies_flags(self):
         # cmp	r4, r6

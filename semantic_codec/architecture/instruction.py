@@ -120,14 +120,16 @@ class Instruction(object):
         result = []
         result.extend(self.registers_written())
         if self._writes_to_memory():
-            result.append(16)
+            result.append(16) # 16 is the 'register' for memory
+        if 15 not in result and self.is_branch:
+            result.append(15) # PC counter
         return result
 
     def storages_read(self):
         result = []
         result.extend(self.registers_read())
         if self._read_from_memory():
-            result.append(16)
+            result.append(16) # 16 is the 'register' for memory
         return result
 
     @property

@@ -37,6 +37,13 @@ class Rule(object):
             inst = program[adrr]
         return inst
 
+    def _update_candidate_score(self, candidate, new_score):
+        k = str(self.__class__)
+        if k not in candidate.scores_by_rule or new_score != candidate.scores_by_rule[k]:
+            candidate.scores_by_rule[k] = new_score
+            return True
+        return False
+
     def _update_scores(self, new_scores, instructions):
         """
         Determine if the scores assigned to the instructions by the rules have changed

@@ -1,3 +1,6 @@
+import sys
+
+from semantic_codec.architecture.arm_instruction import ARMInstruction
 from semantic_codec.metadata.probabilistic_model import DefaultProbabilisticModel
 from semantic_codec.metadata.rules import Rule
 
@@ -44,21 +47,59 @@ class RegisterWriteDistance(RegisterDistanceRule):
 class RegisterReadDistance(RegisterDistanceRule):
 
     def recover(self, position):
+        EPSILON = 0.00000000000001
+        INST_SIZE = ARMInstruction.INST_SIZE_BYTES
+
         # candidate instructions
         candidates = self._program[position]
-        # Score that the candidates is going to be awarded
-        score = [0] * len(candidates)
+        # Scores that each candidates at this position is going to be awarded
+        score = [0] * len(candidates);
+
+        updated = False
+
+        dist_min = self._collector.storage_min_dist
+        dist_max = self._collector.storage_max_dist
 
         for c in candidates:
-            position, keep = position - 4, True
-            while keep:
-                # Keep going backwards until we find enough a storage written for a 1 probability
-                # or we go away from the maximum distance
-                if position in self._program:
-                    prev_instructions = self._program[position]
-                    #for prev_c in prev_instructions:
-                    #    if prev_c.storages
-                    #if len(prev_c) == 1:
-                    #    pass
+            storages = c.storages_read()
+            # Find the range in which the registers write live:
+            min_d, max_d = sys.maxsize, -sys.maxsize
+            for v in storages:
+                min_d = dist_min[v] if v in dist_min and dist_min[v] < min_d else min_d
+                max_d = dist_max[v] if v in dist_max and dist_max[v] > max_d else max_d
+
+            # We are going backwards, so in fact prev_max is < than prev
+            # Go backwards searching for registers writting to the registers we read from
+            prev_pos = position - INST_SIZE * min_d # Position of the first previous instruction
+            prev_pos_max = position - INST_SIZE * max_d # Position of the last previous instruction (going backwards)
+            register_score = [EPSILON] * 17
+
+            candidate_score = 0
+
+            while prev_pos >= prev_pos_max and candidate_score < 1:
+                prev_candidates = self._program[prev_pos]
+                for prev_c in prev_candidates:
+                    c_reg_score = [EPSILON] * 17
+                    prev_w = prev_c.storages_written()
+                    # Find the score this previous candidate contributes to the candidate being evaluated
+                    for w in prev_w:
+                        if w in storages:
+                            c_reg_score[w] += 1 / (len(prev_w) * len(prev_candidates))
+                    register_score[w] = max(register_score[w], c_reg_score[w])
+
+                # Find the score of the candidate so far
+                s = 0
+                for r in storages:
+                    s += register_score[r]
+                candidate_score = max(s / len(storages), candidate_score)
+
+                if candidate_score >= 1:
+                    updated |= self._update_candidate_score(c, 1)
+                    break
                 else:
-                    keep = False
+                    # Keep going backwards
+                    prev_pos -= INST_SIZE
+                    # Have we updated any score so far?
+                    updated |= self._update_candidate_score(c, candidate_score)
+
+        return updated

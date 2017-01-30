@@ -70,6 +70,8 @@ class ARMInstruction(Instruction):
     Don't use. Deprecated
     """
 
+    INST_SIZE_BYTES = 4
+
     def conditional_field(self):
         """
         Return the condition part of the opcode for an ARM instruction (See the 'ARM ARM')

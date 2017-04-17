@@ -138,6 +138,7 @@ class DARMInstruction(Instruction):
             address = self.encoding & Bits.set(23, 0)
             address = ((address | Bits.set(29, 24)) << 2) - Bits.on(32) if Bits.is_on(address, 23) else address
             address += self.position + 8
+            address &= 0xffffffff
             self._jumping_address = address
         return self._jumping_address
 

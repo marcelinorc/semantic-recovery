@@ -64,7 +64,7 @@ class MetadataCollector(object):
         storage_mean_dist = {}
 
         for inst in instructions:
-            if inst.is_undefined:
+            if inst.ignore:
                 continue
             if inst.encoding not in encodings:
                 encodings.append(inst.encoding)

@@ -1,6 +1,6 @@
 import sys
 
-from semantic_codec.architecture.arm_instruction import ARMInstruction
+from semantic_codec.architecture.arm_instruction import ARMInstruction, AReg
 from semantic_codec.metadata.probabilistic_model import DefaultProbabilisticModel
 from semantic_codec.metadata.rules import Rule
 
@@ -46,6 +46,10 @@ class RegisterWriteDistance(RegisterDistanceRule):
 
 class RegisterReadDistance(RegisterDistanceRule):
 
+    @staticmethod
+    def short_name():
+        return "REG_DIST"
+
     def recover(self, position):
         EPSILON = 0.00000000000001
         INST_SIZE = ARMInstruction.INST_SIZE_BYTES
@@ -61,6 +65,15 @@ class RegisterReadDistance(RegisterDistanceRule):
         dist_max = self._collector.storage_max_dist
 
         for c in candidates:
+
+            # Assume all instructions are well defined
+            if c.ignore:
+                self._update_candidate_score(c, 0.0)
+                continue
+            elif len(c.storages_used()) == 0:
+                updated |= self._update_candidate_score(c, EPSILON)
+                continue
+
             storages = c.storages_read()
             # Find the range in which the registers write live:
             min_d, max_d = sys.maxsize, -sys.maxsize
@@ -72,7 +85,7 @@ class RegisterReadDistance(RegisterDistanceRule):
             # Go backwards searching for registers writting to the registers we read from
             prev_pos = position - INST_SIZE * min_d # Position of the first previous instruction
             prev_pos_max = position - INST_SIZE * max_d # Position of the last previous instruction (going backwards)
-            register_score = [EPSILON] * 17
+            register_score = [EPSILON] * AReg.STORAGE_COUNT
 
             candidate_score = 0
 
@@ -82,18 +95,32 @@ class RegisterReadDistance(RegisterDistanceRule):
                     continue
                 prev_candidates = self._program[prev_pos]
                 for prev_c in prev_candidates:
-                    c_reg_score = [EPSILON] * 17
+
+                    if prev_c.ignore:
+                        # Can't analyze undefined instructions
+                        continue
+
+                    c_reg_score = [EPSILON] * AReg.STORAGE_COUNT
                     prev_w = prev_c.storages_written()
                     # Find the score this previous candidate contributes to the candidate being evaluated
                     for w in prev_w:
                         if w in storages:
-                            c_reg_score[w] += 1 / (len(prev_w) * len(prev_candidates))
-                    register_score[w] = max(register_score[w], c_reg_score[w])
+                            c_reg_score[w] += 1 / (len(prev_w) * self.candidate_count(prev_candidates))
+                    try:
+                        register_score[w] = max(register_score[w], c_reg_score[w])
+                    except UnboundLocalError:
+                        print("What??")
+                    except IndexError:
+                        print("W:"+str(w))
 
                 # Find the score of the candidate so far
                 s = 0
                 for r in storages:
-                    s += register_score[r]
+                    try:
+                        s += register_score[r]
+                    except IndexError:
+                        print("R:"+str(r))
+
                 candidate_score = max(s / len(storages), candidate_score)
 
                 if candidate_score >= 1:

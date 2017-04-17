@@ -14,7 +14,20 @@ class Instruction(object):
     DEC_STR = 10
 
     def __init__(self, encoding, str_format=DEC_STR, little_endian=True, position=0):
+        self._storages_used = None
+        self._storages_read = None
+        self._storages_written = None
         self._position = position
+        self._ssa_read = []
+        self._ssa_written = []
+        self._jumping_address = None
+        # If this is a "branch with link" instruction this points to the instruction to return to
+        self.link_instruction = None
+        # score of the instruction
+        self.scores_by_rule = {}
+
+        self._ignore = False
+
         if isinstance(encoding, str):
             encoding = re.sub(' +', '', encoding)
             if little_endian and str_format == Instruction.HEX_STR:
@@ -25,22 +38,20 @@ class Instruction(object):
         else:
             raise RuntimeError("The Opcode must be an string or an integer value")
 
-        self._ssa_read = []
-        self._ssa_written = []
-
-        self._jumping_address = None
-
-        # If this is a "branch with link" instruction this points to the instruction to return to
-        self.link_instruction = None
-
-        # score of the instruction
-        self.scores_by_rule = {}
 
     def score(self):
         result = 0
         for v in self.scores_by_rule.values():
             result += v
         return result
+
+    @property
+    def ignore(self):
+        return self.is_undefined or self._ignore
+
+    @ignore.setter
+    def ignore(self, v):
+        self._ignore = v
 
     @property
     def jumping_address(self):
@@ -107,30 +118,42 @@ class Instruction(object):
         """
         An storage is either a register or the system memory
         """
-        result = []
-        result.extend(self.registers_used())
-        if self._writes_to_memory() or self._read_from_memory():
-            result.append(16)
-        return result
+        if self._storages_used:
+            return self._storages_used
+        else:
+            self._storages_used = []
+            self._storages_used.extend(self.registers_used())
+            if self._writes_to_memory() or self._read_from_memory():
+                self._storages_used.append(16)
+            return self._storages_used
 
     def storages_written(self):
         """
         An storage is either a register or the system memory
         """
-        result = []
-        result.extend(self.registers_written())
-        if self._writes_to_memory():
-            result.append(16) # 16 is the 'register' for memory
-        if 15 not in result and self.is_branch:
-            result.append(15) # PC counter
-        return result
+        if self._storages_written:
+            return self._storages_written
+        else:
+            self._storages_written = []
+            self._storages_written.extend(self.registers_written())
+            if self._writes_to_memory():
+                # 16 is the 'register' for memory
+                self._storages_written.append(16)
+            if 15 not in self._storages_written and self.is_branch:
+                # PC counter
+                self._storages_written.append(15)
+            return self._storages_written
 
     def storages_read(self):
-        result = []
-        result.extend(self.registers_read())
-        if self._read_from_memory():
-            result.append(16) # 16 is the 'register' for memory
-        return result
+        if self._storages_read:
+            return self._storages_read
+        else:
+            self._storages_read = []
+            self._storages_read.extend(self.registers_read())
+            if self._read_from_memory():
+                # 16 is the 'register' for memory
+                self._storages_read.append(16)
+            return self._storages_read
 
     @property
     def is_undefined(self):

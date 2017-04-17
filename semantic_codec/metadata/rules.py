@@ -5,6 +5,14 @@ from semantic_codec.architecture.arm_instruction import AOpType
 from semantic_codec.metadata.probabilistic_model import DefaultProbabilisticModel
 
 
+def from_instruction_dict_to_list(program):
+    keys = []
+    keys.extend(program.keys())
+    keys.sort()
+    result = []
+    result.extend([program[k] for k in keys])
+    return result
+
 def from_instruction_list_to_dict(instructions):
     """
     Turn the list of instructions into a dictionary indexed by position
@@ -16,10 +24,28 @@ def from_instruction_list_to_dict(instructions):
 
 
 class Rule(object):
+
     def __init__(self, program, model=None, collector=None):
         self._model = DefaultProbabilisticModel() if model is None else model
         self._program = program
         self._collector = collector
+        self.current_pass = 1
+
+    @staticmethod
+    def short_name():
+        return "Rule"
+
+    def candidate_count(self, instructions):
+        """
+        Count the amount of valid candidates
+        :param instructions:
+        :return:
+        """
+        result = 0
+        for inst in instructions:
+            if not inst.ignore:
+                result += 1
+        return result
 
     def recover(self, position):
         """
@@ -38,7 +64,7 @@ class Rule(object):
         return inst
 
     def _update_candidate_score(self, candidate, new_score):
-        k = str(self.__class__)
+        k = self.short_name() + str(self.current_pass)
         if k not in candidate.scores_by_rule or new_score != candidate.scores_by_rule[k]:
             candidate.scores_by_rule[k] = new_score
             return True
@@ -48,7 +74,7 @@ class Rule(object):
         """
         Determine if the scores assigned to the instructions by the rules have changed
         """
-        i, k = 0, str(self.__class__)
+        i, k = 0, self.short_name() + str(self.current_pass)
         updated = False
         for inst in instructions:
             if k not in inst.scores_by_rule or new_scores[i] != inst.scores_by_rule[k]:
@@ -57,10 +83,6 @@ class Rule(object):
             i += 1
 
         return updated
-
-
-
-
 
 
 # ------------------------------------------------------
@@ -73,7 +95,16 @@ class ControlFlowBehavior(Rule):
     TODO: 3 - Jump conditions are likelly to be found after comparison
     """
 
+    @staticmethod
+    def short_name():
+        return "CFG"
+
     def recover(self, position):
+        EPSILON = 0.00000000000001
+        COND_TYPES = 16
+
+        # TODO: Give some probability to instructions when they are candidates
+
         # Get previous instruction
         addr = position - 4
         prev_inst = self._program[addr] if addr in self._program else None
@@ -82,21 +113,46 @@ class ControlFlowBehavior(Rule):
         post_inst = self._program[addr] if addr in self._program else None
 
         # Score assigned to each conditional field
-        conditional_score = [0.0] * 16
+        conditional_score = [EPSILON] * COND_TYPES
+        pre_cond_count = [EPSILON] * COND_TYPES
+        post_cond_count = [EPSILON] * COND_TYPES
+        flag_mod, t_prev, t_post = 0, 0, 0
+        if prev_inst is not None:
+            for c in prev_inst:
+                if not c.ignore:
+                    pre_cond_count[c.conditional_field] += 1
+                    if c.modifies_flags():
+                        flag_mod += 1
+                    t_prev += 1
+        if post_inst is not None:
+            for c in post_inst:
+                if not c.ignore:
+                    post_cond_count[c.conditional_field] += 1
+                    t_post += 1
 
-        if prev_inst is not None and len(prev_inst) == 1:
-            if prev_inst[0].modifies_flags():
-                # Assign a BAD score to the conditional 'always' if we have
-                # a previous instruction that modifies the flags
-                conditional_score[AOpType.COND_ALWAYS] -= self._model.always_after_cpsr
-            else:
-                # Assign a good score to the conditional equal to the previous instruction
-                conditional_score[prev_inst[0].conditional_field] += self._model.near_conditionals_are_equals
-        if post_inst is not None and len(post_inst) == 1:
+        if t_prev > 0:
+            conditional_score[AOpType.COND_ALWAYS] -= self._model.always_after_cpsr * flag_mod / t_prev
+            # Assign a good score to the conditional equal to the previous instruction
+            for i in range(0, COND_TYPES):
+                conditional_score[i] += self._model.near_conditionals_are_equals * pre_cond_count[i] / t_prev
+        if t_post > 0:
             # Assign a good score to the conditional equal to the posterior instruction
-            conditional_score[post_inst[0].conditional_field] += self._model.near_conditionals_are_equals
+            for i in range(0, COND_TYPES):
+                conditional_score[i] += self._model.near_conditionals_are_equals * post_cond_count[i] / t_post
+
+
 
         i, new_score = 0, []
         for c in self._program[position]:
-            new_score.append(conditional_score[c.conditional_field])
+            if not c.ignore:
+                if c.is_branch:
+                    # TODO: Improve the resolution of the jumping address
+                    if c.jumping_address in self._program:
+                        new_score.append(conditional_score[c.conditional_field] + self._model.jump_is_valid)
+                    else:
+                        new_score.append(conditional_score[c.conditional_field])
+                else:
+                    new_score.append(conditional_score[c.conditional_field])
+            else:
+                new_score.append(0.0)
         return self._update_scores(new_score, self._program[position])

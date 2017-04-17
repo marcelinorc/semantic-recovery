@@ -5,6 +5,7 @@ class AReg:
     """
     ARM registers names. The cryptic AOp name is to have short code
     """
+    R0 = 0
     R1 = A1 = 1
     R2 = A2 = 2
     R3 = A3 = 3

@@ -23,6 +23,12 @@ class TestDARMInstruction(TestCase):
         self.assertTrue(DARMInstruction("06 00 54 e1", Instruction.HEX_STR).modifies_flags())
         # asrs	r6, r6, #2
         self.assertTrue(DARMInstruction("46 61 b0 e1", Instruction.HEX_STR).modifies_flags())
+        # bne #+-36
+        self.assertFalse(DARMInstruction("f7 ff ff 1a", Instruction.HEX_STR).modifies_flags())
+        # ldr r0, [pc, #12]
+        self.assertFalse(DARMInstruction("0c 00 9f e5", Instruction.HEX_STR).modifies_flags())
+
+
 
     def test_reglist(self):
         d = DARMInstruction("03 30 8f e0", Instruction.HEX_STR)

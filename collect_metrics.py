@@ -29,21 +29,21 @@ def collect_and_print(fun_name, instructions, program):
     plt.clf()
     plt.bar(ind, x, 0.35)
     plt.tight_layout()
-    plt.savefig(program + '_registers.png')
+    plt.savefig(program + '_registers.svg')
 
     x = [0 if i not in c.condition_count else c.condition_count[i] for i in range(0, 15)]
     ind = np.arange(15)
     plt.clf()
     plt.bar(ind, x, 0.35)
     plt.tight_layout()
-    plt.savefig(program + '_condition.png')
+    plt.savefig(program + '_condition.svg')
 
     x = [0 if i not in c.instruction_count else c.instruction_count[i] for i in range(0, 200)]
     ind = np.arange(200)
     plt.clf()
     plt.bar(ind, x, 0.35)
     plt.tight_layout()
-    plt.savefig(program + '_instruction.png')
+    plt.savefig(program + '_instruction.svg')
     plt.show()
 
 #print("===========================")

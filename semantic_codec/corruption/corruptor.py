@@ -1,10 +1,41 @@
 import random
 import math
-
+import json
 import sys
 
 from semantic_codec.architecture.bits import Bits
 from semantic_codec.architecture.darm_instruction import DARMInstruction
+from semantic_codec.architecture.instruction import Instruction
+
+
+class InstructionEncoder(json.JSONEncoder):
+     def default(self, obj):
+         if isinstance(obj, Instruction):
+             return obj.encoding
+         # Let the base class default method raise the TypeError
+         return json.JSONEncoder.default(self, obj)
+
+
+def save_corrupted_program_to_json(program, file_path):
+    """
+    Saves a corrupted program into a JSON file
+    :param program:
+    :param file_path:
+    :return:
+    """
+    with open(file_path, "w") as json_file:
+        json.dump(program, json_file, cls=InstructionEncoder, ensure_ascii=False, indent=2)
+
+
+def load_corrupted_program_from_json(file_path):
+    with open(file_path) as data_file:
+        data = json.load(data_file)
+    result = {}
+    for k, v in data.items():
+        result[int(k)] = v
+        for i in range(0, len(v)):
+            v[i] = DARMInstruction(v[i])
+    return result
 
 
 def corrupt_bits(hi, lo, amount, instruction):
@@ -93,7 +124,7 @@ def corrupt_program(program, err_percent, max_amount):
         p = random.randint(0, len_program) * 4 + min_addr
         if p in program and len(program[p]) == 1:
             a = random.randint(1, max_amount)
-            corrupt_instruction(program, program[p][0], p, True, True, True, a)
+            program[p] = [DARMInstruction(r) for r in corrupt_bits(31, 0, a, program[p][0].encoding)]
             corrupted_amount -= 1
 
 

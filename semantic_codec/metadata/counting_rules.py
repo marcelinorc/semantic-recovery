@@ -10,43 +10,57 @@ class CountingRule(Rule):
         if collector is None:
             raise RuntimeError("Needs a metadata collector")
         self._collector = collector
-        self._remaining = copy.deepcopy(self._counting_dictionary(self._collector))
+        self._scores = {}
 
-    def total_remaining(self):
-        result = 0
-        for v in self._remaining.values():
-            result += v
-        return result
+    def extra_score(self, c):
+        """
+        Assign an extra score to c, depending on the rule
+        """
+        return 0.0
 
-    def _compute_remaining(self):
+    def _compute_remaining_candidate_probability(self):
         """
         Compute the remaining items to be counted
         """
-        for inst in self._program.values():
-            if len(inst) == 1 and not inst[0].is_undefined:
-                # Reduce the remaining amount of items in the field being counted
-                for v in self._counting_field(inst[0]):
-                    self._remaining[v] -= 1
+        remaining = copy.deepcopy(self._counting_dictionary(self._collector))
+        candidates = {}
+        for instructions in self._program.values():
+            len_inst = self.candidate_count(instructions)
+            if len_inst == 1:
+                # Remove one of the available elements
+                if not instructions[0].ignore:
+                    for v in self._counting_field(instructions[0]):
+                        remaining[v] -= 1
+            else:
+                # Count the candidates to obtain that element
+                for c in instructions:
+                    if not c.ignore:
+                        for v in self._counting_field(c):
+                            candidates[v] = candidates[v] + 1 if v in candidates else 1
+
+        # Finally compute the probability of obtaining an element to each candidate
+        for v in remaining:
+            if v in remaining and v in candidates:
+                self._scores[v] = remaining[v] / candidates[v]
+            else:
+                self._scores[v] = 0
 
     def recover(self, address):
 
-        if self.total_remaining() == 0:
-            return False
-        self._compute_remaining()
-        t = self.total_remaining()
-
-        # Score assigned to each conditional field
-        scores = {}
-        for k in self._remaining:
-            scores[k] = self._remaining[k] / t
+        if len(self._scores) == 0:
+            self._compute_remaining_candidate_probability()
 
         candidates, i, new_score = self._program[address], 0, []
+        update = False
         for c in candidates:
-            inst_score, vals = 0, self._counting_field(c)
-            for v in vals:
-                inst_score += scores[v] if v in scores else 0
-            new_score.append(inst_score)
-        return self._update_scores(new_score, candidates)
+            if not c.ignore:
+                score = self.extra_score(c)
+                fields = self._counting_field(c)
+                len_fields = len(fields)
+                for v in fields:
+                    score += self._scores[v] / len_fields if v in self._scores else 0
+                update |= self._update_candidate_score(c, score)
+        return update
 
     def _counting_bin_size(self):
         """
@@ -83,6 +97,9 @@ class ConditionalCount(CountingRule):
         """
         return collector.condition_count
 
+    @staticmethod
+    def short_name():
+        return "COND_COUNT"
 
 class RegisterCount(CountingRule):
     """
@@ -100,6 +117,16 @@ class RegisterCount(CountingRule):
         """
         return collector.storage_count
 
+    def extra_score(self, c):
+        if c.is_branch:
+            return 0.000001
+        else:
+            return 0.0
+
+    @staticmethod
+    def short_name():
+        return "REG_COUNT"
+
 
 class InstructionCount(CountingRule):
     """
@@ -116,3 +143,7 @@ class InstructionCount(CountingRule):
         Return the dictionary containing the field being counted
         """
         return collector.instruction_count
+
+    @staticmethod
+    def short_name():
+        return "INST_COUNT"

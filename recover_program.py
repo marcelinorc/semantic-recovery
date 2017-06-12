@@ -72,4 +72,4 @@ if __name__ == "__main__":
         CORRUPTED = os.path.join(os.path.dirname(__file__), 'corrupted.json')
     except FileNotFoundError:
         CORRUPTED = None
-    run_recovery(ARM_SIMPLE, 20.0, 4, CORRUPTED, True)
+    run_recovery(ARM_SIMPLE, 20.0, 8, CORRUPTED, True)

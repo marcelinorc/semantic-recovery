@@ -19,3 +19,13 @@ class TestBits(TestCase):
     def test_on(self):
         self.assertEqual(2**31, Bits.on(31))
         self.assertTrue(1, Bits.on(0))
+
+    def test_copy_bits(self):
+        # Some numbers with bit patterns
+        a = 65295
+        b = 3840
+        c = 4080
+        # Given these patterns, if we copy some bits from a to b, b should be equal to c
+        b = Bits.copy_bits(a, b, 8, 11, 4)
+        self.assertEqual(b, c)
+

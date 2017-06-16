@@ -28,22 +28,22 @@ def sucesive_packing(m):
         # 4x + 2 quadrant (upper right)
         for i in range(w, w + w):
             for j in range(0, w):
-                matrix[j, i] = matrix[j, i - w] * 4 + 2
+                matrix[j, i] = int(matrix[j, i - w] * 4 + 2)
 
         # 4x + 3 (lower left)
         for i in range(0, w):
             for j in range(w, w + w):
-                matrix[j, i] = matrix[j - w, i] * 4 + 3
+                matrix[j, i] = int(matrix[j - w, i] * 4 + 3)
 
         # 4x + 1 (lower right)
         for i in range(w, w + w):
             for j in range(w, w + w):
-                matrix[j, i] = matrix[j - w, i - w] * 4 + 1
+                matrix[j, i] = int(matrix[j - w, i - w] * 4 + 1)
 
         # 4x quadrant (upper left)
         for i in range(0, w):
             for j in range(0, w):
-                matrix[j, i] *= 4
+                matrix[j, i] = int(4 * matrix[j, i])
 
     return matrix
 
@@ -69,7 +69,7 @@ def build_2d_interleave_sp(packets, flat=False):
     # Distribute all packages in a given pattern
     while packets > 0:
         n = floor(log(packets, 4))
-        matrix_size = 2 ** n
+        matrix_size = int(2 ** n)
         packets_in_matrix = 4 ** n
 
         # Build several matrix of this size

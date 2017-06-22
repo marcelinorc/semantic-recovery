@@ -8,19 +8,23 @@ from semantic_codec.metadata.rules import from_instruction_list_to_dict, from_in
 
 
 def run_recovery(path, corrupted_percent, max_error_per_instruction, corrupted_program=None, generate_new=False, ):
+
     # Read the program from file
     original_program = TextDisassembleReader(path).read()
     program = TextDisassembleReader(path).read()
+
     # Collect the metrics on it
     collector = MetadataCollector()
     collector.collect(program)
     program = from_instruction_list_to_dict(program)
+
     # Corrupt it:
     if generate_new or not corrupted_program:
         corrupt_program(program, corrupted_percent, max_error_per_instruction)
         save_corrupted_program_to_json(program, "corrupted.json")
     else:
         program = load_corrupted_program_from_json(corrupted_program)
+
     # Recover it:
     r = Recuperator(collector, program)
     r.passes = 2

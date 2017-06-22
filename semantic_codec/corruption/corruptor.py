@@ -38,6 +38,44 @@ def load_corrupted_program_from_json(file_path):
     return result
 
 
+def corrupt_all_bits(lo, hi, instruction):
+    """
+    Corrupt all the bits from a given instruction from lo to hi bits
+    :param hi: Hi bit to corrupt
+    :param lo: Lo bit to corrupt
+    :param instruction: Instruction to corrupt
+    :return: the list of corrupted instructions
+    """
+    result = [instruction]
+    for i in range(lo, hi):
+        k = len(result)
+        mask = Bits.on(i)
+        for j in range(0, k):
+            result.append(result[j] ^ mask)
+
+    return result
+
+def corrupt_all_bits_tuples(tuples, instruction):
+    """
+    Corrupt all the bits expressed as a list of (hi, lo) tuples in a given instruction.
+    Lazy me, this routine assumes that the hi and lo bits of the tuples do not intersect, i.e. 0, 2 and 1, 3 produces
+    unexpected results
+    :param tuples: Bits to corrupt
+    :param instruction: Instruction to corrupt
+    :return: the list of corrupted instructions
+    """
+    result = [instruction]
+    for t in tuples:
+        l, h = t
+        Bits.check_range(l, h)
+        for i in result:
+            all = corrupt_all_bits(l, h, i)
+            for c in all:
+                if c not in result:
+                    result.append(c)
+    return result
+
+
 def corrupt_bits(hi, lo, amount, instruction):
     """
     Corrupt the bits in an instruction by fliping bits around

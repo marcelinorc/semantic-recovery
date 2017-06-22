@@ -50,40 +50,48 @@ def sucesive_packing(m):
 
 def build_2d_interleave_sp(packets, flat=False):
     """
-    Builds a 4^nx4^n matrix set for interleaving in a 2D data of a given width. It uses the successive packing algorithm
+    Builds a 4^nx4^n matrix set for interleaving a 2D data. It uses the successive packing algorithm
     by Shi and Zhang described in "A new two-dimensional interleaving technique using successive packing"
 
     The SP algorithm works only with 4^nx4^n matrices. In order to fit data of any size into that, we
-    build several matrices of size 4^n, 4^(n-1)... 4^0 and then we interleave them using the secuence:
-
-    as described in https://oeis.org/A047838
+    build several matrices of size 4^n, 4^(n-1)... 4^0 and then we interleave them once more using a simple
+    algorithm that goes through all matrices taking the mth row each time.
 
     :param packets: Number of packets to pack the data
     :param data_width: With of the data to be packet
     :return:
     """
-    # Find a 4^m X 4^m such as 4^m is the closest power of 4 smaller than the packet size
+
     matrices = []
     current_package_index = 0
 
     # Distribute all packages in a given pattern
     while packets > 0:
+
+        # Find a 4^m X 4^m such as 4^m is the closest power of 4 smaller than the packet size
         n = floor(log(packets, 4))
         matrix_size = int(2 ** n)
+        # Compute the number of packets that fits in this matrix
         packets_in_matrix = 4 ** n
 
         # Build several matrix of this size
         matrix_count = floor(packets / packets_in_matrix)
 
         if matrix_count > 0:
+            # Obtain the sucesive packing for a matrix of this size.
             m1 = sucesive_packing(n)
             for i in range(0, matrix_size):
                 for j in range(0, matrix_size):
                     m1[i][j] += current_package_index
+
+            # Since a matrix only fits 4^n packets, count how many packets we have allotted so far
             current_package_index += packets_in_matrix
 
+            # Append the matrix to the set of matrices
             matrices.append(m1)
-            # Don't compute the same matrix twice, just add the index
+
+            # Then obtain other matrices of the same size.
+            # Don't compute the same sucesive packing twice, just add the index to the first matrix obtained
             for k in range(0, matrix_count - 1):
                 mi = numpy.zeros(shape=(2 ** n, 2 ** n))
                 for i in range(0, matrix_size):
@@ -91,16 +99,17 @@ def build_2d_interleave_sp(packets, flat=False):
                         mi[i][j] = m1[i][j] + packets_in_matrix * (k + 1)
                 current_package_index += packets_in_matrix
                 matrices.append(mi)
-        # Compute remaining packets
+        # Compute how many packets remain to be allotted
         packets = fmod(packets, packets_in_matrix * matrix_count)
 
-    # Interleave matrixs rows to increase interleave
+    # Interleave matrixs rows between each others to increase interleave
     result = []
     for n in range(0, len(matrices[0][0])):
         for i in range(0, len(matrices)):
             if len(matrices[i]) > n:
                 result.append(matrices[i][n])
 
+    # Give the order as a flat list of numbers
     if flat:
         flat_result = []
         for r in result:
@@ -201,7 +210,7 @@ def deinterleave(packets, interleave_order, word_size=8):
         for p in interleave_order:
             a = 0
             if not p in packets or packets[p] is None:
-                errors.append((data._eq_byte, data._eq_bit))
+                errors.append((data._eq_word, data._eq_bit))
             else:
                 a = packets[p].dequeue(a, 0)
             data.enqueue(a, 0)

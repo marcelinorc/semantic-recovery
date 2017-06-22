@@ -1,10 +1,10 @@
 class BitQueue(object):
 
-    INT_SIZE = 32
+    WORD_SIZE = 32
 
     def __init__(self, word_size = 1):
         self._bytes = [0]
-        self._eq_byte = 0
+        self._eq_word = 0
         self._eq_bit = 0
         self._dq_bit = 0
         self._word_size = word_size
@@ -15,47 +15,47 @@ class BitQueue(object):
         :param value: Value to obtain the bits from
         :param from_bit: index of the bit to start copying bits
         """
-        Bits._check_range(0, from_bit)
+        Bits.check_range(0, from_bit)
 
-        if self._eq_bit + self._word_size - 1 > BitQueue.INT_SIZE - 1:
-            w = max(0, BitQueue.INT_SIZE - self._eq_bit - 1)
-            self._bytes[self._eq_byte] = Bits.copy_bits(value, self._bytes[self._eq_byte],
+        if self._eq_bit + self._word_size - 1 > BitQueue.WORD_SIZE - 1:
+            w = max(0, BitQueue.WORD_SIZE - self._eq_bit - 1)
+            self._bytes[self._eq_word] = Bits.copy_bits(value, self._bytes[self._eq_word],
                                                         from_bit, from_bit + w, self._eq_bit)
-            self._eq_byte += 1
+            self._eq_word += 1
             self._bytes.append(0)
 
-            w = max(0, self._eq_bit + self._word_size - BitQueue.INT_SIZE - 1)
+            w = max(0, self._eq_bit + self._word_size - BitQueue.WORD_SIZE - 1)
             self._eq_bit = 0
-            self._bytes[self._eq_byte] = Bits.copy_bits(value, self._bytes[self._eq_byte],
+            self._bytes[self._eq_word] = Bits.copy_bits(value, self._bytes[self._eq_word],
                                                         from_bit, from_bit + w, self._eq_bit)
         else:
             w = max(0, from_bit + self._word_size - 1)
-            self._bytes[self._eq_byte] = Bits.copy_bits(value, self._bytes[self._eq_byte],
+            self._bytes[self._eq_word] = Bits.copy_bits(value, self._bytes[self._eq_word],
                                                         from_bit, w, self._eq_bit)
 
         self._eq_bit += self._word_size
-        if self._eq_bit > BitQueue.INT_SIZE - 1:
-            self._eq_bit -= BitQueue.INT_SIZE
-            self._eq_byte += 1
+        if self._eq_bit > BitQueue.WORD_SIZE - 1:
+            self._eq_bit -= BitQueue.WORD_SIZE
+            self._eq_word += 1
             self._bytes.append(0)
 
     def empty(self):
-        if self._eq_byte < 0:
+        if self._eq_word < 0:
             return True
-        elif self._eq_byte == 0 and self._eq_bit <= self._dq_bit:
+        elif self._eq_word == 0 and self._eq_bit <= self._dq_bit:
             return True
         return False
 
     def dequeue(self, value, to_bit):
-        Bits._check_range(0, to_bit)
+        Bits.check_range(0, to_bit)
 
-        if self._dq_bit + self._word_size - 1 > BitQueue.INT_SIZE - 1:
-            w = BitQueue.INT_SIZE - self._dq_bit
+        if self._dq_bit + self._word_size - 1 > BitQueue.WORD_SIZE - 1:
+            w = BitQueue.WORD_SIZE - self._dq_bit
             value = Bits.copy_bits(self._bytes[0], value, self._dq_bit, self._dq_bit + w - 1, to_bit)
             self._bytes.pop(0)
-            self._eq_byte -= 1
+            self._eq_word -= 1
 
-            w = self._dq_bit + self._word_size - BitQueue.INT_SIZE
+            w = self._dq_bit + self._word_size - BitQueue.WORD_SIZE
             self._dq_bit = 0
             value = Bits.copy_bits(self._bytes[0], value, self._dq_bit, self._dq_bit + w - 1, to_bit)
         else:
@@ -63,10 +63,10 @@ class BitQueue(object):
             value = Bits.copy_bits(self._bytes[0], value, self._dq_bit, self._dq_bit + w - 1, to_bit)
 
         self._dq_bit += w
-        if self._dq_bit > BitQueue.INT_SIZE - 1:
-            self._dq_bit -= BitQueue.INT_SIZE
+        if self._dq_bit > BitQueue.WORD_SIZE - 1:
+            self._dq_bit -= BitQueue.WORD_SIZE
             self._bytes.pop(0)
-            self._eq_byte -= 1
+            self._eq_word -= 1
 
         return value
 
@@ -81,7 +81,7 @@ class Bits(object):
     Bits are represented from 0 to 31
     """
     @staticmethod
-    def _check_range(lo, hi):
+    def check_range(lo, hi):
         if lo > hi:
             raise RuntimeError('Lower bit is in fact higher {} > {}'.format(lo, hi))
         if lo < 0 or hi >= 32:
@@ -99,8 +99,8 @@ class Bits(object):
         :return:
         """
         dest_to = dest_from + (src_to - src_from)
-        Bits._check_range(src_from, src_to)
-        Bits._check_range(dest_from, dest_to)
+        Bits.check_range(src_from, src_to)
+        Bits.check_range(dest_from, dest_to)
 
         mask = Bits.set(dest_to, dest_from)
         if src_from > dest_from:
@@ -128,7 +128,7 @@ class Bits(object):
 
     @staticmethod
     def set(higher, lower):
-        Bits._check_range(lower, higher)
+        Bits.check_range(lower, higher)
         return (2 ** (higher + 1) - 1) ^ (2 ** lower - 1)
 
     @staticmethod

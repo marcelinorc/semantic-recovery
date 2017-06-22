@@ -4,7 +4,8 @@ from unittest import TestCase
 from semantic_codec.architecture.arm_instruction import AOpType
 from semantic_codec.architecture.bits import Bits
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
-from semantic_codec.corruption.corruptor import corrupt_instruction, corrupt_bits, corrupt_conditional, corrupt_program
+from semantic_codec.corruption.corruptor import corrupt_instruction, corrupt_bits, corrupt_conditional, corrupt_program, \
+    corrupt_all_bits, corrupt_all_bits_tuples
 from semantic_codec.metadata.rules import from_instruction_list_to_dict
 
 
@@ -54,3 +55,20 @@ class TestCorruptor(TestCase):
         self.assertFalse((corrupted[1] & mask) == AOpType.ALWAYS, "{:b} - {:b}".format(corrupted[1], AOpType.ALWAYS))
         self.assertFalse((corrupted[2] & mask) == AOpType.ALWAYS, "{:b} - {:b}".format(corrupted[2], AOpType.ALWAYS))
         self.assertFalse((corrupted[3] & mask) == AOpType.ALWAYS, "{:b} - {:b}".format(corrupted[3], AOpType.ALWAYS))
+
+    def test_corrupt_all_bits(self):
+        results3 = corrupt_all_bits(0, 3, 3)
+        results0 = corrupt_all_bits(0, 3, 0)
+        self.assertEqual(8, len(results0))
+        self.assertEqual(8, len(results3))
+        for x in range(0, 7):
+            self.assertTrue(x in results3)
+            self.assertTrue(x in results0)
+
+    def test_corrupt_all_tuples(self):
+        results = corrupt_all_bits_tuples([(0, 3), (8, 11)], 176)
+        self.assertEqual(64, len(results))
+        for i in range(0, 3):
+            for j in range(0, 3):
+                x = (j << 8) + i + 176
+                self.assertTrue(x in results)

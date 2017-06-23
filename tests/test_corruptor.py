@@ -4,8 +4,9 @@ from unittest import TestCase
 from semantic_codec.architecture.arm_instruction import AOpType
 from semantic_codec.architecture.bits import Bits
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
-from semantic_codec.corruption.corruptor import corrupt_instruction, corrupt_bits, corrupt_conditional, corrupt_program, \
-    corrupt_all_bits, corrupt_all_bits_tuples
+from semantic_codec.corruption.corruption import corrupt_instruction, corrupt_bits, corrupt_conditional, corrupt_program, \
+    corrupt_all_bits, corrupt_all_bits_tuples, predict_corruption
+from semantic_codec.interleaver.interleaver2d import build_2d_interleave_sp
 from semantic_codec.metadata.rules import from_instruction_list_to_dict
 
 
@@ -72,3 +73,10 @@ class TestCorruptor(TestCase):
             for j in range(0, 3):
                 x = (j << 8) + i + 176
                 self.assertTrue(x in results)
+
+    def test_predict_errors(self):
+        data_len = len([3, 4, 8, 3, 5, 1, 1, 4, 9, 0, 4, 6, 2, 0, 1, 4])
+        errors = predict_corruption(16, 2, data_len, build_2d_interleave_sp(16, flat=True), [2, 3, 4])
+        expected_errors = [(0, 4), (0, 10), (0, 16), (10, 4), (10, 10), (10, 16), (14, 16), (15, 4), (15, 10)]
+        for e in expected_errors:
+            self.assertTrue(e in errors)

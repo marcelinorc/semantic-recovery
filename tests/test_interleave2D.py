@@ -11,6 +11,8 @@ class TestInterleave2D(TestCase):
     PRGMS_PATH = os.path.join(os.path.dirname(__file__), 'data/programs/')
     HELLOWORLD_PATH = os.path.join(os.path.dirname(__file__), 'data/programs/helloworld.bin')
 
+    expected_errors = [(0, 4), (0, 10), (0, 16), (10, 4), (10, 10), (10, 16), (14, 16), (15, 4), (15, 10)]
+
     def test_sp(self):
         m = sucesive_packing(2)
         self.assertEqual(0.0, m[0, 0])
@@ -78,37 +80,9 @@ class TestInterleave2D(TestCase):
             for k in range(0, len(data)):
                 self.assertEqual(deintdata[k], data[k])
         else:
-            # Compare some manually computed errors against the implementation
+            # Compare some manually computed errors positions against the implementation
             for e in expected_errors:
                 self.assertTrue(e in errors)
-
-            # The following code works, but I realized is too complex for a test.
-            # =============================================================================================
-            # 1. For each packet lost there must be a series of corresponding errors signaled
-
-            # A packet losses a series of bits periodically with a given jump distance
-            #jump = bits_per_interlave * packet_count
-
-            # Compute the total amount of bits in the data
-            #total_bits = len(data) * BitQueue.WORD_SIZE
-
-            # Compute the starting index for each packet in the remove packet list
-            #b = [bits_per_interlave * m.index(p) for p in remove_packets]
-
-            # Check that all errors were properly reported
-            #while b[0] < total_bits:
-            #    for i in range(0, len(b)):
-            #        if b[i] < total_bits:
-            #            t = (int(floor(b[i] / WORD_SIZE)), int(fmod(b[i], WORD_SIZE)))
-            #            self.assertTrue(t in errors)
-            #            errors.remove(t)
-            #        # Jump to the next cyclic error
-            #        b[i] += jump
-
-            # =============================================================================================
-
-            # On the other hand, for each error reported, there must be a corresponding error packet
-            #self.assertEqual(0, len(errors))
 
     def test_interleave_deinterleave(self):
         """
@@ -138,7 +112,6 @@ class TestInterleave2D(TestCase):
         #packets = ceil(len(data) / 127)
 
         # Some errors expected for this data, and lost packets
-        expected_errors = [(0, 4), (0, 10), (0, 16), (10, 4), (10, 10), (10, 16), (14, 16), (15, 4), (15, 10)]
-
         self.do_interleave_deinterleave([3, 4, 8, 3, 5, 1, 1, 4, 9, 0, 4, 6, 2, 0, 1, 4],
-                                        16, [2, 3, 4], expected_errors)
+                                        16, [2, 3, 4], self.expected_errors)
+

@@ -3,7 +3,7 @@ import math
 import json
 import sys
 
-from semantic_codec.architecture.bits import Bits
+from semantic_codec.architecture.bits import Bits, BitQueue
 from semantic_codec.architecture.darm_instruction import DARMInstruction
 from semantic_codec.architecture.instruction import Instruction
 
@@ -200,3 +200,39 @@ def corrupt_instruction(program, original_instruction, address,
 
     return program[address]
 
+def predict_corruption(packet_count, bits_per_interleave, data_size, interleave, packets_lost):
+    """
+    Determines which bits will be corrupted given a certain interleave schema and a list of packets lost
+    :param packet_count: Amount of packets that is going the be sent.
+    :param bits_per_interleave: Amount of bits per each interleave pass
+    :param data_size: Amount of data that is going to be sent, measured in bytes
+    :param interleave: Interleave schema for
+    :param packets_lost: list of packets lost during transmission
+    :return: All the tuples that will be corrupted given the packets lost
+    """
+
+    WORD_SIZE = BitQueue.WORD_SIZE
+
+    # =============================================================================================
+    # 1. For each packet lost there must be a series of corresponding errors signaled
+
+    # A packet losses a series of bits periodically with a given jump distance
+    jump = bits_per_interleave * packet_count
+
+    # Compute the total amount of bits in the data
+    total_bits = data_size * BitQueue.WORD_SIZE
+
+    # Compute the starting index for each packet in the remove packet list
+    b = [bits_per_interleave * interleave.index(p) for p in packets_lost]
+
+    errors = []
+
+    # Check that all errors were properly reported
+    while b[0] < total_bits:
+        for i in range(0, len(b)):
+            if b[i] < total_bits:
+                errors.append((int(math.floor(b[i] / WORD_SIZE)), int(math.fmod(b[i], WORD_SIZE))))
+            # Jump to the next cyclic error
+            b[i] += jump
+
+    return errors

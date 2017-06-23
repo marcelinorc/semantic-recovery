@@ -31,6 +31,8 @@ class DisassembleReader (object):
         """
         Disassemble a list of instructions
         """
+        pass
+
 
 class TextDisassembleReader(DisassembleReader):
     """

@@ -1,13 +1,14 @@
 import os
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
-from semantic_codec.corruption.corruptor import corrupt_program, save_corrupted_program_to_json, \
+from semantic_codec.corruption.corruption import corrupt_program, save_corrupted_program_to_json, \
     load_corrupted_program_from_json
+from semantic_codec.corruption.corruptors import JSONCorruptor, RandomCorruptor
 from semantic_codec.metadata.collector import MetadataCollector
 from semantic_codec.metadata.recuperator import Recuperator
 from semantic_codec.metadata.rules import from_instruction_list_to_dict, from_instruction_dict_to_list
 
 
-def run_recovery(path, corrupted_percent, max_error_per_instruction, corrupted_program=None, generate_new=False, ):
+def run_recovery(path, corruptor):
 
     # Read the program from file
     original_program = TextDisassembleReader(path).read()
@@ -16,14 +17,9 @@ def run_recovery(path, corrupted_percent, max_error_per_instruction, corrupted_p
     # Collect the metrics on it
     collector = MetadataCollector()
     collector.collect(program)
-    program = from_instruction_list_to_dict(program)
 
     # Corrupt it:
-    if generate_new or not corrupted_program:
-        corrupt_program(program, corrupted_percent, max_error_per_instruction)
-        save_corrupted_program_to_json(program, "corrupted.json")
-    else:
-        program = load_corrupted_program_from_json(corrupted_program)
+    program = corruptor.corrupt(from_instruction_list_to_dict(program))
 
     # Recover it:
     r = Recuperator(collector, program)
@@ -69,11 +65,15 @@ def run_recovery(path, corrupted_percent, max_error_per_instruction, corrupted_p
     print("ERRORS: {} -- LOSING: {} -- TIDE: {} --RECOVERED: {} -- RATIO: {} ".format(
         errors, fail_looses, fail_tide, recovered, recovered/errors))
 
+
+# max_error_per_instruction, corrupted_program=None, generate_new=False, )
+
 if __name__ == "__main__":
     #ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/dissasembly.armasm')
     ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/helloworld.armasm')
     try:
         CORRUPTED = os.path.join(os.path.dirname(__file__), 'corrupted.json')
+        run_recovery(ARM_SIMPLE, JSONCorruptor(CORRUPTED))
     except FileNotFoundError:
         CORRUPTED = None
-    run_recovery(ARM_SIMPLE, 30.0, 3, CORRUPTED, True)
+        run_recovery(ARM_SIMPLE, RandomCorruptor(30.0, 3, true))

@@ -185,7 +185,6 @@ def interleave(data, interleave_order, word_size=8):
 
 
 def deinterleave(packets, interleave_order, word_size=8):
-
     """
     Deinterleaves the data. If a packet is missing, it adds this information to the error list.
     :param packets: Packets receive
@@ -217,34 +216,5 @@ def deinterleave(packets, interleave_order, word_size=8):
 
     return (data.get_bytes(), errors)
 
-# for k in range(0, 3):
-#    for i in range(0, n):
-#        print("{} {} {} {} {} {}".format(matrix1[i], matrix2[i], matrix1[i], matrix2[i], matrix1[i], matrix2[i]))
-#
-# print("------")
-#
-# for i in range(0, n, 2):
-#    for j in range(0, n, 2):
-#        m = matrix1[i][j]
-#        matrix1[i][j] = matrix2[i][j]
-#        matrix2[i][j] = m
-#
-# for k in range(0, 3):
-#    for i in range(0, n):
-#        print("{} {} {} {} {} {}".format(matrix1[i], matrix2[i], matrix1[i], matrix2[i], matrix1[i], matrix2[i]))
-#
-# print("------")
-#
-# for i in range(0, n - 1, 2):
-#    for j in range(0, n - 2):
-#        m = matrix1[j][i]
-#        matrix1[j][i] = matrix1[n - j - 1][i]
-#        matrix1[n - j - 1][i] = m
-#
-#        m = matrix2[j][i]
-#        matrix2[j][i] = matrix2[n - j - 1][i]
-#        matrix2[n - j - 1][i] = m
-#
-# for k in range(0, 3):
-#    for i in range(0, n):
-#        print("{} {} {} {} {} {}".format(matrix1[i], matrix2[i], matrix1[i], matrix2[i], matrix1[i], matrix2[i]))
+
+

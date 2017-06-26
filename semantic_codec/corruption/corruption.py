@@ -55,6 +55,7 @@ def corrupt_all_bits(lo, hi, instruction):
 
     return result
 
+
 def corrupt_all_bits_tuples(tuples, instruction):
     """
     Corrupt all the bits expressed as a list of (hi, lo) tuples in a given instruction.
@@ -64,15 +65,19 @@ def corrupt_all_bits_tuples(tuples, instruction):
     :param instruction: Instruction to corrupt
     :return: the list of corrupted instructions
     """
-    result = [instruction]
+    size = 0
     for t in tuples:
         l, h = t
         Bits.check_range(l, h)
-        for i in result:
-            all = corrupt_all_bits(l, h, i)
-            for c in all:
-                if c not in result:
-                    result.append(c)
+        size += h - l
+    result = [instruction] * (2 ** size)
+    kk = 1
+    for t in tuples:
+        l, h = t
+        for i in range(l, h):
+            for k in range(0, kk):
+                result[kk + k] = result[k] ^ Bits.on(i)
+            kk *= 2
     return result
 
 
@@ -231,7 +236,19 @@ def predict_corruption(packet_count, bits_per_interleave, data_size, interleave,
     while b[0] < total_bits:
         for i in range(0, len(b)):
             if b[i] < total_bits:
-                errors.append((int(math.floor(b[i] / WORD_SIZE)), int(math.fmod(b[i], WORD_SIZE))))
+                bte = int(math.floor(b[i] / WORD_SIZE))
+                bit = int(math.fmod(b[i], WORD_SIZE))
+                last_bit = bit + bits_per_interleave
+                t2 = None
+                if last_bit >= WORD_SIZE:
+                    t1 = (bte, bit, WORD_SIZE - 1 - bit)
+                    t2 = (bte + 1, 0, bits_per_interleave - WORD_SIZE + 1 + bit)
+                else:
+                    t1 = (bte, bit)
+                if not t1 in errors:
+                    errors.append(t1)
+                if t2 and not t2 in errors:
+                    errors.append(t2)
             # Jump to the next cyclic error
             b[i] += jump
 

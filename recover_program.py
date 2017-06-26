@@ -2,29 +2,31 @@ import os
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
 from semantic_codec.corruption.corruption import corrupt_program, save_corrupted_program_to_json, \
     load_corrupted_program_from_json
-from semantic_codec.corruption.corruptors import JSONCorruptor, RandomCorruptor
+from semantic_codec.corruption.corruptors import JSONCorruptor, RandomCorruptor, PacketCorruptor, DARMInstruction
 from semantic_codec.metadata.collector import MetadataCollector
 from semantic_codec.metadata.recuperator import Recuperator
 from semantic_codec.metadata.rules import from_instruction_list_to_dict, from_instruction_dict_to_list
 
 
-def run_recovery(path, corruptor):
-
-    # Read the program from file
-    original_program = TextDisassembleReader(path).read()
-    program = TextDisassembleReader(path).read()
+def run_recovery(original_program, corruptor):
+    # Clone the original program
+    program = [DARMInstruction(v.encoding, position=v.position) for v in original_program]
 
     # Collect the metrics on it
     collector = MetadataCollector()
     collector.collect(program)
 
+    print("[INFO]: Metrics collected")
+
     # Corrupt it:
     program = corruptor.corrupt(from_instruction_list_to_dict(program))
+    print("[INFO]: Program corrupted")
 
     # Recover it:
     r = Recuperator(collector, program)
     r.passes = 2
     r.recover()
+    print("[INFO]: Program recovered")
 
     recovered_program = from_instruction_dict_to_list(program)
 
@@ -63,17 +65,23 @@ def run_recovery(path, corruptor):
 
     print("------------")
     print("ERRORS: {} -- LOSING: {} -- TIDE: {} --RECOVERED: {} -- RATIO: {} ".format(
-        errors, fail_looses, fail_tide, recovered, recovered/errors))
+        errors, fail_looses, fail_tide, recovered, recovered / errors))
 
 
 # max_error_per_instruction, corrupted_program=None, generate_new=False, )
-
 if __name__ == "__main__":
-    #ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/dissasembly.armasm')
+    use_packets = True
+    # ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/dissasembly.armasm')
     ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/helloworld.armasm')
+    original_program = TextDisassembleReader(ARM_SIMPLE).read()
     try:
-        CORRUPTED = os.path.join(os.path.dirname(__file__), 'corrupted.json')
-        run_recovery(ARM_SIMPLE, JSONCorruptor(CORRUPTED))
+        if use_packets:
+            ll = len(original_program)
+            packet_count = ll / 32
+            run_recovery(original_program, PacketCorruptor(packet_count, ll, packets_lost=[1, 2, 3]))
+        else:
+            CORRUPTED = os.path.join(os.path.dirname(__file__), 'corrupted.json')
+            run_recovery(original_program, JSONCorruptor(CORRUPTED))
     except FileNotFoundError:
         CORRUPTED = None
-        run_recovery(ARM_SIMPLE, RandomCorruptor(30.0, 3, true))
+        run_recovery(original_program, RandomCorruptor(30.0, 3, True))

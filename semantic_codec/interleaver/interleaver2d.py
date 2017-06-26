@@ -58,7 +58,7 @@ def build_2d_interleave_sp(packets, flat=False):
     algorithm that goes through all matrices taking the mth row each time.
 
     :param packets: Number of packets to pack the data
-    :param data_width: With of the data to be packet
+    :param flat: Indicates to return the interleave in a single list, as opposed to a matrix form
     :return:
     """
 

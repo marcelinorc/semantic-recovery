@@ -21,8 +21,13 @@ class AReg:
     R13 = SP = 13
     R14 = LR = 14
     R15 = PC = 15
+    # The store is modeled as a register
     STORE = 16
+    # The flag register
     CPSR = 17
+    # A fictitious register that is used to even the maths. The NOREG is the
+    # register used by the instructions that use NO REGisters at all
+    NOREG = 18
 
     STORAGE_NAMES = ["R{}".format(x) for x in range(0, 16)]
     STORAGE_NAMES.extend(['STORE', 'CPSR'])

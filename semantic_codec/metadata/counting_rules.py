@@ -80,7 +80,6 @@ class CountingRule(Rule):
         """
         pass
 
-
 class ConditionalCount(CountingRule):
     """
     Class that enforces that the conditional count in the program abides to the metadata conditional count
@@ -126,7 +125,6 @@ class RegisterCount(CountingRule):
     @staticmethod
     def short_name():
         return "REG_COUNT"
-
 
 class InstructionCount(CountingRule):
     """

@@ -71,7 +71,8 @@ class DARMInstruction(Instruction):
         if self._darm.Rd:
             result.append(self._darm.Rd.idx)
         if self._darm.reglist.reglist > 0 and not self._inst_is('push'):
-            result.extend(Instruction._get_register_list(self._darm.reglist.reglist))
+            result.extend(Instruction._get_register_list(self._darm.reglist.reglist, result))
+
         return result
 
     def registers_read(self):

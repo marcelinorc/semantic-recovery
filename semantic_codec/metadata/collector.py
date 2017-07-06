@@ -1,11 +1,20 @@
 from semantic_codec.architecture.arm_instruction import AReg
 
 
-class MetadataCollector(object):
+def _inc_key(d, key):
+    d[key] = d[key] + 1 if key in d else 1
 
+
+def _inc_keys(d, keys):
+    for k in keys:
+        d[k] = d[k] + 1 if k in d else 1
+
+
+class MetadataCollector(object):
     """
     Collector of all metadata used in recovery semantics
     """
+
     def __init__(self):
         self._storage_count = {}
         self._condition_count = {}
@@ -39,21 +48,13 @@ class MetadataCollector(object):
     def instruction_count(self):
         return self._instruction_count
 
-
-
-    @staticmethod
-    def _inc_key(d, key):
-        d[key] = d[key] + 1 if key in d else 1
-
-    @staticmethod
-    def _inc_keys(d, keys):
-        for k in keys:
-            d[k] = d[k] + 1 if k in d else 1
-
     def collect(self, instructions):
         """
-        Collects a series of metadata from an arm assemby program
+        Collects a series of metadata from an arm assembly program
         """
+
+        # TODO: Collect the number of instructions writing to no register
+
         self.empty_spaces = []
 
         # Lazy me
@@ -69,12 +70,12 @@ class MetadataCollector(object):
             if inst.encoding not in encodings:
                 encodings.append(inst.encoding)
                 self.empty_spaces.append(inst)
-            self._inc_key(self._condition_count, inst.conditional_field)
-            self._inc_key(self._instruction_count, inst.opcode_field)
-            self._inc_keys(self._storage_count, inst.storages_used())
+            _inc_key(self._condition_count, inst.conditional_field)
+            _inc_key(self._instruction_count, inst.opcode_field)
+            _inc_keys(self._storage_count, inst.storages_used())
 
             read = inst.storages_read()
-            for s in range(0, AReg.STORAGE_COUNT) :
+            for s in range(0, AReg.STORAGE_COUNT):
                 if defined[s]:
                     if s in read:
                         if s not in storage_mean_dist:
@@ -109,6 +110,35 @@ class MetadataCollector(object):
         self.empty_spaces.sort(key=lambda x: x.encoding, reverse=True)
 
 
+class CorruptedProgramMetadataCollector(object):
+    def __init__(self):
+        # Number of address having at least one candidate with a given conditional
+        self.address_with_cond = {}
+        # Number of address having at least one candidate with a given opcode
+        self.address_with_op = {}
+        # Number of address having at least one candidate with a given register
+        self.address_with_reg = {}
 
+    def collect(self, program):
 
+        self.address_with_cond = {}
+        self.address_with_op = {}
+        self.address_with_reg = {}
 
+        for addr in program:
+            cond, op, reg = {}, {}, {}
+            for inst in program[addr]:
+                if inst.ignore:
+                    continue
+                cond[inst.conditional_field] = 1
+                op[inst.opcode_field] = 1
+                for s in inst.storages_used():
+                    reg[s] = 1
+            for k in cond.keys():
+                _inc_key(self.address_with_cond, k)
+            for k in op.keys():
+                _inc_key(self.address_with_op, k)
+            for k in reg.keys():
+                _inc_key(self.address_with_reg, k)
+
+            pass

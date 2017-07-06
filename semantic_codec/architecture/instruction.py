@@ -26,6 +26,8 @@ class Instruction(object):
         # score of the instruction
         self.scores_by_rule = {}
 
+        self.score_function = Instruction._add_score
+
         self._ignore = False
 
         if isinstance(encoding, str):
@@ -38,12 +40,15 @@ class Instruction(object):
         else:
             raise RuntimeError("The Opcode must be an string or an integer value")
 
-
-    def score(self):
+    @staticmethod
+    def _add_score(scores_by_rule):
         result = 0
-        for v in self.scores_by_rule.values():
+        for v in scores_by_rule.values():
             result += v
         return result
+
+    def score(self):
+        return self.score_function(self.scores_by_rule)
 
     @property
     def ignore(self):
@@ -75,8 +80,9 @@ class Instruction(object):
         return self._ssa_written
 
     @staticmethod
-    def _get_register_list(encoding):
-        result = []
+    def _get_register_list(encoding, result = None):
+        if not result:
+            result = []
         for x in range(0, 16):
             if Bits.is_on(encoding, x) and x not in result:
                 result.append(x)
@@ -125,6 +131,8 @@ class Instruction(object):
             self._storages_used.extend(self.registers_used())
             if self._writes_to_memory() or self._read_from_memory():
                 self._storages_used.append(16)
+            if not self._storages_used:
+                self._storages_used.append(18)  # The NOREG register. i.e. this instruction uses no register
             return self._storages_used
 
     def storages_written(self):
@@ -153,6 +161,7 @@ class Instruction(object):
             if self._read_from_memory():
                 # 16 is the 'register' for memory
                 self._storages_read.append(16)
+
             return self._storages_read
 
     @property
@@ -186,4 +195,3 @@ class Instruction(object):
 
     def modifies_flags(self):
         pass
-

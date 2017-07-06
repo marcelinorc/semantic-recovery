@@ -3,8 +3,19 @@ from semantic_codec.interleaver.interleaver2d import build_2d_interleave_sp
 
 
 class Corruptor(object):
+
+    def __init__(self):
+        self.save_corrupted_program = False
+        self.corrupted_program_path = None
+
     def corrupt(self, program):
         pass
+
+    def _save_corrupted_program(self, program):
+        if not self.corrupted_program_path:
+            raise RuntimeError('Cannot save program, path is undefined')
+        else:
+            save_corrupted_program_to_json(program, self.corrupted_program_path)
 
 
 class JSONCorruptor(Corruptor):
@@ -12,11 +23,14 @@ class JSONCorruptor(Corruptor):
     Loads a corrupted program from a JSON file
     """
 
-    def __init__(self, path):
-        self.corrupted_program = path
+    def __init__(self, path=None):
+        super(JSONCorruptor).__init__()
+        self.corrupted_program_path = path
 
     def corrupt(self, program):
-        return load_corrupted_program_from_json(self.corrupted_program)
+        if not self.corrupted_program_path:
+            raise RuntimeError('Cannot load corrupted program. No path is set')
+        return load_corrupted_program_from_json(self.corrupted_program_path)
 
 
 class PacketCorruptor(Corruptor):
@@ -27,12 +41,16 @@ class PacketCorruptor(Corruptor):
 
     "A new two-dimensional interleaving technique using successive packing"
     """
-    def __init__(self, packet_count=None, data_size=None, interleave=None, packets_lost=None, bits_per_interleave=2):
+    def __init__(self, packet_count=None, data_size=None, interleave=None,
+                 packets_lost=None, bits_per_interleave=2, save_corrupted_path=None):
+        super(PacketCorruptor, self).__init__()
         self.packet_count = math.ceil(packet_count) # Just in case
         self.data_size = data_size
         self.interleave = interleave
         self.packet_lost = packets_lost
         self.bits_per_interleave = bits_per_interleave
+        self.save_corrupted_program = save_corrupted_path is not None
+        self.corrupted_program_path = save_corrupted_path
 
     def _corrupt_address(self, tuples, address, program):
         corrupted = []
@@ -55,12 +73,13 @@ class PacketCorruptor(Corruptor):
         if not self.interleave:
             self.interleave = build_2d_interleave_sp(self.packet_count, True)
 
-        addresses = [x for x in program.keys()] # TODO: This is a bottleneck created by the badly choosen representation of data
+        # TODO: This is a bottleneck created by the badly choosen representation of data
+        addresses = [x for x in program.keys()]
         addresses.sort()
         # predict packet losses
         errors = predict_corruption(self.packet_count, self.bits_per_interleave, self.data_size,
                                     self.interleave, self.packet_lost)
-        # Make sure all errors a together
+        # Make sure all errors of a same byte are grouped together
         vv = len(errors) * 100
         errors.sort(key=lambda x: x[0] * vv + x[1])
 
@@ -74,6 +93,8 @@ class PacketCorruptor(Corruptor):
                     self._corrupt_address(tuples, address, program)
                     tuples = []
                 current = e[0]
+
+            # Some errors expand through different bytes and are represented by a three index tuple
             if len(e) == 2:
                 tuples.append((e[1], e[1] + self.bits_per_interleave))
             else:
@@ -82,21 +103,22 @@ class PacketCorruptor(Corruptor):
             if k < len(errors):
                 e = errors[k]
 
-
+        if self.save_corrupted_program:
+            self._save_corrupted_program(program)
         return program
 
 class RandomCorruptor(Corruptor):
     """
     Corrupts a random set of bits in a program
     """
-
-    def __init__(self, corrupted_percent=20, max_error_per_instruction=3, corrupted_program=True):
+    def __init__(self, corrupted_percent=20, max_error_per_instruction=3, save_corrupted=True):
+        super(RandomCorruptor, self).__init__()
         self.corrupted_percent = corrupted_percent
         self.max_error_per_instruction = max_error_per_instruction
-        self.save_corrupted_program = corrupted_program
+        self.save_corrupted_program = save_corrupted
 
     def corrupt(self, program):
         corrupt_program(program, self.corrupted_percent, self.max_error_per_instruction)
         if self.save_corrupted_program:
-            save_corrupted_program_to_json(program, "corrupted.json")
+            self._save_corrupted_program(program)
         return program

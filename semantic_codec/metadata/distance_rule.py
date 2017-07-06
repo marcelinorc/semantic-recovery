@@ -43,6 +43,15 @@ class RegisterWriteDistance(RegisterDistanceRule):
     """
     pass
 
+class RegisterReadDistanceProbability(RegisterDistanceRule):
+    """
+    Gives a more robust probabilistic score of all registers of an instruction being read in thsi particular
+    address
+    """
+
+    def recover(self, position):
+        pass
+
 
 class RegisterReadDistance(RegisterDistanceRule):
 

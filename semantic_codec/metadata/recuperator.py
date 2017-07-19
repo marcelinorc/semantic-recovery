@@ -1,3 +1,4 @@
+from semantic_codec.architecture.arm_instruction import AReg
 from semantic_codec.metadata.collector import CorruptedProgramMetadataCollector
 from semantic_codec.metadata.counting_rules import ConditionalCount, InstructionCount, RegisterCount
 from semantic_codec.metadata.distance_rule import RegisterReadDistance
@@ -68,24 +69,41 @@ class Recuperator(object):
 
 
 
-def probabilistic_rules(scores_dict):
-
+def probabilistic_rules(scores_dict, inst):
+    # Conditional register score
     pc = scores_dict['pc'] if 'pc' in scores_dict else 1
+    # Register score
     pr = scores_dict['pr'] if 'pr' in scores_dict else 1
+    # Register distance score
     prd = scores_dict['prd'] if 'prd' in scores_dict else 1
+    # Opcode score
     po = scores_dict['po'] if 'po' in scores_dict else 1
-    pfb = scores_dict['pfb'] if 'pfb' in scores_dict else 1
-    pcb = scores_dict['pcb'] if 'pcb' in scores_dict else 1
+    # Proper control flow
+    pcf = scores_dict['pcfg'] if 'pcfg' in scores_dict else 1
+    # Push Pop score
+    pupo = scores_dict['pupo'] if 'pupo' in scores_dict else 1
+    # Branch distance score
+    pbd = scores_dict['pbd'] if 'pbd' in scores_dict else 1
 
     for k, p in scores_dict.items():
         if p > 1 or p < 0:
             raise RuntimeError('Invalid probability of rule {}: {} '.format(k, p))
 
-    p = pc * pr * prd * po * (pfb + pcb - pfb * pcb)
-    if p > 1 or p < 0:
+    # The basic score all instructions must abide to
+    score = prd
+
+    # In order to keep the competition fair, all instructions must have equal amount of optional scores
+    #if inst.is_branch:
+    #    score *= pbd
+    #elif inst.is_push_pop:
+    #    score *= pr * pupo
+    #else:
+    #    score *= pr #* prd
+
+    if score > 1 or score < 0:
         raise RuntimeError('Invalid probability: {} '.format(p))
 
-    return p
+    return score
 
 
 class ProbabilisticRecuperator(Recuperator):
@@ -121,6 +139,216 @@ class ProbabilisticRecuperator(Recuperator):
                     ph.append(prb_union/t)
         return ph
 
+    def _compute_conditional(self, inst, cpmd):
+        """
+        Compute the probability that an instruction is awarded one conditional from the metadata
+        """
+        # Conditional field of the instruction
+        c = inst.conditional_field
+        # See these probabilities expressed and explained in the paper
+        try:
+            pc = self._collector.condition_count[c] / cpmd.address_with_cond[c]
+        except KeyError:
+            pc = 0
+        inst.scores_by_rule['pc'] = pc
+
+    def _compute_opcode(self, inst, cpmd):
+        """
+        Compute the probability that an instruction is awarded one opcode from the metadata
+        """
+        # Pc (Read the paper):
+        o = inst.opcode_field
+        # See these probabilities expressed and explained in the paper
+        try:
+            po = self._collector.instruction_count[o] / cpmd.address_with_op[o]
+        except KeyError:
+            po = 0
+        inst.scores_by_rule['po'] = po
+
+    def _compute_registers(self, inst, cpmd):
+        """
+        Compute the probability that this instruction is awarded all of its registers from the metadata
+        """
+        if inst.is_branch or inst.is_push_pop:
+            return
+        r = inst.storages_used()
+        try:
+            # Assuming independence is faster than the actual probabilities
+            av = 1
+            for rr in r:
+                #av *= self._collector.storage_count[rr] / cpmd.address_with_reg[rr]
+                av = min(av, self._collector.storage_count[rr] / cpmd.address_with_reg[rr])
+            pr = av
+        except KeyError:
+            pr = 0
+        inst.scores_by_rule['pr'] = pr
+
+    def _compute_proper_cfg(self, inst, cpmd, addr):
+        """
+        Computes the probability of this instruction of being placed in a proper place in the control flow.
+        This means that (i) its surrounded by equal conditionals OR that it (ii) branch after a flag modify
+        """
+
+        ###################################################
+        # THE INSTRUCTION IS PLACED NEAR SAME CONDITIONAL
+        ###################################################
+
+        # Compute the probability of the previous instruction having equal conditinoal
+        a = addr - 4
+        prev_inst = self._program[a] if a in self._program else None
+        # Get posterior instruction
+        a = addr + 4
+        post_inst = self._program[a] if a in self._program else None
+
+        # The previous instruction has an score computed. We use that
+        prev = 0
+        # Previous instructions with the same conditional
+        same_cond = 0
+        # Instructions modifiying the flag register
+        flag_mod = 0
+        # Instructions both having the same conditional and modifying the registers
+        union_count = 0
+        # Posterior instructions with the same conditional
+        after_same_cond = 0
+
+        result = 0
+
+        ln_prev = 0
+        ln_post = 0
+
+        if prev_inst:
+            for i in prev_inst:
+                if not i.ignore:
+                    ln_prev += 1
+                    a = i.conditional_field == inst.conditional_field
+                    b = AReg.CPSR in i.registers_written()
+                    if a:
+                        same_cond += 1
+                    if b:
+                        flag_mod += 1
+                    # COMPUTE THE UNION OF BOTH EVENTS
+                    if a and b:
+                       union_count += 1
+
+        # Compute the probability of the following instruction having equal conditinal
+        after = 0
+        if post_inst:
+            after_same_cond = 0
+            for i in post_inst:
+                if not i.ignore:
+                    ln_post += 1
+                    if i.conditional_field == inst.conditional_field:
+                        after_same_cond += 1
+
+        all_conditional = 14
+        p1, p2, p3 = 0, 0, 0
+        result = 0
+        if inst.conditional_field != all_conditional:
+            if same_cond > 0 and flag_mod > 0:
+                if after_same_cond > 0:
+                    p1 = (same_cond + flag_mod - union_count) * after_same_cond / (ln_prev * ln_post)
+                    p1 *= self._model.branch_after_cpsr_and_near_cond_are_equals
+
+                p2 = (same_cond + flag_mod - union_count) / ln_prev
+                p2 *= self._model.branch_after_cpsr_and_prev_cond_are_equals
+
+                result = max(p1, p2)
+
+            elif same_cond > 0:
+                if after_same_cond > 0:
+                    p1 = same_cond * after_same_cond / (ln_prev * ln_post)
+                    p1 *= self._model.both_conditionals_are_equals
+
+                p2 = same_cond / len(prev_inst)
+                p2 *= self._model.prev_conditionals_are_equals
+                result = max(p1, p2)
+
+            elif flag_mod > 0:
+                if after_same_cond > 0:
+                    p1 = flag_mod * after_same_cond / (ln_prev * ln_post)
+                    p1 *= self._model.branch_after_cpsr_and_after_cond_are_equals
+
+                p2 = flag_mod / ln_prev
+                p2 *= self._model.branch_after_cpsr
+                result = max(p1, p2)
+        else:
+            if flag_mod > 0:
+                p3 = flag_mod / ln_prev
+                p3 *= 1 - self._model.branch_after_cpsr
+                result = p3
+            elif same_cond > 0:
+                if after_same_cond > 0:
+                    p1 = same_cond * after_same_cond / (ln_prev * ln_post)
+                    p1 *= self._model.both_conditionals_are_equals
+                p2 = same_cond / len(prev_inst)
+                p2 *= self._model.prev_conditionals_are_equals
+                result = max(p1, p2)
+            elif after_same_cond > 0:
+                p1 = after_same_cond / ln_post
+                p1 *= self._model.prev_conditionals_are_equals
+                result = p1
+
+        if result == 0:
+            result = 0.1
+        elif result > 1:
+            raise RuntimeError('Invalid probability')
+
+        inst.scores_by_rule['pcfg'] = result
+
+
+
+    def _compute_register_distance(self, inst, cpmd, addr):
+        # These probabilities take into consideration previous instructions,
+        # therefore they cannot be applied to the first instruction
+        # Dictionary with the minimum register distance
+            dist_min = self._collector.storage_min_dist
+            dist_max = self._collector.storage_max_dist
+
+            prd = 1
+            # Compute register distance
+            for r in inst.storages_read():
+                try:
+                    a, b = dist_min[r], dist_max[r] + 1
+                except KeyError:
+                    a, b = 0, 1
+
+                max_dist = addr - 4 * b
+                min_dist = addr - 4 * a
+
+                p = 1
+                for a in range(max_dist, min_dist):
+                    count = 0
+                    t = 0
+                    if not a in self._program:
+                        continue
+
+                    for x in self._program[a]:
+                        if not x.ignore:
+                            t += 1
+                            if r in x.storages_written():
+                                count += 1
+                    if t > 0:
+                        p *= 1 - count / t
+                        if p == 1:
+                            break
+
+                prd = min(p, prd)
+                if prd >= 1:
+                    prd = 0.9999
+                    break
+
+            inst.scores_by_rule['prd'] = 1 - prd
+#                _pmf_reg_dist = uniform(a, b)
+#                ph = self._instruction_range_probs(addr, b, a, lambda x: )
+                # Handle special registers such as SP, LP and PC
+#                if r in [13, 15] and not ph:
+                    # Do not take into consideration stack pointer read nor a program counter read
+                    # PC not explicitly written and SP is very difficult to detect
+#                    continue
+#                else:
+#                    prd *= indep_events_union([_pmf_reg_dist * p for p in ph]) if ph else 0
+
+
     def _recover(self, progress_bar):
         # first, recopilate all the data we need once
         # This data consist in the amount of conditionals, operands and registers in the program
@@ -128,11 +356,10 @@ class ProbabilisticRecuperator(Recuperator):
         cpmd = CorruptedProgramMetadataCollector()
         cpmd.collect(self._program)
 
-        dist_min = self._collector.storage_min_dist
-        dist_max = self._collector.storage_max_dist
 
 
-        addresses = [ a for a in self._program.keys()]
+        # Order addresses so we are sure we go from lower addresses to higher addresses
+        addresses = [a for a in self._program.keys()]
         addresses.sort()
 
         for i in range(0, len(addresses)):
@@ -141,82 +368,40 @@ class ProbabilisticRecuperator(Recuperator):
                 if inst.ignore:
                     continue
 
+                # Sets the probabilistic rures function as the score calculation of the intruction
                 inst.score_function = probabilistic_rules
 
-                # Pc (Read the paper):
-                c = inst.conditional_field
-                o = inst.opcode_field
-                r = inst.storages_used
-
-                # See these probabilities expressed and explained in the paper
-                try:
-                    pc = self._collector.condition_count[c] / cpmd.address_with_cond[c]
-                except KeyError:
-                    pc = 0
-                try:
-                    po = self._collector.instruction_count[o] / cpmd.address_with_op[o]
-                except KeyError:
-                    po = 0
-                try:
-                    pr = self._collector.storage_count[c] / cpmd.address_with_reg[c]
-                except KeyError:
-                    pr = 0
-
-                prd = 1
-
-                # These probabilities take into consideration previous instructions,
-                # therefore they cannot be applied to the first instruction
+                #self._compute_conditional(inst, cpmd)
+                #self._compute_opcode(inst, cpmd)
+                #self._compute_registers(inst, cpmd)
                 if i > 0:
-                    # Compute register distance
-                    for r in inst.storages_read():
-                        try:
-                            a, b = dist_min[r], dist_max[r] + 1
-                        except KeyError:
-                            a, b = 0, 1
-
-                        _pmf_reg_dist = uniform(a, b)
-                        ph = self._instruction_range_probs(addr, b, a, lambda x: r in x.storages_written())
-
-                        # Handle special registers such as SP, LP and PC
-                        if r in [13, 15] and not ph:
-                            # Do not take into consideration stack pointer read nor a program counter read
-                            # PC not explicitly written and SP is very difficult to detect
-                            continue
-                        else:
-                            prd *= indep_events_union([_pmf_reg_dist * p for p in ph]) if ph else 0
-
-                    inst.scores_by_rule['prd'] = prd
-
-                """
-                    # Compute Flag/Branch rule
-                    pfb = self._model.branch_after_cpsr  # This is a fixed probability
-                    ph = self._instruction_range_probs(addr, 0, -1, lambda x: x.modifies_flags())
-                    if ph:
-                        pfb = indep_events_union([pfb * p for p in ph])
-                        if not inst.is_branch:
-                            pfb = 1 - pfb
-                    else:
-                        pfb = 1 - pfb if inst.is_branch else pfb
-
-
-                    # Compute PCB
-                    pcb = self._model.near_conditionals_are_equals  # This is a fixed probability
-                    ph = self._instruction_range_probs(addr, 1, 2,
-                                                       lambda x: x.conditional_field == inst.conditional_field)
-                    if ph:
-                        pcb = indep_events_union([pcb * p for p in ph])
-                    else:
-                        pcb = 1 - self._model.near_conditionals_are_equals
-
-                    # Only instructions with previous instructions can have these
-                    inst.scores_by_rule['pfb'] = pfb
-                    inst.scores_by_rule['pcb'] = pcb
-                """
-
-
-
-                inst.scores_by_rule['pc'] = pc
-                inst.scores_by_rule['pr'] = pr
-                inst.scores_by_rule['po'] = po
-
+                    self._compute_register_distance(inst, cpmd, addr)
+                #    self._compute_proper_cfg(inst, cpmd, addr)
             progress_bar.progress()
+
+            """
+                # Compute Flag/Branch rule
+                pfb = self._model.branch_after_cpsr  # This is a fixed probability
+                ph = self._instruction_range_probs(addr, 0, -1, lambda x: x.modifies_flags())
+                if ph:
+                    pfb = indep_events_union([pfb * p for p in ph])
+                    if not inst.is_branch:
+                        pfb = 1 - pfb
+                else:
+                    pfb = 1 - pfb if inst.is_branch else pfb
+
+
+                # Compute PCB
+                pcb = self._model.near_conditionals_are_equals  # This is a fixed probability
+                ph = self._instruction_range_probs(addr, 1, 2,
+                                                   lambda x: x.conditional_field == inst.conditional_field)
+                if ph:
+                    pcb = indep_events_union([pcb * p for p in ph])
+                else:
+                    pcb = 1 - self._model.near_conditionals_are_equals
+
+                # Only instructions with previous instructions can have these
+                inst.scores_by_rule['pfb'] = pfb
+                inst.scores_by_rule['pcb'] = pcb
+            """
+

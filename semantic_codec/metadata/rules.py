@@ -134,11 +134,11 @@ class ControlFlowBehavior(Rule):
             conditional_score[AOpType.COND_ALWAYS] -= self._model.branch_after_cpsr * flag_mod / t_prev
             # Assign a good score to the conditional equal to the previous instruction
             for i in range(0, COND_TYPES):
-                conditional_score[i] += self._model.near_conditionals_are_equals * pre_cond_count[i] / t_prev
+                conditional_score[i] += self._model.both_conditionals_are_equals * pre_cond_count[i] / t_prev
         if t_post > 0:
             # Assign a good score to the conditional equal to the posterior instruction
             for i in range(0, COND_TYPES):
-                conditional_score[i] += self._model.near_conditionals_are_equals * post_cond_count[i] / t_post
+                conditional_score[i] += self._model.both_conditionals_are_equals * post_cond_count[i] / t_post
 
 
 

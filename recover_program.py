@@ -22,6 +22,8 @@ def print_report(instructions_output_file, recovered_program):
         print('Original Instruction: {}'.format(original_program[i]))
         instructions = recovered_program[i]
 
+        addr = original_program[i].position
+
         ori_inst = None
         for inst in instructions:
             if inst.encoding == original_program[i].encoding:
@@ -67,9 +69,9 @@ def print_report(instructions_output_file, recovered_program):
                 if inst.ignore:
                     print("X", end="")
                 if inst.encoding == original_program[i].encoding:
-                    print("{3} ++ [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, inst.position), end="")
+                    print("{3} ++ [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, addr), end="")
                 else:
-                    print("{3} -- [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, inst.position), end="")
+                    print("{3} -- [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, addr), end="")
                 for k, v in inst.scores_by_rule.items():
                     print(" {0!s}: {1:.6f} -- ".format(k, v), end="")
                 print("")
@@ -95,7 +97,7 @@ def print_report(instructions_output_file, recovered_program):
     sys.stdout = orig_stdout
 
 
-def run_recovery(original_program, corruptor, recuperator):
+def run_recovery(original_program, corruptor, recuperator, passes=1):
     # Clone the original program
     program = [DARMInstruction(v.encoding, position=v.position) for v in original_program]
 
@@ -111,7 +113,7 @@ def run_recovery(original_program, corruptor, recuperator):
 
     # Recover it:
     r = recuperator(collector, program)
-    r.passes = 2
+    r.passes = passes
     r.recover()
     print("[INFO]: Program recovered")
 
@@ -140,6 +142,6 @@ if __name__ == "__main__":
         corruptor = JSONCorruptor()
 
     corruptor.corrupted_program_path = os.path.join(os.path.dirname(__file__), 'corrupted.json')
-    #recovered_program = run_recovery(original_program, corruptor, Recuperator)
+    #recovered_program = run_recovery(original_program, corruptor, Recuperator, 2)
     recovered_program = run_recovery(original_program, corruptor, ProbabilisticRecuperator)
     print_report('instructions.txt', recovered_program)

@@ -28,6 +28,11 @@ class TestDARMInstruction(TestCase):
         # ldr r0, [pc, #12]
         self.assertFalse(DARMInstruction("0c 00 9f e5", Instruction.HEX_STR).modifies_flags())
 
+    def test_pld(self):
+        inst = DARMInstruction(4160692225)
+        self.assertEqual(14, inst.conditional_field)
+        inst = DARMInstruction(3892256769)
+        self.assertEqual(14, inst.conditional_field)
 
 
     def test_reglist(self):

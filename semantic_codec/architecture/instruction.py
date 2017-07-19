@@ -41,14 +41,14 @@ class Instruction(object):
             raise RuntimeError("The Opcode must be an string or an integer value")
 
     @staticmethod
-    def _add_score(scores_by_rule):
+    def _add_score(scores_by_rule, inst):
         result = 0
         for v in scores_by_rule.values():
             result += v
         return result
 
     def score(self):
-        return self.score_function(self.scores_by_rule)
+        return self.score_function(self.scores_by_rule, self)
 
     @property
     def ignore(self):
@@ -175,6 +175,13 @@ class Instruction(object):
     def is_branch(self):
         """
         Determine if an instruction is branch
+        """
+        raise RuntimeError("Not implemented")
+
+
+    def is_push_pop(self):
+        """
+        Determine if an instruction is a push or pop instructino
         """
         raise RuntimeError("Not implemented")
 

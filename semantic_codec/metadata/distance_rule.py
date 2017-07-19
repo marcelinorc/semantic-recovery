@@ -74,7 +74,6 @@ class RegisterReadDistance(RegisterDistanceRule):
         dist_max = self._collector.storage_max_dist
 
         for c in candidates:
-
             # Assume all instructions are well defined
             if c.ignore:
                 self._update_candidate_score(c, 0.0)

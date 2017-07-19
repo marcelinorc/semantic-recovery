@@ -59,7 +59,6 @@ class DARMInstruction(Instruction):
         Returns registers written
         :return: A list of the index of the registers written
         """
-
         result = []
 
         # special cases
@@ -124,6 +123,10 @@ class DARMInstruction(Instruction):
         # The magic numbers 10 and 11 are due to the internal desing of the DARM library
         # see function "darm_enctype_name" in armv7.c
         return self._darm.instr_type.idx in [10, 11] or AReg.PC in self.registers_written()
+
+    @property
+    def is_push_pop(self):
+        return self._inst_is('push') or self._inst_is('pop')
 
     @property
     def is_undefined(self):

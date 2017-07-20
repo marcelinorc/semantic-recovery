@@ -46,7 +46,7 @@ class TestValueDependencySSABuilder(TestCase):
         return len(visited) == len(graph)
 
     def _build_cfg_with_dominators(self, path, printer=None, remove_conditionals=False):
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), path)).read()
+        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), path)).read_instructions()
         cfg = ARMControlFlowGraph(instructions)
         cfg.node_printer = printer
         cfg.build()
@@ -87,7 +87,7 @@ class TestValueDependencySSABuilder(TestCase):
         print(write(graph))
 
     def _build_ssa(self, path):
-        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), path)).read()
+        instructions = TextDisassembleReader(os.path.join(os.path.dirname(__file__), path)).read_instructions()
         cfg = ARMControlFlowGraph(instructions)
         cfg.node_printer = self
         cfg.build()

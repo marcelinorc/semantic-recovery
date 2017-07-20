@@ -17,7 +17,7 @@ class TestMetadataCollector(TestCase):
         # TODO: This is an smoke test
 
         # Load the program
-        instructions = TextDisassembleReader(self.ASM_LONG_PATH).read()
+        instructions = TextDisassembleReader(self.ASM_LONG_PATH).read_instructions()
 
         # Corrupt the program
         ll = len(instructions)
@@ -35,7 +35,7 @@ class TestMetadataCollector(TestCase):
         self.assertGreater(len(c.address_with_op), 0)
 
     def test_collect(self):
-        instructions = TextDisassembleReader(self.ASM_PATH).read()
+        instructions = TextDisassembleReader(self.ASM_PATH).read_instructions()
         # Collect the metadata
         c = MetadataCollector()
         c.collect(instructions)

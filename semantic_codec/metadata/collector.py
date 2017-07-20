@@ -81,8 +81,8 @@ class MetadataCollector(object):
                         if s not in storage_mean_dist:
                             self._storage_min_dist[s] = dist[s]
                             self._storage_max_dist[s] = dist[s]
-                            # The numbers of times here is different that the number of times a storage is read
-                            # as it can be read several times per instruction
+                            # The numbers of times here is different that the number of times a storage is read_instructions
+                            # as it can be read_instructions several times per instruction
                             storage_mean_dist[s] = (dist[s], 1)
                         else:
                             if self._storage_min_dist[s] > dist[s]:
@@ -96,12 +96,12 @@ class MetadataCollector(object):
                     else:
                         dist[s] += 1
 
-            # Count the distances between write and read of storages
+            # Count the distances between write and read_instructions of storages
             for s in inst.storages_written():
                 defined[s] = True
                 dist[s] = 0
 
-        # Compute the mean distance between a register being read and a register being written
+        # Compute the mean distance between a register being read_instructions and a register being written
         for k in storage_mean_dist:
             d, t = storage_mean_dist[k]
             self._storage_mean_dist[k] = d / t

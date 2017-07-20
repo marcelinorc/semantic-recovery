@@ -35,7 +35,7 @@ class TestInstruction(TestCase):
         """
         Test that the branch_to method returns an actual instruction from the instruction lit if the address is static
         """
-        instructions = TextDisassembleReader(self.ASM_PATH).read()
+        instructions = TextDisassembleReader(self.ASM_PATH).read_instructions()
         bne = instructions[22]
         jump_to = bne.branch_to(instructions)
         self.assertEqual(jump_to, instructions[15])
@@ -44,6 +44,6 @@ class TestInstruction(TestCase):
         """
         Test that the branch_to method returns an actual instruction from the instruction lit if the address is static
         """
-        instructions = TextDisassembleReader(self.ASM_PATH).read()
+        instructions = TextDisassembleReader(self.ASM_PATH).read_instructions()
         jump_to = instructions[20].branch_to(instructions)
         self.assertEqual(jump_to, None)

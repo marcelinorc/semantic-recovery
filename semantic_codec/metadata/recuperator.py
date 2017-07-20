@@ -13,7 +13,7 @@ class Recuperator(object):
     Class in charge of recuperating the lost bits of information using the metadata sent
     """
 
-    def __init__(self, collector, program, model=None):
+    def __init__(self, collector, program, model=None, functions=None):
         """
         Builds the recuperator
         :param collector: Metadata collector
@@ -22,6 +22,7 @@ class Recuperator(object):
         """
         self._collector = collector
         self._program = program
+        self._functions = functions if functions else {}
 
         # self._errors = 0
         # for pos, val in self._program.items():
@@ -109,7 +110,7 @@ def probabilistic_rules(scores_dict, inst):
 class ProbabilisticRecuperator(Recuperator):
     def _pmf_register_distance(self, instruction):
         """
-        Computes the probability that all the registers of a given instructions are read at this precise address
+        Computes the probability that all the registers of a given instructions are read_instructions at this precise address
         :param instruction:
         :return:
         """
@@ -182,6 +183,54 @@ class ProbabilisticRecuperator(Recuperator):
         except KeyError:
             pr = 0
         inst.scores_by_rule['pr'] = pr
+
+    def _prob_of_a(self, val, addr):
+        c, t = 0, 0
+        for i in self._program[addr]:
+            if not i.ignore:
+                t += 1
+                # TODO: Include the register information
+                if i.is_a(val):
+                    c += 1
+        return c / t if t > 0 else 0
+
+    def _compute_push_pop(self, inst, cpmd, addr, current_fn):
+        if inst.is_a('push'):
+            # Is this is a push that lies in the start of the function?
+            if addr in self._functions:
+                #has_ld = AReg.LR in inst.registers_read()
+                last_addr = self._functions[addr][1]
+                # If so, let's first try to find a pop at the end of the function
+                p1 = self._prob_of_a('pop', last_addr)
+
+                # If a pop at the end was found, try to find another pop follow by a branch in previous inst
+                cb1, cp1, tb1, tp1 = 0, 0, 0, 0
+                cb2, tb2 = 0, 0, 0, 0
+                for a in range(last_addr, addr, -4):
+                    cb2 = cb1
+                    tb2 = tb1
+                    for i in self._program[a]:
+                        if not i.ignore:
+                            tb1 += 1
+                            tp1 += 1
+                        if i.is_branch:
+                            cb1 += 1
+                        if i.is_a('pop'):
+                            cp1 += 1
+                    p2 = cp1 / tb1 * cb2 / tb2
+                    if p2 > 0:
+                        break
+
+                if p1 > 0 and p2 > 0:
+                    inst.scores_by_rule['popu'] = p1 * p2 * self._model.push_given_pop_at_fn_end_and_middle
+                elif p1 > 0:
+                    inst.scores_by_rule['popu'] = p1 * self._model.push_given_pop_at_fn_end
+                elif p2 > 0:
+                    inst.scores_by_rule['popu'] = p2 * self._model.push_given_pop_at_middle
+        elif inst.is_a('pop'):
+            p1 = self._prob_of_a('push', current_fn)
+            inst.scores_by_rule['popu'] = p1 * self._model.push_given_pop_at_fn_end
+
 
     def _compute_proper_cfg(self, inst, cpmd, addr):
         """
@@ -295,8 +344,6 @@ class ProbabilisticRecuperator(Recuperator):
 
         inst.scores_by_rule['pcfg'] = result
 
-
-
     def _compute_register_distance(self, inst, cpmd, addr):
         # These probabilities take into consideration previous instructions,
         # therefore they cannot be applied to the first instruction
@@ -342,7 +389,7 @@ class ProbabilisticRecuperator(Recuperator):
 #                ph = self._instruction_range_probs(addr, b, a, lambda x: )
                 # Handle special registers such as SP, LP and PC
 #                if r in [13, 15] and not ph:
-                    # Do not take into consideration stack pointer read nor a program counter read
+                    # Do not take into consideration stack pointer read_instructions nor a program counter read_instructions
                     # PC not explicitly written and SP is very difficult to detect
 #                    continue
 #                else:
@@ -362,8 +409,12 @@ class ProbabilisticRecuperator(Recuperator):
         addresses = [a for a in self._program.keys()]
         addresses.sort()
 
+        current_fn = addresses[0]
+
         for i in range(0, len(addresses)):
             addr = addresses[i]
+            if addr in self._functions:
+                current_fn = addr
             for inst in self._program[addr]:
                 if inst.ignore:
                     continue
@@ -374,8 +425,9 @@ class ProbabilisticRecuperator(Recuperator):
                 #self._compute_conditional(inst, cpmd)
                 #self._compute_opcode(inst, cpmd)
                 #self._compute_registers(inst, cpmd)
-                if i > 0:
-                    self._compute_register_distance(inst, cpmd, addr)
+                self._compute_push_pop(inst, cpmd, addr, current_fn)
+                #if i > 0:
+                #    self._compute_register_distance(inst, cpmd, addr)
                 #    self._compute_proper_cfg(inst, cpmd, addr)
             progress_bar.progress()
 

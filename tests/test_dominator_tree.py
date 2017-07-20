@@ -16,7 +16,7 @@ class TestDominatorTreeBuilder(TestCase):
         """
         Build the dominator tree
         """
-        instructions = TextDisassembleReader(self.ASM_PATH).read()
+        instructions = TextDisassembleReader(self.ASM_PATH).read_instructions()
         graph_builder = ARMControlFlowGraph(instructions)
         graph_builder.build()
         dom_tree = build_dominator_tree(graph_builder.cfg, graph_builder.root_node)

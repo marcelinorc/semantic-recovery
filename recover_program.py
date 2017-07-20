@@ -5,9 +5,11 @@ from semantic_codec.corruption.corruption import corrupt_program, save_corrupted
 from semantic_codec.corruption.corruptors import JSONCorruptor, RandomCorruptor, PacketCorruptor, DARMInstruction, sys
 from semantic_codec.metadata.collector import MetadataCollector
 from semantic_codec.metadata.recuperator import Recuperator, ProbabilisticRecuperator
-from semantic_codec.metadata.rules import from_instruction_list_to_dict, from_instruction_dict_to_list
+from semantic_codec.metadata.rules import from_instruction_list_to_dict, from_instruction_dict_to_list, \
+    from_functions_to_list_and_addr
 
-def print_report(instructions_output_file, recovered_program):
+
+def print_report(instructions_output_file, original_program, recovered_program):
     errors, recovered, fail_looses, fail_tide = 0, 0, 0, 0
     orig_stdout = sys.stdout
     f = open(instructions_output_file, 'w')
@@ -98,6 +100,8 @@ def print_report(instructions_output_file, recovered_program):
 
 
 def run_recovery(original_program, corruptor, recuperator, passes=1):
+    # Separe the instructions from the function addresses
+    original_program, fns = from_functions_to_list_and_addr(original_program)
     # Clone the original program
     program = [DARMInstruction(v.encoding, position=v.position) for v in original_program]
 
@@ -112,12 +116,12 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
     print("[INFO]: Program corrupted")
 
     # Recover it:
-    r = recuperator(collector, program)
+    r = recuperator(collector, program, functions=fns)
     r.passes = passes
     r.recover()
     print("[INFO]: Program recovered")
 
-    return from_instruction_dict_to_list(program)
+    return from_instruction_dict_to_list(program), original_program
 
 
 # max_error_per_instruction, corrupted_program=None, generate_new=False, )
@@ -129,7 +133,7 @@ if __name__ == "__main__":
 
     # ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/dissasembly.armasm')
     ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/helloworld.armasm')
-    original_program = TextDisassembleReader(ARM_SIMPLE).read()
+    original_program = TextDisassembleReader(ARM_SIMPLE).read_functions()
 
     if not use_file:
         if use_packets:
@@ -143,5 +147,5 @@ if __name__ == "__main__":
 
     corruptor.corrupted_program_path = os.path.join(os.path.dirname(__file__), 'corrupted.json')
     #recovered_program = run_recovery(original_program, corruptor, Recuperator, 2)
-    recovered_program = run_recovery(original_program, corruptor, ProbabilisticRecuperator)
-    print_report('instructions.txt', recovered_program)
+    recovered_program, original_program = run_recovery(original_program, corruptor, ProbabilisticRecuperator)
+    print_report('instructions.txt', original_program, recovered_program)

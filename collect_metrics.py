@@ -55,7 +55,7 @@ def collect_and_print(fun_name, instructions, program):
 print("===========================")
 print("=======GlOBAL       =======")
 print("===========================")
-instructions = TextDisassembleReader(filename).read()
+instructions = TextDisassembleReader(filename).read_instructions()
 collect_and_print("global", instructions, "helloworld")
 
 

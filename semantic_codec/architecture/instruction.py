@@ -68,7 +68,7 @@ class Instruction(object):
     @property
     def ssa_read(self):
         """
-        Single Static Assignment renaming of the registers read
+        Single Static Assignment renaming of the registers read_instructions
         """
         return self._ssa_read
 

@@ -29,7 +29,7 @@ class TestARMControlFlowGraph(TestCase):
                         self.fail("Instructions repeated")
 
     def test_build_simple(self):
-        instructions = TextDisassembleReader(self.ASM_PATH).read()
+        instructions = TextDisassembleReader(self.ASM_PATH).read_instructions()
         cfg = ARMControlFlowGraph(instructions)
         cfg.build()
 
@@ -42,7 +42,7 @@ class TestARMControlFlowGraph(TestCase):
         self._assert_instructions_are_not_repeated(cfg, instructions)
 
     def test_build_complex(self):
-        instructions = TextDisassembleReader(self.ASM_2_PATH).read()
+        instructions = TextDisassembleReader(self.ASM_2_PATH).read_instructions()
         cfg = ARMControlFlowGraph(instructions)
         cfg.build()
         print(write(cfg))
@@ -53,7 +53,7 @@ class TestARMControlFlowGraph(TestCase):
 
 
     def test_remove_conditionals(self):
-        instructions = TextDisassembleReader(self.ASM_PATH).read()
+        instructions = TextDisassembleReader(self.ASM_PATH).read_instructions()
         cfg = ARMControlFlowGraph(instructions)
         cfg.build()
         d = cfg.get_dict_nodes()

@@ -12,7 +12,7 @@ for insn in md.disasm(CODE, 0x1000):
     (regs_read, regs_write) = (insn.regs_read, insn.regs_write)
 
     if len(regs_read) > 0:
-        print("\n\tRegisters read:", end="")
+        print("\n\tRegisters read_instructions:", end="")
         for r in regs_read:
             print(" %s" % (insn.reg_name(r)), end="")
         print()

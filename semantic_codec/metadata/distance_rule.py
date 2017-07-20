@@ -7,8 +7,8 @@ from semantic_codec.metadata.rules import Rule
 
 class RegisterDistanceRule(Rule):
     """
-    Class that enforces that a register read is never farther than what the metadata said.
-    It also favors the register write-read closer to the mean
+    Class that enforces that a register read_instructions is never farther than what the metadata said.
+    It also favors the register write-read_instructions closer to the mean
     """
 
     def __init__(self, program, model=None, collector=None):
@@ -39,13 +39,13 @@ class RegisterDistanceRule(Rule):
 class RegisterWriteDistance(RegisterDistanceRule):
     """
     Class that enforces that a register write is never farther than what the metadata said.
-    It also favors the register write-read closer to the mean
+    It also favors the register write-read_instructions closer to the mean
     """
     pass
 
 class RegisterReadDistanceProbability(RegisterDistanceRule):
     """
-    Gives a more robust probabilistic score of all registers of an instruction being read in thsi particular
+    Gives a more robust probabilistic score of all registers of an instruction being read_instructions in thsi particular
     address
     """
 
@@ -90,7 +90,7 @@ class RegisterReadDistance(RegisterDistanceRule):
                 max_d = dist_max[v] if v in dist_max and dist_max[v] > max_d else max_d
 
             # We are going backwards, so in fact prev_max is < than prev
-            # Go backwards searching for registers writting to the registers we read from
+            # Go backwards searching for registers writting to the registers we read_instructions from
             prev_pos = position - INST_SIZE * min_d # Position of the first previous instruction
             prev_pos_max = position - INST_SIZE * max_d # Position of the last previous instruction (going backwards)
             register_score = [EPSILON] * AReg.STORAGE_COUNT

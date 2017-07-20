@@ -108,7 +108,7 @@ class TestInterleave2D(TestCase):
         """
         Test the interleaving when some packets are removed from the stream
         """
-        #data = open(TestInterleave2D.HELLOWORLD_PATH, "rb").read()
+        #data = open(TestInterleave2D.HELLOWORLD_PATH, "rb").read_instructions()
         #packets = ceil(len(data) / 127)
 
         # Some errors expected for this data, and lost packets

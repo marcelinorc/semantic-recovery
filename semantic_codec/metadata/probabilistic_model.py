@@ -4,6 +4,16 @@ class DefaultProbabilisticModel(object):
     Class containing the values assigned to the probabilities model variables
     """
     def __init__(self):
+
+        # Observed probability of a push occurring if a pop is at the end
+        self.push_given_pop_at_fn_end = 0.7
+
+        # Observed probability of a push occurring if a pop is at the middle of the function
+        self.push_given_pop_at_fn_middle = 0.65
+
+        # Observed probability of a push occurring if a pop is at the end and middle of the function
+        self.push_given_pop_at_fn_end_and_middle = 0.89
+
         # Observed probability of a non-all to exists after a branch and all near conditional were equal
         self.branch_after_cpsr_and_near_cond_are_equals = 0.85
 

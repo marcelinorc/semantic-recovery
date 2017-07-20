@@ -30,7 +30,7 @@ class TestDARMInstruction(TestCase):
 
     def test_pld(self):
         inst = DARMInstruction(4160692225)
-        self.assertEqual(14, inst.conditional_field)
+        self.assertEqual(15, inst.conditional_field)
         inst = DARMInstruction(3892256769)
         self.assertEqual(14, inst.conditional_field)
 

@@ -32,13 +32,13 @@ class TestRule(object):
         @staticmethod
         def get_original_instruction(path, address, needs_collector):
             if needs_collector:
-                program = TextDisassembleReader(path).read()
+                program = TextDisassembleReader(path).read_instructions()
                 collector = MetadataCollector()
                 collector.collect(program)
                 program = from_instruction_list_to_dict(program)
                 return program[address][0], program, collector
             else:
-                program = from_instruction_list_to_dict(TextDisassembleReader(path).read())
+                program = from_instruction_list_to_dict(TextDisassembleReader(path).read_instructions())
                 return program[address][0], program, None
 
         def do_test(self, address, rule, recover_instruction, needs_collector=False,

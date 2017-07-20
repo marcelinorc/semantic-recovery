@@ -16,7 +16,7 @@ class TestCorruptor(TestCase):
     ASM_PATH = os.path.join(os.path.dirname(__file__), 'data/dissasembly.armasm')
 
     def test_corrupt_instruction(self):
-        program = from_instruction_list_to_dict(TextDisassembleReader(TestCorruptor.ASM_PATH).read())
+        program = from_instruction_list_to_dict(TextDisassembleReader(TestCorruptor.ASM_PATH).read_instructions())
         instructions = corrupt_instruction(program, program[0x000107ac][0], 0x000107ac,
                                            conditional=True, opcode=True, registers=True, amount=3)
         for inst in instructions:
@@ -26,7 +26,7 @@ class TestCorruptor(TestCase):
 
 
     def test_corrupt_program(self):
-        program = from_instruction_list_to_dict(TextDisassembleReader(TestCorruptor.ASM_PATH).read())
+        program = from_instruction_list_to_dict(TextDisassembleReader(TestCorruptor.ASM_PATH).read_instructions())
         corrupt_program(program, 10.0, 2)
         corrupted = 0
         for v in program.values():

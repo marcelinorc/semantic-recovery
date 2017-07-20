@@ -13,6 +13,7 @@ def from_instruction_dict_to_list(program):
     result.extend([program[k] for k in keys])
     return result
 
+
 def from_instruction_list_to_dict(instructions):
     """
     Turn the list of instructions into a dictionary indexed by position
@@ -21,6 +22,18 @@ def from_instruction_list_to_dict(instructions):
     for inst in instructions:
         result[inst.position] = [inst]
     return result
+
+
+def from_functions_to_list_and_addr(functions):
+    result = []
+    fns = {}
+
+    for f in functions:
+        fns[f.start_addr()] = (f.start_addr(), f.final_addr())
+        for inst in f.instructions:
+            result.append(inst)
+
+    return result, fns
 
 
 class Rule(object):

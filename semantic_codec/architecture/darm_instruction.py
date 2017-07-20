@@ -76,8 +76,8 @@ class DARMInstruction(Instruction):
 
     def registers_read(self):
         """
-        Returns registers read
-        :return: A list of the index of the registers read
+        Returns registers read_instructions
+        :return: A list of the index of the registers read_instructions
         """
         result = []
         if self._darm.Rn:
@@ -127,6 +127,9 @@ class DARMInstruction(Instruction):
     @property
     def is_push_pop(self):
         return self._inst_is('push') or self._inst_is('pop')
+
+    def is_a(self, value):
+        return self._inst_is(value)
 
     @property
     def is_undefined(self):

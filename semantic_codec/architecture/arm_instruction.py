@@ -179,7 +179,7 @@ class ARMInstruction(Instruction):
 
     def registers_read(self):
         """
-        Returns the registers read by the instruction
+        Returns the registers read_instructions by the instruction
         """
         t = self.opcode_type()
 

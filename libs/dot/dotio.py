@@ -24,7 +24,7 @@
 
 """
 Functions for reading and writing graphs in Dot language.
-@sort: read, read_hypergraph, write, write_hypergraph
+@sort: read_instructions, read_hypergraph, write, write_hypergraph
 """
 
 # Imports
@@ -190,14 +190,14 @@ def read_hypergraph(string):
     # Read the hypernode nodes...
     # Note 1: We need to assume that all of the nodes are listed since we need to know if they
     #           are a hyperedge or a normal node
-    # Note 2: We should read in all of the nodes before putting in the links
+    # Note 2: We should read_instructions in all of the nodes before putting in the links
     for each_node in dotG.get_nodes():
         if 'hypernode' == each_node.get('hyper_node_type'):
             hgr.add_node(each_node.get_name())
         elif 'hyperedge' == each_node.get('hyper_node_type'):
             hgr.add_hyperedge(each_node.get_name())
 
-    # Now read in the links to connect the hyperedges
+    # Now read_instructions in the links to connect the hyperedges
     for each_link in dotG.get_edges():
         if hgr.has_node(each_link.get_source()):
             link_hypernode = each_link.get_source()

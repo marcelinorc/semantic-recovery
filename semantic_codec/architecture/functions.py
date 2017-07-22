@@ -16,9 +16,12 @@ class ElfFunction(object):
 
     def final_addr(self):
         if len(self.instructions) > 0:
-            return self.instructions[0].position + self.length_in_bytes()
+            return self.instructions[0].position + self.length_in_bytes() - 4
         else:
             return 0
 
     def length_in_bytes(self):
         return len(self.instructions) * 4
+
+    def __str__(self):
+        return self.name

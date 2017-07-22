@@ -1,8 +1,11 @@
 import os
+from math import log
+
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
 from semantic_codec.corruption.corruption import corrupt_program, save_corrupted_program_to_json, \
     load_corrupted_program_from_json
 from semantic_codec.corruption.corruptors import JSONCorruptor, RandomCorruptor, PacketCorruptor, DARMInstruction, sys
+from semantic_codec.metadata.answer_quality import AnswerQuality
 from semantic_codec.metadata.collector import MetadataCollector
 from semantic_codec.metadata.recuperator import Recuperator, ProbabilisticRecuperator
 from semantic_codec.metadata.rules import from_instruction_list_to_dict, from_instruction_dict_to_list, \
@@ -18,6 +21,8 @@ def print_report(instructions_output_file, original_program, recovered_program):
     bad_rules = {}
     aver_instr_tie_sum = 0
     aver_instr_tie_count = 0
+
+    worst_case = 0
 
     for i in range(0, len(original_program)):
         s = ""
@@ -42,15 +47,16 @@ def print_report(instructions_output_file, original_program, recovered_program):
                 print(" * FAIL : 1st Instruction is not original. ")
                 print(" * WRONG SCORES [Recovered vs Original]:")
                 # Print the comparison with the original rule
-                for k, v in instructions[0].scores_by_rule.items():
-                    try:
-                        ov = ori_inst.scores_by_rule[k]
-                        if v > ov:
-                            print(" -> {0!s}: {1:.6f} vs. {2:.6f} ".format(k, v, ov))
-                            bad_rules[k] = bad_rules[k] + 1 if k in bad_rules else 1
+                if ori_inst:
+                    for k, v in instructions[0].scores_by_rule.items():
+                        try:
+                            ov = ori_inst.scores_by_rule[k]
+                            if v > ov:
+                                print(" -> {0!s}: {1:.6f} vs. {2:.6f} ".format(k, v, ov))
+                                bad_rules[k] = bad_rules[k] + 1 if k in bad_rules else 1
 
-                    except KeyError:
-                        print(" KE: {} -- ".format(k), end="")
+                        except KeyError:
+                            print(" KE: {} -- ".format(k), end="")
                 print()
 
                 fail_looses += 1
@@ -71,9 +77,9 @@ def print_report(instructions_output_file, original_program, recovered_program):
                 if inst.ignore:
                     print("X", end="")
                 if inst.encoding == original_program[i].encoding:
-                    print("{3} ++ [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, addr), end="")
+                    print("{3} ++ [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, hex(addr)), end="")
                 else:
-                    print("{3} -- [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, addr), end="")
+                    print("{3} -- [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, hex(addr)), end="")
                 for k, v in inst.scores_by_rule.items():
                     print(" {0!s}: {1:.6f} -- ".format(k, v), end="")
                 print("")
@@ -99,6 +105,36 @@ def print_report(instructions_output_file, original_program, recovered_program):
     sys.stdout = orig_stdout
 
 
+def remove_impossible_instructions(v):
+    previous = len(v)
+    one_count = 0
+    less_than_one_count = 0
+    i = 0
+    while i < len(v):
+        score = v[i].score()
+        if score == 1:
+            one_count += 1
+            i += 1
+        elif score == 0:
+            v.pop(i)
+        else:
+            less_than_one_count += 1
+            if one_count > 0:
+                v.pop(i)
+            else:
+                i += 1
+
+    if less_than_one_count > 0:
+        i = 0
+        while i < len(v):
+            score = v[i].score()
+            if score < 1 and one_count > 0:
+                v.pop(i)
+            else:
+                i += 1
+
+    return previous - len(v)
+
 def run_recovery(original_program, corruptor, recuperator, passes=1):
     # Separe the instructions from the function addresses
     original_program, fns = from_functions_to_list_and_addr(original_program)
@@ -114,15 +150,36 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
     # Corrupt it:
     program = corruptor.corrupt(from_instruction_list_to_dict(program))
     print("[INFO]: Program corrupted")
+    print('[INFO]: {} solutions'.format(str(AnswerQuality(program, original_program).solution_count_bins)))
 
     # Recover it:
-    r = recuperator(collector, program, functions=fns)
-    r.passes = passes
-    r.recover()
-    print("[INFO]: Program recovered")
 
-    return from_instruction_dict_to_list(program), original_program
+    pass_count = 1
+    while (True):
+        stable = True
+        r = recuperator(collector, program, functions=fns)
+        r.passes = passes
+        r.recover()
+        print("[INFO]: Heuristics computed  (pass {})".format(pass_count))
 
+        print_report('instructions{}.txt'.format(pass_count),
+                     original_program, from_instruction_dict_to_list(program))
+
+        # Determine if there is any instruction that can be removed:
+        for k, v in program.items():
+            # Remove 0 or less than 1 if any instruction has 1 score
+            prev = len(v)
+            if remove_impossible_instructions(v) > 0:
+                stable = False
+            #if len(v) == 0:
+            #    raise RuntimeError('Should not be empty')
+        a = AnswerQuality(program, original_program)
+        print('[INFO]: Depth > {}'.format(a.highest_depth))
+        print('[INFO]: Solutions > {} '.format(a.solution_count_bins))
+
+        if stable:
+            break
+        pass_count += 1
 
 # max_error_per_instruction, corrupted_program=None, generate_new=False, )
 if __name__ == "__main__":
@@ -147,5 +204,4 @@ if __name__ == "__main__":
 
     corruptor.corrupted_program_path = os.path.join(os.path.dirname(__file__), 'corrupted.json')
     #recovered_program = run_recovery(original_program, corruptor, Recuperator, 2)
-    recovered_program, original_program = run_recovery(original_program, corruptor, ProbabilisticRecuperator)
-    print_report('instructions.txt', original_program, recovered_program)
+    run_recovery(original_program, corruptor, ProbabilisticRecuperator)

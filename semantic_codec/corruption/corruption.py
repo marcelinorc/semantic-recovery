@@ -32,9 +32,10 @@ def load_corrupted_program_from_json(file_path):
         data = json.load(data_file)
     result = {}
     for k, v in data.items():
-        result[int(k)] = v
+        addr = int(k)
+        result[addr] = v
         for i in range(0, len(v)):
-            v[i] = DARMInstruction(v[i])
+            v[i] = DARMInstruction(v[i], addr)
     return result
 
 
@@ -167,7 +168,8 @@ def corrupt_program(program, err_percent, max_amount):
         p = random.randint(0, len_program) * 4 + min_addr
         if p in program and len(program[p]) == 1:
             a = random.randint(1, max_amount)
-            program[p] = [DARMInstruction(r) for r in corrupt_bits(31, 0, a, program[p][0].encoding)]
+            for r in corrupt_bits(31, 0, a, program[p][0].encoding):
+                program[p].append(DARMInstruction(r, program[p][0].position))
             corrupted_amount -= 1
 
 
@@ -199,7 +201,7 @@ def corrupt_instruction(program, original_instruction, address,
 
     #program[address] = []
     for i in range(1, len(corrupted)):
-        inst = DARMInstruction(corrupted[i])
+        inst = DARMInstruction(corrupted[i], original_instruction.position)
         if inst.darm is not None:
             program[address].append(inst)
 

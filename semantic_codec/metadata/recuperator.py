@@ -68,13 +68,46 @@ class Recuperator(object):
         self._recover(progress_bar)
 
 
-
-
 def probabilistic_rules(scores_dict, inst):
     # Conditional register score
     pc = scores_dict['pc'] if 'pc' in scores_dict else 1
     # Register score
-    pr = scores_dict['pr'] if 'pr' in scores_dict else 1
+    pr = scores_dict['pr'] if 'pr' in scores_dict else 0
+    # Register distance score
+    prd = scores_dict['prd'] if 'prd' in scores_dict else 1
+    # Opcode score
+    po = scores_dict['po'] if 'po' in scores_dict else 1
+    # Proper control flow
+    pcf = scores_dict['pcfg'] if 'pcfg' in scores_dict else 1
+    # Push Pop score
+    pupo = scores_dict['pupo'] if 'pupo' in scores_dict else 1
+    # Branch distance score
+    pbd = scores_dict['pbd'] if 'pbd' in scores_dict else 1
+    # The basic score all instructions must abide to
+    score = pc * po * pcf
+    # In order to keep the competition fair, all instructions must have equal amount of optional scores
+    if inst.is_branch:
+        score *= pbd
+    elif inst.is_push_pop:
+        score *= pr * pupo
+    else:
+        score *= pr * prd
+    if score > 1 or score < 0:
+        raise RuntimeError('Invalid probability: {} '.format(score))
+    return score
+
+
+def probabilistic_rules_remove_step(scores_dict, inst):
+
+    lo = 2
+    for k, p in scores_dict.items():
+        if p < lo:
+            lo = p
+
+    # Conditional register score
+    pc = scores_dict['pc'] if 'pc' in scores_dict else 1
+    # Register score
+    pr = scores_dict['pr'] if 'pr' in scores_dict else 0
     # Register distance score
     prd = scores_dict['prd'] if 'prd' in scores_dict else 1
     # Opcode score
@@ -86,23 +119,27 @@ def probabilistic_rules(scores_dict, inst):
     # Branch distance score
     pbd = scores_dict['pbd'] if 'pbd' in scores_dict else 1
 
-    for k, p in scores_dict.items():
-        if p > 1 or p < 0:
-            raise RuntimeError('Invalid probability of rule {}: {} '.format(k, p))
+    hi = max(pc, po, pr)
+    # Register score again
+    pr = scores_dict['pr'] if 'pr' in scores_dict else 0
 
-    # The basic score all instructions must abide to
-    score = prd
-
-    # In order to keep the competition fair, all instructions must have equal amount of optional scores
-    #if inst.is_branch:
-    #    score *= pbd
-    #elif inst.is_push_pop:
-    #    score *= pr * pupo
-    #else:
-    #    score *= pr #* prd
+    if hi == 1 and lo != 0:
+        score = 1
+    elif lo == 0 or inst.ignore:
+        score = 0
+    else:
+        # The basic score all instructions must abide to
+        score = pc * po * pcf
+        # In order to keep the competition fair, all instructions must have equal amount of optional scores
+        if inst.is_branch:
+            score *= pbd
+        elif inst.is_push_pop:
+            score *= pr * pupo
+        else:
+            score *= pr * prd
 
     if score > 1 or score < 0:
-        raise RuntimeError('Invalid probability: {} '.format(p))
+        raise RuntimeError('Invalid probability: {} '.format(score))
 
     return score
 
@@ -194,18 +231,68 @@ class ProbabilisticRecuperator(Recuperator):
                     c += 1
         return c / t if t > 0 else 0
 
+    def _op_prob_and_check_equal_registers(self, opcode, addr, push_reg_readed):
+        """
+        This method computes the probability of a instruction with a given opcode of existing in an address.
+        It also checks if it has the same registers than the ones given in push_reg_readed.
+        Is ONLY meant for being called from _compute_push_pop
+        """
+        reg_equals_inst = False
+        c, t = 0, 0
+        for i in self._program[addr]:
+            if not i.ignore:
+                t += 1
+                # Include the register information
+                # i.e. we are looking for a pop with equal registers
+                if i.is_a(opcode):
+                    c += 1
+                    if not reg_equals_inst:
+                        a = True
+                        pop_reg_read = i.registers_written()
+                        for r in pop_reg_read:
+                            if not (r in push_reg_readed or r is AReg.PC):
+                                a = False
+                                break
+                        for r in push_reg_readed:
+                            if not (r in pop_reg_read or r is AReg.LR or r is AReg.SP):
+                                a = False
+                                break
+                        if a:
+                            reg_equals_inst = True
+        p1 = c / t
+        return p1, reg_equals_inst
+
     def _compute_push_pop(self, inst, cpmd, addr, current_fn):
+        """
+        Push and pops have a peculiar behavior: Their are commonly found at the begining and at the end of a function
+        to restore registers to their state before the calling of a method.
+
+        This function computes a probabilistic value of this behavior actually occurring in the program being recovered.
+
+        If the inst is a push, it searches for pops at the end of the function, or pops followed by branches somewhere
+        in the middle.
+
+        If the pops have equal register list, it rewards a high probability to the push instruction.
+
+        A similar thing is done for pops
+        """
+        p1, p2, p3 = 0, 0, 0
+
         if inst.is_a('push'):
             # Is this is a push that lies in the start of the function?
             if addr in self._functions:
-                #has_ld = AReg.LR in inst.registers_read()
+                push_reg_readed = inst.registers_read()
+
                 last_addr = self._functions[addr][1]
                 # If so, let's first try to find a pop at the end of the function
-                p1 = self._prob_of_a('pop', last_addr)
+                #p1 = self._prob_of_a('pop', last_addr)
+
+                p1, reg_equals = self._op_prob_and_check_equal_registers('pop', last_addr, push_reg_readed)
 
                 # If a pop at the end was found, try to find another pop follow by a branch in previous inst
                 cb1, cp1, tb1, tp1 = 0, 0, 0, 0
-                cb2, tb2 = 0, 0, 0, 0
+                cb2, tb2 = 0, 0
+                p2 = 0
                 for a in range(last_addr, addr, -4):
                     cb2 = cb1
                     tb2 = tb1
@@ -213,24 +300,31 @@ class ProbabilisticRecuperator(Recuperator):
                         if not i.ignore:
                             tb1 += 1
                             tp1 += 1
-                        if i.is_branch:
-                            cb1 += 1
-                        if i.is_a('pop'):
-                            cp1 += 1
-                    p2 = cp1 / tb1 * cb2 / tb2
+                            if i.is_branch:
+                                cb1 += 1
+                            if i.is_a('pop'):
+                                cp1 += 1
+                    if tb2 > 0 and tb1 > 0:
+                        p2 = cp1 / tb1 * cb2 / tb2
                     if p2 > 0:
                         break
-
-                if p1 > 0 and p2 > 0:
-                    inst.scores_by_rule['popu'] = p1 * p2 * self._model.push_given_pop_at_fn_end_and_middle
-                elif p1 > 0:
-                    inst.scores_by_rule['popu'] = p1 * self._model.push_given_pop_at_fn_end
-                elif p2 > 0:
-                    inst.scores_by_rule['popu'] = p2 * self._model.push_given_pop_at_middle
+            else:
+                reg_equals = False
         elif inst.is_a('pop'):
-            p1 = self._prob_of_a('push', current_fn)
-            inst.scores_by_rule['popu'] = p1 * self._model.push_given_pop_at_fn_end
+            reg_written = inst.registers_written()
+            p1, reg_equals = self._op_prob_and_check_equal_registers('push', current_fn, reg_written)
+        else:
+            return None
 
+        p3 = 1 / len(self._program[addr])
+        if reg_equals:
+            p3 = self._model.push_given_pop_at_fn_end_equal_registers
+        if p1 > 0:
+            p1 = self._model.push_given_pop_at_fn_end
+        if p2 > 0:
+            p2 = self._model.push_given_pop_at_fn_middle
+
+        inst.scores_by_rule['popu'] = max(p1, p2, p3)
 
     def _compute_proper_cfg(self, inst, cpmd, addr):
         """
@@ -260,7 +354,7 @@ class ProbabilisticRecuperator(Recuperator):
         # Posterior instructions with the same conditional
         after_same_cond = 0
 
-        result = 0
+
 
         ln_prev = 0
         ln_post = 0
@@ -338,7 +432,7 @@ class ProbabilisticRecuperator(Recuperator):
                 result = p1
 
         if result == 0:
-            result = 0.1
+            result = self._model.low_probability
         elif result > 1:
             raise RuntimeError('Invalid probability')
 
@@ -348,43 +442,49 @@ class ProbabilisticRecuperator(Recuperator):
         # These probabilities take into consideration previous instructions,
         # therefore they cannot be applied to the first instruction
         # Dictionary with the minimum register distance
-            dist_min = self._collector.storage_min_dist
-            dist_max = self._collector.storage_max_dist
 
-            prd = 1
-            # Compute register distance
-            for r in inst.storages_read():
-                try:
-                    a, b = dist_min[r], dist_max[r] + 1
-                except KeyError:
-                    a, b = 0, 1
+        if inst.is_branch or inst.is_push_pop:
+            return
 
-                max_dist = addr - 4 * b
-                min_dist = addr - 4 * a
+        dist_min = self._collector.storage_min_dist
+        dist_max = self._collector.storage_max_dist
 
-                p = 1
-                for a in range(max_dist, min_dist):
-                    count = 0
-                    t = 0
-                    if not a in self._program:
-                        continue
+        prd = 1
+        # Compute register distance
+        for r in inst.storages_read():
+            try:
+                a, b = dist_min[r], dist_max[r] + 1
+            except KeyError:
+                a, b = 0, 1
 
-                    for x in self._program[a]:
-                        if not x.ignore:
-                            t += 1
-                            if r in x.storages_written():
-                                count += 1
-                    if t > 0:
-                        p *= 1 - count / t
-                        if p == 1:
-                            break
+            max_dist = addr - 4 * b
+            min_dist = addr - 4 * a
 
-                prd = min(p, prd)
-                if prd >= 1:
-                    prd = 0.9999
-                    break
+            p = 1
+            for a in range(max_dist, min_dist):
+                count = 0
+                t = 0
+                if not a in self._program:
+                    continue
 
-            inst.scores_by_rule['prd'] = 1 - prd
+                for x in self._program[a]:
+                    if not x.ignore:
+                        t += 1
+                        if r in x.storages_written():
+                            count += 1
+                if t > 0:
+                    p *= 1 - count / t
+                    if p == 1:
+                        break
+
+            prd = min(p, prd)
+            if prd >= 1:
+                prd = self._model.high_probability
+                break
+        prd = 1 - prd
+        if prd <= 0:
+            prd = self._model.low_probability
+        inst.scores_by_rule['prd'] = prd
 #                _pmf_reg_dist = uniform(a, b)
 #                ph = self._instruction_range_probs(addr, b, a, lambda x: )
                 # Handle special registers such as SP, LP and PC
@@ -396,6 +496,29 @@ class ProbabilisticRecuperator(Recuperator):
 #                    prd *= indep_events_union([_pmf_reg_dist * p for p in ph]) if ph else 0
 
 
+    def _compute_branch_address(self, inst, current_fn, lowest_addr, highest_addr):
+        """
+        Branching is not random. A branch should occur inside the method or to the beginning of another method.
+
+        This method analyzes the branching address of a branch instruction and then provides a probability of
+        the address being correct
+        """
+        if inst.ignore or not inst.is_branch:
+            return
+        jmp_addr = inst.jumping_address
+        # Award high prob to addresses inside this method or to the begin of other methods
+        if jmp_addr >= current_fn and jmp_addr <= self._functions[current_fn][1]:
+            inst.scores_by_rule['pbd'] = self._model.branch_to_this_method
+        # Award medium-high prob to a branch to the start of other method
+        elif jmp_addr in self._functions:
+            inst.scores_by_rule['pbd'] = self._model.branch_to_other_method_start
+        # Award low prob to addresses outside the program
+        elif jmp_addr > highest_addr or jmp_addr < lowest_addr:
+            inst.scores_by_rule['pbd'] = self._model.just_any_jump_is_valid
+        # Award low to med prob to anithing else
+        else:
+            inst.scores_by_rule['pbd'] = self._model.just_any_jump_is_valid * 2
+
     def _recover(self, progress_bar):
         # first, recopilate all the data we need once
         # This data consist in the amount of conditionals, operands and registers in the program
@@ -403,12 +526,12 @@ class ProbabilisticRecuperator(Recuperator):
         cpmd = CorruptedProgramMetadataCollector()
         cpmd.collect(self._program)
 
-
-
         # Order addresses so we are sure we go from lower addresses to higher addresses
         addresses = [a for a in self._program.keys()]
         addresses.sort()
 
+        lowest_addr = addresses[0]
+        highest_addr = addresses[len(addresses) - 1]
         current_fn = addresses[0]
 
         for i in range(0, len(addresses)):
@@ -420,15 +543,16 @@ class ProbabilisticRecuperator(Recuperator):
                     continue
 
                 # Sets the probabilistic rures function as the score calculation of the intruction
-                inst.score_function = probabilistic_rules
+                inst.score_function = probabilistic_rules_remove_step
 
-                #self._compute_conditional(inst, cpmd)
-                #self._compute_opcode(inst, cpmd)
-                #self._compute_registers(inst, cpmd)
+                self._compute_conditional(inst, cpmd)
+                self._compute_opcode(inst, cpmd)
+                self._compute_registers(inst, cpmd)
                 self._compute_push_pop(inst, cpmd, addr, current_fn)
-                #if i > 0:
-                #    self._compute_register_distance(inst, cpmd, addr)
-                #    self._compute_proper_cfg(inst, cpmd, addr)
+                self._compute_branch_address(inst, current_fn, lowest_addr, highest_addr)
+                if i > 0:
+                    self._compute_register_distance(inst, cpmd, addr)
+                    self._compute_proper_cfg(inst, cpmd, addr)
             progress_bar.progress()
 
             """

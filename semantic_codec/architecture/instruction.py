@@ -13,7 +13,7 @@ class Instruction(object):
     # Instruction is given as a decimal number
     DEC_STR = 10
 
-    def __init__(self, encoding, str_format=DEC_STR, little_endian=True, position=0):
+    def __init__(self, encoding, position, str_format=DEC_STR, little_endian=True):
         self._storages_used = None
         self._storages_read = None
         self._storages_written = None

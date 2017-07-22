@@ -10,8 +10,8 @@ class DARMInstruction(Instruction):
     Wrapper instruction for the DARM disassembler
     """
 
-    def __init__(self, encoding, str_format=Instruction.HEX_STR, little_endian=True, position=0):
-        super().__init__(encoding, str_format, little_endian, position)
+    def __init__(self, encoding, position, str_format=Instruction.HEX_STR, little_endian=True, ):
+        super(DARMInstruction, self).__init__(encoding, position, str_format, little_endian)
         self._darm = darm.disasm_armv7(self.encoding)
 
     def __str__(self):
@@ -143,7 +143,9 @@ class DARMInstruction(Instruction):
         if self._jumping_address is None:
             # On the other hand, one can compute the jumping address
             address = self.encoding & Bits.set(23, 0)
-            address = ((address | Bits.set(29, 24)) << 2) - Bits.on(32) if Bits.is_on(address, 23) else address
+            if Bits.is_on(address, 23):
+                address |= Bits.set(29, 24)
+            address = (address << 2)
             address += self.position + 8
             address &= 0xffffffff
             self._jumping_address = address

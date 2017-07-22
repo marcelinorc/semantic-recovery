@@ -161,7 +161,7 @@ class ControlFlowBehavior(Rule):
                 if c.is_branch:
                     # TODO: Improve the resolution of the jumping address
                     if c.jumping_address in self._program:
-                        new_score.append(conditional_score[c.conditional_field] + self._model.jump_is_valid)
+                        new_score.append(conditional_score[c.conditional_field] + self._model.just_any_jump_is_valid)
                     else:
                         new_score.append(conditional_score[c.conditional_field])
                 else:

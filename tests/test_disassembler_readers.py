@@ -20,13 +20,13 @@ class TestTextDisassembleReader(unittest.TestCase):
         for inst in instructions:
             print(inst)
             if not str(inst.darm):
-                print("Jony, la gente esta muy loka")
+                print("Jhonny, la gente esta muy loka")
             if inst.is_undefined:
                 print('Undefined')
 
     def test_read_functions(self):
         fns = TextDisassembleReader(self.HELLO_PATH).read_functions()
-        self.assertEqual(35, len(fns))
-        self.assertEqual(11, len(fns['.text:000106d0 <frame_dummy>:'].instructions))
-        self.assertEqual(9, len(fns['.text:000106a8 <__do_global_dtors_aux>:'].instructions))
+        self.assertEqual(36, len(fns))
+        self.assertEqual(11, len(fns[23].instructions))
+        self.assertEqual(9, len(fns[21].instructions))
 

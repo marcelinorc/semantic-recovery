@@ -1,4 +1,4 @@
-from semantic_codec.metadata.rules import ControlFlowBehavior
+from semantic_codec.metadata.probabilistic_rules.rules import ControlFlowBehavior
 from tests.TestRule import TestRule
 
 

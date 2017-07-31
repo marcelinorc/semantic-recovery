@@ -1,6 +1,6 @@
 import os
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
-from semantic_codec.metadata.collector import MetadataCollector
+from semantic_codec.metadata.metadata_collector import MetadataCollector
 
 import numpy as np
 import matplotlib.mlab as mlab

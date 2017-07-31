@@ -1,7 +1,4 @@
-import os
-from unittest import TestCase
-
-from semantic_codec.metadata.counting_rules import ConditionalCount, RegisterCount, InstructionCount
+from semantic_codec.metadata.probabilistic_rules.counting_rules import ConditionalCount, RegisterCount, InstructionCount
 from tests.TestRule import TestRule
 
 

@@ -3,8 +3,8 @@ from unittest import TestCase
 
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
 from semantic_codec.corruption.corruption import corrupt_instruction
-from semantic_codec.metadata.collector import MetadataCollector
-from semantic_codec.metadata.rules import from_instruction_list_to_dict
+from semantic_codec.metadata.metadata_collector import MetadataCollector
+from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_list_to_dict
 
 
 class TestRule(object):

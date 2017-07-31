@@ -3,8 +3,8 @@ from math import log
 from constraint import *
 
 from semantic_codec.architecture.bits import BitQueue
-from semantic_codec.metadata.collector import MetadataCollector
-from semantic_codec.metadata.rules import from_instruction_list_to_dict
+from semantic_codec.metadata.metadata_collector import MetadataCollector
+from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_list_to_dict
 
 
 class ExactFieldSumConstraint(Constraint):
@@ -96,7 +96,7 @@ class ForwardConstraintRecuperator(object):
     pass
 
 
-class ForwardConstraintSolutionWorker(object):
+class AbstractForwardConstraintSolutionBuilder(object):
 
     def __init__(self, program, original_program):
         self._from_max_to_min = False
@@ -207,7 +207,7 @@ class ForwardConstraintSolutionWorker(object):
         pass
 
 
-class ForwardConstraintSolutionEnumerator(ForwardConstraintSolutionWorker):
+class ForwardConstraintSolutionEnumerator(AbstractForwardConstraintSolutionBuilder):
     """
     Enumerates all possible solutions and returns the index of the correct. Is a forward constraint because
     it deletes candidates as it progresses.
@@ -229,7 +229,7 @@ class ForwardConstraintSolutionEnumerator(ForwardConstraintSolutionWorker):
 
 
 
-class ForwardConstraintSolutionBuilder(ForwardConstraintSolutionWorker):
+class ForwardConstraintSolutionBuilder(AbstractForwardConstraintSolutionBuilder):
     """
     This class builds a solution in the following way:
     1. It sorts the addresses by the number of candidates.

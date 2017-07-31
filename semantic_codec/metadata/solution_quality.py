@@ -4,9 +4,10 @@ from math import log
 from semantic_codec.metadata.recuperator import probabilistic_rules
 
 
-class AnswerQuality(object):
+class SolutionQuality(object):
     """
-    Class that computes the Answer's quality so far
+    Class that computes the solution's quality so far. The quality of the answer is mostly how small is the solution,
+    however it has other parameters as the highest depth.
     """
 
     def __init__(self, program, original_program):

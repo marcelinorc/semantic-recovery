@@ -1,8 +1,7 @@
 import sys
 
 from semantic_codec.architecture.arm_instruction import ARMInstruction, AReg
-from semantic_codec.metadata.probabilistic_model import DefaultProbabilisticModel
-from semantic_codec.metadata.rules import Rule
+from semantic_codec.metadata.probabilistic_rules.rules import Rule
 
 
 class RegisterDistanceRule(Rule):

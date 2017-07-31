@@ -2,9 +2,9 @@ from unittest import TestCase
 
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
 from semantic_codec.corruption.corruptors import RandomCorruptor
-from semantic_codec.metadata.constraints_recuperator import ProblemBuilder
-from semantic_codec.metadata.collector import MetadataCollector
-from semantic_codec.metadata.rules import from_instruction_list_to_dict
+from semantic_codec.metadata.metadata_collector import MetadataCollector
+from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_list_to_dict
+from semantic_codec.metadata.solution_builders import ProblemBuilder
 from tests.test_disassembler_readers import TestTextDisassembleReader
 
 

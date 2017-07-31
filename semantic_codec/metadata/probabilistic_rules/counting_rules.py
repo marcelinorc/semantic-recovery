@@ -1,6 +1,6 @@
 import copy
 
-from semantic_codec.metadata.rules import Rule
+from semantic_codec.metadata.probabilistic_rules.rules import Rule
 
 
 class CountingRule(Rule):

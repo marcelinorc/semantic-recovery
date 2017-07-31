@@ -1,7 +1,7 @@
 
 class DefaultProbabilisticModel(object):
     """
-    Class containing the values assigned to the probabilities model variables
+    Class containing the values assigned to the variables of the probabilities model
     """
     def __init__(self):
 

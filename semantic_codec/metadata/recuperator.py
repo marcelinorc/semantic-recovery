@@ -1,16 +1,18 @@
-from semantic_codec.architecture.arm_instruction import AReg
-from semantic_codec.metadata.collector import CorruptedProgramMetadataCollector
 from semantic_codec.metadata.counting_rules import ConditionalCount, InstructionCount, RegisterCount
-from semantic_codec.metadata.distance_rule import RegisterReadDistance
-from semantic_codec.metadata.probabilistic_model import DefaultProbabilisticModel
 from semantic_codec.metadata.rules import ControlFlowBehavior
-from semantic_codec.probability.probabilities import indep_events_union, uniform
+
+from semantic_codec.architecture.arm_instruction import AReg
+from semantic_codec.metadata.metadata_collector import CorruptedProgramMetadataCollector
+from semantic_codec.metadata.probabilistic_model import DefaultProbabilisticModel
+from semantic_codec.metadata.probabilistic_rules.distance_rule import RegisterReadDistance
 from semantic_codec.report.print_progress import TextProgressBar
 
 
 class Recuperator(object):
     """
-    Class in charge of recuperating the lost bits of information using the metadata sent
+    Class in charge of recuperating the lost bits of information using the metadata sent.
+
+    DEPRECATED IN FAVOR OF ProbabilisticRecuperator
     """
 
     def __init__(self, collector, program, model=None, functions=None):

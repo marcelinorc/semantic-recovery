@@ -8,7 +8,7 @@ from semantic_codec.corruption.corruption import corrupt_instruction, corrupt_bi
     corrupt_all_bits, corrupt_all_bits_tuples, predict_corruption
 from semantic_codec.corruption.corruptors import PacketCorruptor, DARMInstruction, Instruction
 from semantic_codec.interleaver.interleaver2d import build_2d_interleave_sp
-from semantic_codec.metadata.rules import from_instruction_list_to_dict
+from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_list_to_dict
 
 
 class TestCorruptor(TestCase):

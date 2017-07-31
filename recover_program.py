@@ -2,13 +2,13 @@ import os
 
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
 from semantic_codec.corruption.corruptors import JSONCorruptor, RandomCorruptor, PacketCorruptor, DARMInstruction, sys
-from semantic_codec.metadata.answer_quality import AnswerQuality
-from semantic_codec.metadata.collector import MetadataCollector
-from semantic_codec.metadata.constraints_recuperator import ForwardConstraintSolutionEnumerator
-from semantic_codec.metadata.recuperator import ProbabilisticRecuperator, probabilistic_rules
-from semantic_codec.metadata.rules import from_instruction_list_to_dict, from_instruction_dict_to_list, \
+from semantic_codec.metadata.solution_quality import SolutionQuality
+from semantic_codec.metadata.metadata_collector import MetadataCollector
+from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_list_to_dict, from_instruction_dict_to_list, \
     from_functions_to_list_and_addr
-from elfio import create
+from semantic_codec.metadata.recuperator import ProbabilisticRecuperator, probabilistic_rules
+from semantic_codec.metadata.solution_builders import ForwardConstraintSolutionEnumerator
+
 
 def print_report(instructions_output_file, original_program, recovered_program):
     errors, recovered, fail_looses, fail_tide = 0, 0, 0, 0
@@ -154,7 +154,7 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
     print("[INFO]: Corrupting program")
     program = corruptor.corrupt(from_instruction_list_to_dict(program))
     print("[INFO]: Program corrupted")
-    AnswerQuality(program, original_program).report()
+    SolutionQuality(program, original_program).report()
 
     print_report('corrupted_program.txt',
                  original_program, from_instruction_dict_to_list(program))
@@ -178,7 +178,7 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
                 stable = False
             #if len(v) == 0:
             #    raise RuntimeError('Should not be empty')
-        AnswerQuality(program, original_program).report()
+        SolutionQuality(program, original_program).report()
         if stable:
             break
         pass_count += 1
@@ -197,7 +197,7 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
     b.build()
     print('[INFO]: Constrained solution size: {}'.format(b.solution_size))
     print('[INFO]: Constrained solution: {}'.format(b.solution))
-    a = AnswerQuality(program, original_program)
+    a = SolutionQuality(program, original_program)
     a.report()
 
 

@@ -1,4 +1,4 @@
-from semantic_codec.metadata.distance_rule import RegisterReadDistance
+from semantic_codec.metadata.probabilistic_rules.distance_rule import RegisterReadDistance
 from tests.TestRule import TestRule
 
 

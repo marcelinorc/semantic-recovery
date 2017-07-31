@@ -10,6 +10,9 @@ class AnswerQuality(object):
     """
 
     def __init__(self, program, original_program):
+
+        self._highest_depth_bin = {}
+
         # The highest depth in the solution (i.e. the worst place a correct answer has)
         self._highest_depth = None
 
@@ -22,6 +25,17 @@ class AnswerQuality(object):
         self._program = program
 
         self._original_program = original_program
+
+        # Number of bits required to represent the solution
+        self._solution_size = None
+
+    @property
+    def solution_size(self):
+        if self._solution_count <= -1:
+            self._count_solutions(self._program)
+        if self._solution_count == 0:
+            return 0
+        return self._solution_size
 
     @property
     def highest_depth(self):
@@ -54,43 +68,63 @@ class AnswerQuality(object):
                 bins[k] = 1
 
         i = 1
-        amount = sys.maxsize
-        result = 0
-        can_represent = True
+        amount = 0
         for i in bins.keys():
-            if not can_represent or amount < 0:
-                break
-            if i > 1:
-                k = log(amount, i)
-                if k > bins[i]:
-                    result += i ** bins[i]
-                    amount -= result
-                else:
-                    can_represent = False
-            elif i != 0:
-                amount -= 1
-                result += 1
+            amount += i ** bins[i]
 
-        if can_represent:
-            self._solution_count = result
-        else:
-            self._solution_count = None
+        self._solution_count = amount
         self._solution_count_bins = bins
+        self._solution_size = 0
+
+        for k, v in bins.items():
+            if k > 1:
+                self._solution_size += (log(k, 2)) * bins[k]
 
     def evaluate(self):
         self._solution_count = self._count_solutions(self._program)
 
         # Change the probabilistic function to one more continous
-
+        self._highest_depth = 0
+        self._highest_depth_bin = {}
+        max_addr_bin = {}
+        max_addr = 0
         for k in range(0, len(self._original_program)):
-            v = self._program[self._original_program[k].position]
+            if self._original_program[k].ignore:
+                continue
+            addr = self._original_program[k].position
+            v = self._program[addr]
+            min_encoding = sys.maxsize
             for inst in v:
-                inst.score_function = probabilistic_rules
-            v.sort(key=lambda x : x.score())
+                if inst.encoding < min_encoding:
+                    min_encoding = inst.encoding
+            v.sort(key=lambda x: 0 if min_encoding == 0 else (x.score() * 1000000000 + min_encoding/ x.encoding), reverse=True)
+            #v.sort(key=lambda x: x.score(), reverse=True)# * 1000000000 + x.encoding / max_encoding, reverse=True)
+
+            # Count the depth bin
 
             i = 0
-            while i < len(v) and i < self._solution_count_bins[k] and v[i] != self._original_program[i]:
+            ln = len(v)
+            while i < ln and str(v[i]) != str(self._original_program[k]):
                 i += 1
 
-            if i > self._highest_depth:
-                self._highest_depth = i
+            if not ln in self._highest_depth_bin:
+                self._highest_depth_bin[ln] = 0
+
+            r = (i+1) / ln
+            if ln > 0:
+                if r > self._highest_depth_bin[ln]:
+                    self._highest_depth_bin[ln] = r
+                    max_addr_bin[ln] = addr
+                if r > self._highest_depth:
+                    self._highest_depth = r
+                    max_addr = addr
+        print('[INFO] Highest Depth at address > {}'.format(hex(max_addr)))
+        print('[INFO] Highest Depth at address bin > {}'.format(max_addr_bin))
+        print('[INFO] Highest Depth bin > {}'.format(self._highest_depth_bin))
+
+    def report(self):
+        a = self
+        print('[INFO]: Solutions: {}'.format(a.solution_count_bins))
+        print('[INFO]: Solutions size: {}'.format(a.solution_size))
+        print('[INFO]: Solutions count: {}'.format(a.solution_count))
+

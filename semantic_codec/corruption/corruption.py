@@ -52,7 +52,9 @@ def corrupt_all_bits(lo, hi, instruction):
         k = len(result)
         mask = Bits.on(i)
         for j in range(0, k):
-            result.append(result[j] ^ mask)
+            masked = result[j] ^ mask
+            if masked not in result:
+                result.append(masked)
 
     return result
 
@@ -103,7 +105,9 @@ def corrupt_bits(hi, lo, amount, instruction):
         while j <= m:
             noise += Bits.on(bits[j - 1]) if j & i else 0
             j <<= 1
-        result.append(instruction ^ noise)
+        noised = instruction ^ noise
+        if noised not in result:
+            result.append(noised)
     return result
 
 
@@ -169,10 +173,16 @@ def corrupt_program(program, err_percent, max_amount):
         if p in program and len(program[p]) == 1:
             a = random.randint(1, max_amount)
             for r in corrupt_bits(31, 0, a, program[p][0].encoding):
-                program[p].append(DARMInstruction(r, program[p][0].position))
+                if _encoding_not_in_list(r, program[p]):
+                    program[p].append(DARMInstruction(r, program[p][0].position))
             corrupted_amount -= 1
 
 
+def _encoding_not_in_list(encoding, instructions):
+    for inst in instructions:
+        if inst.encoding == encoding:
+            return False
+    return True
 
 def corrupt_instruction(program, original_instruction, address,
                         conditional=True, registers=False, opcode=False, amount=2):

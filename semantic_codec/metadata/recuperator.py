@@ -72,7 +72,7 @@ def probabilistic_rules(scores_dict, inst):
     # Conditional register score
     pc = scores_dict['pc'] if 'pc' in scores_dict else 1
     # Register score
-    pr = scores_dict['pr'] if 'pr' in scores_dict else 0
+    pr = scores_dict['pr'] if 'pr' in scores_dict else 1
     # Register distance score
     prd = scores_dict['prd'] if 'prd' in scores_dict else 1
     # Opcode score

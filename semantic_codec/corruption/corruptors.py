@@ -1,5 +1,6 @@
 from semantic_codec.corruption.corruption import *
 from semantic_codec.interleaver.interleaver2d import build_2d_interleave_sp
+from semantic_codec.report.print_progress import TextProgressBar
 
 
 class Corruptor(object):
@@ -67,6 +68,9 @@ class PacketCorruptor(Corruptor):
         :param program: A dictionary of {address => DARMInstructions}
         :return: The program corrupted in the form of {address => [DARMInstructions]}
         """
+
+
+
         if not self.packet_lost:
             raise RuntimeError('No packet lost information. Cannot corrupt')
 
@@ -86,6 +90,11 @@ class PacketCorruptor(Corruptor):
         # Corrupt the program
         k, tuples, e = 0, [], errors[0]
         current = e[0]
+
+        progress_bar = TextProgressBar(iteration=0, total=len(errors),
+                                       prefix='Corrupting:',
+                                       decimals=0, bar_length=50, print_dist=4)
+
         while k <= len(errors):
             if current != e[0] or k == len(errors):
                 if len(tuples) != 0 and current < len(addresses):
@@ -99,9 +108,14 @@ class PacketCorruptor(Corruptor):
                 tuples.append((e[1], e[1] + self.bits_per_interleave))
             else:
                 tuples.append((e[1], e[1] + e[2]))
+
             k += 1
+            progress_bar.progress()
             if k < len(errors):
                 e = errors[k]
+
+        for v in program.values():
+            v.sort(key=lambda x : x.encoding)
 
         if self.save_corrupted_program:
             self._save_corrupted_program(program)

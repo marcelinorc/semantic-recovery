@@ -1,16 +1,14 @@
 import os
-from math import log
 
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
-from semantic_codec.corruption.corruption import corrupt_program, save_corrupted_program_to_json, \
-    load_corrupted_program_from_json
 from semantic_codec.corruption.corruptors import JSONCorruptor, RandomCorruptor, PacketCorruptor, DARMInstruction, sys
 from semantic_codec.metadata.answer_quality import AnswerQuality
 from semantic_codec.metadata.collector import MetadataCollector
-from semantic_codec.metadata.recuperator import Recuperator, ProbabilisticRecuperator
+from semantic_codec.metadata.constraints_recuperator import ForwardConstraintSolutionEnumerator
+from semantic_codec.metadata.recuperator import ProbabilisticRecuperator, probabilistic_rules
 from semantic_codec.metadata.rules import from_instruction_list_to_dict, from_instruction_dict_to_list, \
     from_functions_to_list_and_addr
-
+from elfio import create
 
 def print_report(instructions_output_file, original_program, recovered_program):
     errors, recovered, fail_looses, fail_tide = 0, 0, 0, 0
@@ -22,10 +20,7 @@ def print_report(instructions_output_file, original_program, recovered_program):
     aver_instr_tie_sum = 0
     aver_instr_tie_count = 0
 
-    worst_case = 0
-
     for i in range(0, len(original_program)):
-        s = ""
         print('Original Instruction: {}'.format(original_program[i]))
         instructions = recovered_program[i]
 
@@ -39,6 +34,12 @@ def print_report(instructions_output_file, original_program, recovered_program):
 
         if len(instructions) > 1:
             instructions.sort(key=lambda x: x.score(), reverse=True)
+            #max_encoding = 0
+            #for inst in instructions:
+            #    if inst.encoding > max_encoding:
+            #        max_encoding = inst.encoding
+            #instructions.sort(key = lambda x: x.score() * 1000000000 + (1 - x.encoding / max_encoding), reverse=True)
+
             errors += 1
             ori_str = str(original_program[i])
             c1_str = str(instructions[0])
@@ -77,6 +78,8 @@ def print_report(instructions_output_file, original_program, recovered_program):
                 if inst.ignore:
                     print("X", end="")
                 if inst.encoding == original_program[i].encoding:
+                    s = inst.score()
+
                     print("{3} ++ [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, hex(addr)), end="")
                 else:
                     print("{3} -- [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, hex(addr)), end="")
@@ -105,7 +108,7 @@ def print_report(instructions_output_file, original_program, recovered_program):
     sys.stdout = orig_stdout
 
 
-def remove_impossible_instructions(v):
+def remove_bad_candidates_at_addr(v):
     previous = len(v)
     one_count = 0
     less_than_one_count = 0
@@ -148,11 +151,13 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
     print("[INFO]: Metrics collected")
 
     # Corrupt it:
+    print("[INFO]: Corrupting program")
     program = corruptor.corrupt(from_instruction_list_to_dict(program))
     print("[INFO]: Program corrupted")
-    print('[INFO]: {} solutions'.format(str(AnswerQuality(program, original_program).solution_count_bins)))
+    AnswerQuality(program, original_program).report()
 
-    # Recover it:
+    print_report('corrupted_program.txt',
+                 original_program, from_instruction_dict_to_list(program))
 
     pass_count = 1
     while (True):
@@ -169,18 +174,36 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
         for k, v in program.items():
             # Remove 0 or less than 1 if any instruction has 1 score
             prev = len(v)
-            if remove_impossible_instructions(v) > 0:
+            if remove_bad_candidates_at_addr(v) > 0:
                 stable = False
             #if len(v) == 0:
             #    raise RuntimeError('Should not be empty')
-        a = AnswerQuality(program, original_program)
-        print('[INFO]: Depth > {}'.format(a.highest_depth))
-        print('[INFO]: Solutions > {} '.format(a.solution_count_bins))
-
+        AnswerQuality(program, original_program).report()
         if stable:
             break
         pass_count += 1
 
+    pass_count += 1
+
+    # Change to continous
+    for v in program.values():
+        for inst in v:
+            inst.score_function = probabilistic_rules
+    print_report('instructions{}.txt'.format(pass_count),
+        original_program, from_instruction_dict_to_list(program))
+
+    print('[INFO]: Constraining: ')
+    b = ForwardConstraintSolutionEnumerator(program, original_program)
+    b.build()
+    print('[INFO]: Constrained solution size: {}'.format(b.solution_size))
+    print('[INFO]: Constrained solution: {}'.format(b.solution))
+    a = AnswerQuality(program, original_program)
+    a.report()
+
+
+    pass_count += 1
+    print_report('instructions{}.txt'.format(pass_count),
+        original_program, from_instruction_dict_to_list(program))
 # max_error_per_instruction, corrupted_program=None, generate_new=False, )
 if __name__ == "__main__":
     use_packets = True
@@ -194,9 +217,14 @@ if __name__ == "__main__":
 
     if not use_file:
         if use_packets:
-            ll = len(original_program)
+            ll = 0
+            for f in original_program:
+                ll += len(f.instructions)
             packet_count = ll / 32
-            corruptor = PacketCorruptor(packet_count, ll, packets_lost=[3])
+            lost = [3]
+            print('[INFO:] Program Size: {} bytes -- Loss: {} -- Packet count: {}'.format(
+                ll * 4, 16 * len(lost) * 2, packet_count))
+            corruptor = PacketCorruptor(packet_count, ll, packets_lost=lost)
         else:
             corruptor = RandomCorruptor(30.0, 3, True)
     else:

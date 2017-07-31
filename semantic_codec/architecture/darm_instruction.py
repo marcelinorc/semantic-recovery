@@ -10,7 +10,7 @@ class DARMInstruction(Instruction):
     Wrapper instruction for the DARM disassembler
     """
 
-    def __init__(self, encoding, position, str_format=Instruction.HEX_STR, little_endian=True, ):
+    def __init__(self, encoding, position, str_format=Instruction.HEX_STR, little_endian=True):
         super(DARMInstruction, self).__init__(encoding, position, str_format, little_endian)
         self._darm = darm.disasm_armv7(self.encoding)
 

@@ -7,7 +7,7 @@ class BitQueue(object):
         self._eq_word = 0
         self._eq_bit = 0
         self._dq_bit = 0
-        self._word_size = word_size
+        self.word_size = word_size
 
     def enqueue(self, value, from_bit):
         """
@@ -17,23 +17,23 @@ class BitQueue(object):
         """
         Bits.check_range(0, from_bit)
 
-        if self._eq_bit + self._word_size - 1 > BitQueue.WORD_SIZE - 1:
+        if self._eq_bit + self.word_size - 1 > BitQueue.WORD_SIZE - 1:
             w = max(0, BitQueue.WORD_SIZE - self._eq_bit - 1)
             self._bytes[self._eq_word] = Bits.copy_bits(value, self._bytes[self._eq_word],
                                                         from_bit, from_bit + w, self._eq_bit)
             self._eq_word += 1
             self._bytes.append(0)
 
-            w = max(0, self._eq_bit + self._word_size - BitQueue.WORD_SIZE - 1)
+            w = max(0, self._eq_bit + self.word_size - BitQueue.WORD_SIZE - 1)
             self._eq_bit = 0
             self._bytes[self._eq_word] = Bits.copy_bits(value, self._bytes[self._eq_word],
                                                         from_bit, from_bit + w, self._eq_bit)
         else:
-            w = max(0, from_bit + self._word_size - 1)
+            w = max(0, from_bit + self.word_size - 1)
             self._bytes[self._eq_word] = Bits.copy_bits(value, self._bytes[self._eq_word],
                                                         from_bit, w, self._eq_bit)
 
-        self._eq_bit += self._word_size
+        self._eq_bit += self.word_size
         if self._eq_bit > BitQueue.WORD_SIZE - 1:
             self._eq_bit -= BitQueue.WORD_SIZE
             self._eq_word += 1
@@ -49,17 +49,17 @@ class BitQueue(object):
     def dequeue(self, value, to_bit):
         Bits.check_range(0, to_bit)
 
-        if self._dq_bit + self._word_size - 1 > BitQueue.WORD_SIZE - 1:
+        if self._dq_bit + self.word_size - 1 > BitQueue.WORD_SIZE - 1:
             w = BitQueue.WORD_SIZE - self._dq_bit
             value = Bits.copy_bits(self._bytes[0], value, self._dq_bit, self._dq_bit + w - 1, to_bit)
             self._bytes.pop(0)
             self._eq_word -= 1
 
-            w = self._dq_bit + self._word_size - BitQueue.WORD_SIZE
+            w = self._dq_bit + self.word_size - BitQueue.WORD_SIZE
             self._dq_bit = 0
             value = Bits.copy_bits(self._bytes[0], value, self._dq_bit, self._dq_bit + w - 1, to_bit)
         else:
-            w = self._word_size
+            w = self.word_size
             value = Bits.copy_bits(self._bytes[0], value, self._dq_bit, self._dq_bit + w - 1, to_bit)
 
         self._dq_bit += w

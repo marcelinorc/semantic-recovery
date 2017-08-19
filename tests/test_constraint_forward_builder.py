@@ -1,27 +1,31 @@
 from unittest import TestCase
 
-from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
-from semantic_codec.corruption.corruptors import RandomCorruptor, DARMInstruction
-from semantic_codec.metadata.solution_quality import SolutionQuality
+from semantic_codec.architecture.disassembler_readers import TextDisassembleReader, ElfioTextDisassembleReader
+from semantic_codec.corruption.corruptors import RandomCorruptor, CAPSInstruction
 from semantic_codec.metadata.metadata_collector import MetadataCollector
 from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_list_to_dict
-from semantic_codec.metadata.solution_builders import ForwardConstraintSolutionBuilder, \
+from semantic_codec.solution.solution_builders import ForwardConstraintSolutionBuilder, \
     ForwardConstraintSolutionEnumerator
+from semantic_codec.solution.solution_quality import SolutionQuality
 from tests.test_disassembler_readers import TestTextDisassembleReader
 
 
 class TestForwardConstraintSolutionBuilder(TestCase):
 
-    def initialize_test(self):
+    @staticmethod
+    def obtain_corrupted_program():
         # Obtain a program and corrupt it
-        instructions = TextDisassembleReader(TestTextDisassembleReader.ASM_PATH).read_instructions()
+        instructions = ElfioTextDisassembleReader("data/helloworld_elfiodissasembly.txt").read()[1]
         collector = MetadataCollector()
         collector.collect(instructions)
         corruptor = RandomCorruptor(30.0, 5, True)
         corruptor.save_corrupted_program = False
-        program = [DARMInstruction(x.encoding, x.position) for x in instructions]
+        program = [CAPSInstruction(x.encoding, x.position) for x in instructions]
         program = corruptor.corrupt(from_instruction_list_to_dict(program))
+        return instructions, program
 
+    def initialize_test(self):
+        instructions, program = TestForwardConstraintSolutionBuilder.obtain_corrupted_program()
         # Obtain the answer size before any constraint building
         a = SolutionQuality(program, instructions)
         a.report()

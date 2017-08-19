@@ -1,6 +1,7 @@
 import sys
 
-from semantic_codec.architecture.arm_instruction import ARMInstruction, AReg
+from semantic_codec.architecture.arm_constants import AReg
+from semantic_codec.architecture.arm_instruction import ARMInstruction
 from semantic_codec.metadata.probabilistic_rules.rules import Rule
 
 

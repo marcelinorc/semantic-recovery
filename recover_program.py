@@ -1,16 +1,19 @@
 import os
 
-from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
-from semantic_codec.corruption.corruptors import JSONCorruptor, RandomCorruptor, PacketCorruptor, DARMInstruction, sys
-from semantic_codec.metadata.solution_quality import SolutionQuality
+from semantic_codec.architecture.disassembler_readers import TextDisassembleReader, ElfioTextDisassembleReader
+from semantic_codec.corruption.corruptors import JSONCorruptor, RandomCorruptor, PacketCorruptor, CAPSInstruction, sys
 from semantic_codec.metadata.metadata_collector import MetadataCollector
 from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_list_to_dict, from_instruction_dict_to_list, \
     from_functions_to_list_and_addr
 from semantic_codec.metadata.recuperator import ProbabilisticRecuperator, probabilistic_rules
-from semantic_codec.metadata.solution_builders import ForwardConstraintSolutionEnumerator
+from semantic_codec.solution.solution_builders import ForwardConstraintSolutionEnumerator
+from semantic_codec.solution.solution_io import SolutionWriter
+from semantic_codec.solution.solution_quality import SolutionQuality
 
 
 def print_report(instructions_output_file, original_program, recovered_program):
+
+
     errors, recovered, fail_looses, fail_tide = 0, 0, 0, 0
     orig_stdout = sys.stdout
     f = open(instructions_output_file, 'w')
@@ -44,7 +47,7 @@ def print_report(instructions_output_file, original_program, recovered_program):
             ori_str = str(original_program[i])
             c1_str = str(instructions[0])
             c2_str = str(instructions[1])
-            if c1_str != ori_str:
+            if c1_str != ori_str and instructions[0].encoding != instructions[1].encoding:
                 print(" * FAIL : 1st Instruction is not original. ")
                 print(" * WRONG SCORES [Recovered vs Original]:")
                 # Print the comparison with the original rule
@@ -78,8 +81,6 @@ def print_report(instructions_output_file, original_program, recovered_program):
                 if inst.ignore:
                     print("X", end="")
                 if inst.encoding == original_program[i].encoding:
-                    s = inst.score()
-
                     print("{3} ++ [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, hex(addr)), end="")
                 else:
                     print("{3} -- [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, hex(addr)), end="")
@@ -142,7 +143,7 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
     # Separe the instructions from the function addresses
     original_program, fns = from_functions_to_list_and_addr(original_program)
     # Clone the original program
-    program = [DARMInstruction(v.encoding, position=v.position) for v in original_program]
+    program = [CAPSInstruction(v.encoding, position=v.position) for v in original_program]
 
     # Collect the metrics on it
     collector = MetadataCollector()
@@ -158,6 +159,10 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
 
     print_report('corrupted_program.txt',
                  original_program, from_instruction_dict_to_list(program))
+
+    initialwriter = SolutionWriter()
+    initialwriter.write_binary('initial_solution.sol', original_program, program)
+
 
     pass_count = 1
     while (True):
@@ -204,16 +209,24 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
     pass_count += 1
     print_report('instructions{}.txt'.format(pass_count),
         original_program, from_instruction_dict_to_list(program))
+
+    writer = SolutionWriter()
+    writer.write_binary('final_solution.sol', original_program, program)
+
+
 # max_error_per_instruction, corrupted_program=None, generate_new=False, )
 if __name__ == "__main__":
     use_packets = True
-    use_file = True
+    use_file = False
     recovered_program = None
     corruptor = None
 
     # ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/dissasembly.armasm')
-    ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/helloworld.armasm')
-    original_program = TextDisassembleReader(ARM_SIMPLE).read_functions()
+    ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/helloworld_elfiodissasembly.txt')
+    #original_program = TextDisassembleReader(ARM_SIMPLE).read_functions()
+    original_program = ElfioTextDisassembleReader(ARM_SIMPLE).read_functions()
+
+
 
     if not use_file:
         if use_packets:

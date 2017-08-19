@@ -33,6 +33,8 @@ def from_functions_to_list_and_addr(functions):
         for inst in f.instructions:
             result.append(inst)
 
+    result.sort(key=lambda x: x.position)
+
     return result, fns
 
 

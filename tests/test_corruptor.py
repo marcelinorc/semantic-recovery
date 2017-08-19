@@ -6,7 +6,7 @@ from semantic_codec.architecture.bits import Bits
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
 from semantic_codec.corruption.corruption import corrupt_instruction, corrupt_bits, corrupt_conditional, corrupt_program, \
     corrupt_all_bits, corrupt_all_bits_tuples, predict_corruption
-from semantic_codec.corruption.corruptors import PacketCorruptor, DARMInstruction, Instruction
+from semantic_codec.corruption.corruptors import PacketCorruptor, CAPSInstruction, Instruction
 from semantic_codec.interleaver.interleaver2d import build_2d_interleave_sp
 from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_list_to_dict
 
@@ -99,10 +99,10 @@ class TestCorruptor(TestCase):
         Test the Packet Corruptor
         :return:
         """
-        program = {0x1000: [DARMInstruction("06 00 54 e1", Instruction.HEX_STR)],
-                   0x1004: [DARMInstruction("f7 ff ff 1a", Instruction.HEX_STR)],
-                   0x1008: [DARMInstruction("0c 00 9f e5", Instruction.HEX_STR)],
-                   0x1028: [DARMInstruction("46 61 b0 e1", Instruction.HEX_STR)]}
+        program = {0x1000: [CAPSInstruction("06 00 54 e1", Instruction.HEX_STR)],
+                   0x1004: [CAPSInstruction("f7 ff ff 1a", Instruction.HEX_STR)],
+                   0x1008: [CAPSInstruction("0c 00 9f e5", Instruction.HEX_STR)],
+                   0x1028: [CAPSInstruction("46 61 b0 e1", Instruction.HEX_STR)]}
 
         # We use a known configuration from previous test that allows to know where errors will occur
         p = PacketCorruptor(16, len(program), build_2d_interleave_sp(16, flat=True), [2, 3, 4])

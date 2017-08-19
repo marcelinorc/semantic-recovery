@@ -4,7 +4,7 @@ from semantic_codec.architecture.disassembler_readers import TextDisassembleRead
 from semantic_codec.corruption.corruptors import RandomCorruptor
 from semantic_codec.metadata.metadata_collector import MetadataCollector
 from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_list_to_dict
-from semantic_codec.metadata.solution_builders import ProblemBuilder
+from semantic_codec.solution.solution_builders import ProblemBuilder
 from tests.test_disassembler_readers import TestTextDisassembleReader
 
 

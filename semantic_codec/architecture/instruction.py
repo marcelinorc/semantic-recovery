@@ -1,5 +1,6 @@
 import re
 
+from semantic_codec.architecture.arm_constants import AReg
 from semantic_codec.architecture.bits import Bits
 
 
@@ -63,7 +64,18 @@ class Instruction(object):
         """
         Jumping address for branching instructions
         """
-        return self._jumping_address
+        if self.is_branch:
+            if self._jumping_address is None:
+                # On the other hand, one can compute the jumping address
+                address = self.encoding & Bits.set(23, 0)
+                if Bits.is_on(address, 23):
+                    address |= Bits.set(29, 24)
+                address = (address << 2)
+                address += self.position + 8
+                address &= 0xffffffff
+                self._jumping_address = address
+            return self._jumping_address
+        return None
 
     @property
     def ssa_read(self):
@@ -146,10 +158,10 @@ class Instruction(object):
             self._storages_written.extend(self.registers_written())
             if self._writes_to_memory():
                 # 16 is the 'register' for memory
-                self._storages_written.append(16)
+                self._storages_written.append(AReg.STORE)
             if 15 not in self._storages_written and self.is_branch:
                 # PC counter
-                self._storages_written.append(15)
+                self._storages_written.append(AReg.PC)
             return self._storages_written
 
     def storages_read(self):
@@ -160,7 +172,7 @@ class Instruction(object):
             self._storages_read.extend(self.registers_read())
             if self._read_from_memory():
                 # 16 is the 'register' for memory
-                self._storages_read.append(16)
+                self._storages_read.append(AReg.STORE)
 
             return self._storages_read
 

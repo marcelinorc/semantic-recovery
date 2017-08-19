@@ -3,7 +3,7 @@ Readers of disassemble files
 """
 import re
 
-from semantic_codec.architecture.darm_instruction import DARMInstruction
+from semantic_codec.architecture.capstone_instruction import CAPSInstruction
 from semantic_codec.architecture.functions import ElfFunction
 
 
@@ -28,13 +28,59 @@ class DisassembleReader (object):
         pass
 
     @staticmethod
-    def _disassemble(encodings, instruction_set =ARM_SET):
+    def _disassemble(encodings, instruction_set=ARM_SET):
         """
         Disassemble a list of instructions
         """
         pass
 
 
+class ElfioTextDisassembleReader(DisassembleReader):
+
+    def __init__(self, filename, instruction_set=DisassembleReader.ARM_SET):
+        super(ElfioTextDisassembleReader, self).__init__(filename, instruction_set)
+        self.functions = None
+        self.instructions = None
+
+    def read(self):
+
+        functions = {}
+
+        current_fn = None
+
+        self.instructions = []
+        section = None
+        for line in open(self._filename):
+            if line.strip() == "":
+                continue
+            elif line.startswith('.'):
+                section = line.split(".")[1]
+            else:
+                if section.startswith('function'):
+                    address, name = line.split(';')
+                    functions[int(address, 16)] = ElfFunction(name.rstrip())
+                elif section.startswith('init') or section.startswith('text') or \
+                        section.startswith('plt') or section.startswith('fini'):
+                    line_split = line.split(';')
+                    address, encoding = line_split[0], line_split[1]
+                    encoding = int(encoding, 16)
+                    address = int(address, 16)
+                    inst = CAPSInstruction(encoding, position=address)
+                    if address in functions:
+                        current_fn = functions[address]
+                    if current_fn:
+                        current_fn.instructions.append(inst)
+                    self.instructions.append(inst)
+
+        self.functions = [x for x in functions.values()]
+
+        return self.functions, self.instructions
+
+    def read_functions(self):
+        return self.read()[0]
+
+    def read_instructions(self):
+        return self.read()[1]
 
 
 class TextDisassembleReader(DisassembleReader):
@@ -69,7 +115,7 @@ class TextDisassembleReader(DisassembleReader):
             elif len(line) > 0 and line[0] == ' ':
                 e = line.split(":", 1)[1].split("  ", 1)[0].split(" ", 1)
                 f = result[len(result) - 1]
-                f.instructions.append(DARMInstruction(e[1], position=int(e[0], 16)))
+                f.instructions.append(CAPSInstruction(e[1], position=int(e[0], 16), little_endian=False))
 
         return result
 
@@ -85,6 +131,7 @@ class TextDisassembleReader(DisassembleReader):
         for line in open(self._filename):
             if line[0] == ' ':
                 e = line.rstrip('\n').split(":", 1)[1].split("  ", 1)[0].split(" ", 1)
-                result.append(DARMInstruction(e[1], position=int(e[0], 16)))
+                instruction = CAPSInstruction(e[1], position=int(e[0], 16), little_endian=False)
+                result.append(instruction)
 
         return result

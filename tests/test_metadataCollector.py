@@ -1,8 +1,8 @@
 import os
 from unittest import TestCase
 
-from semantic_codec.architecture.arm_instruction import AReg
-from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
+from semantic_codec.architecture.arm_constants import AReg
+from semantic_codec.architecture.disassembler_readers import TextDisassembleReader, ElfioTextDisassembleReader
 from semantic_codec.corruption.corruptors import PacketCorruptor
 from semantic_codec.metadata.metadata_collector import MetadataCollector, CorruptedProgramMetadataCollector
 from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_list_to_dict
@@ -11,13 +11,12 @@ from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_l
 class TestMetadataCollector(TestCase):
 
     ASM_PATH = os.path.join(os.path.dirname(__file__), 'data/dissasembly.armasm')
-    ASM_LONG_PATH = os.path.join(os.path.dirname(__file__), 'data/helloworld.armasm')
+    ASM_LONG_PATH = os.path.join(os.path.dirname(__file__), 'data/helloworld_elfiodissasembly.txt')
 
     def test_corrupted_collect(self):
         # TODO: This is an smoke test
-
         # Load the program
-        instructions = TextDisassembleReader(self.ASM_LONG_PATH).read_instructions()
+        instructions = ElfioTextDisassembleReader(self.ASM_LONG_PATH).read_instructions()
 
         # Corrupt the program
         ll = len(instructions)

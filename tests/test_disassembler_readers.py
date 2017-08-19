@@ -11,18 +11,18 @@ class TestTextDisassembleReader(unittest.TestCase):
     def test_read(self):
         instructions = TextDisassembleReader(self.ASM_PATH).read_instructions()
         self.assertEqual(24, len(instructions))
+        self.assertTrue('push' in str(instructions[0]))
+        self.assertTrue('mov' in str(instructions[1]))
         self.assertEqual(0x00010790, instructions[0].position)
         self.assertEqual(0x000107ec, instructions[len(instructions) - 1].position)
 
     def test_read_hello_world(self):
         instructions = TextDisassembleReader(self.HELLO_PATH).read_instructions()
         self.assertEqual(177, len(instructions))
-        for inst in instructions:
-            print(inst)
-            if not str(inst.darm):
-                print("Jhonny, la gente esta muy loka")
-            if inst.is_undefined:
-                print('Undefined')
+        self.assertTrue('push' in str(instructions[0]))
+        self.assertTrue('bl' in str(instructions[1]))
+        #for inst in instructions:
+        #    self.assertFalse(inst.is_undefined)
 
     def test_read_functions(self):
         fns = TextDisassembleReader(self.HELLO_PATH).read_functions()

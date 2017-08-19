@@ -1,9 +1,9 @@
-from semantic_codec.architecture.arm_instruction import AOpType, AReg
+from semantic_codec.architecture.arm_constants import AReg
+from semantic_codec.architecture.arm_instruction import AOpType
 from semantic_codec.architecture.bits import Bits
 from semantic_codec.architecture.instruction import Instruction
 
 from libs.darm import darm
-
 
 class DARMInstruction(Instruction):
     """
@@ -15,14 +15,7 @@ class DARMInstruction(Instruction):
         self._darm = darm.disasm_armv7(self.encoding)
 
     def __str__(self):
-        return str(self._darm) if self._darm else super().__str__()
-
-    @property
-    def darm(self):
-        """
-        Returns the Darm instruction being wrapped
-        """
-        return self._darm
+        return str(self._darm) if self._darm else super(DARMInstruction, self).__str__()
 
     @property
     def conditional_field(self):

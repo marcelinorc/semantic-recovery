@@ -1,4 +1,5 @@
 import os
+import unittest
 from unittest import TestCase
 
 from semantic_codec.architecture.disassembler_readers import TextDisassembleReader
@@ -51,7 +52,7 @@ class TestARMControlFlowGraph(TestCase):
         self.assertTrue(9 < len(cfg.nodes()))
         self.assertTrue(3 < self._count_conditional_nodes(cfg))
 
-
+    @unittest.skip("This functionality is not used anymore")
     def test_remove_conditionals(self):
         instructions = TextDisassembleReader(self.ASM_PATH).read_instructions()
         cfg = ARMControlFlowGraph(instructions)

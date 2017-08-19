@@ -1,4 +1,4 @@
-from semantic_codec.architecture.arm_instruction import AReg
+from semantic_codec.architecture.arm_constants import AReg
 
 
 def _inc_key(d, key):

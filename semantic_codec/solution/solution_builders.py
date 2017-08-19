@@ -156,6 +156,9 @@ class AbstractForwardConstraintSolutionBuilder(object):
                     i += 1
 
     def _update_constraints(self, inst):
+        if inst.ignore:
+            return
+
         if inst.opcode_field in self._metadata.instruction_count:
             self._metadata.instruction_count[inst.opcode_field] -= 1
 

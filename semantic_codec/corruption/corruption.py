@@ -4,7 +4,7 @@ import json
 import sys
 
 from semantic_codec.architecture.bits import Bits, BitQueue
-from semantic_codec.architecture.darm_instruction import DARMInstruction
+from semantic_codec.architecture.capstone_instruction import CAPSInstruction
 from semantic_codec.architecture.instruction import Instruction
 
 
@@ -35,7 +35,7 @@ def load_corrupted_program_from_json(file_path):
         addr = int(k)
         result[addr] = v
         for i in range(0, len(v)):
-            v[i] = DARMInstruction(v[i], addr)
+            v[i] = CAPSInstruction(v[i], addr)
     return result
 
 
@@ -174,7 +174,7 @@ def corrupt_program(program, err_percent, max_amount):
             a = random.randint(1, max_amount)
             for r in corrupt_bits(31, 0, a, program[p][0].encoding):
                 if _encoding_not_in_list(r, program[p]):
-                    program[p].append(DARMInstruction(r, program[p][0].position))
+                    program[p].append(CAPSInstruction(r, program[p][0].position))
             corrupted_amount -= 1
 
 
@@ -211,8 +211,8 @@ def corrupt_instruction(program, original_instruction, address,
 
     #program[address] = []
     for i in range(1, len(corrupted)):
-        inst = DARMInstruction(corrupted[i], original_instruction.position)
-        if inst.darm is not None:
+        inst = CAPSInstruction(corrupted[i], original_instruction.position)
+        if not inst.ignore:
             program[address].append(inst)
 
     return program[address]

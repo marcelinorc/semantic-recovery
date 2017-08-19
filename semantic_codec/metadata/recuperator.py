@@ -1,7 +1,7 @@
-from semantic_codec.metadata.counting_rules import ConditionalCount, InstructionCount, RegisterCount
-from semantic_codec.metadata.rules import ControlFlowBehavior
+from semantic_codec.architecture.arm_constants import AReg
+from semantic_codec.metadata.probabilistic_rules.counting_rules import ConditionalCount, InstructionCount, RegisterCount
+from semantic_codec.metadata.probabilistic_rules.rules import ControlFlowBehavior
 
-from semantic_codec.architecture.arm_instruction import AReg
 from semantic_codec.metadata.metadata_collector import CorruptedProgramMetadataCollector
 from semantic_codec.metadata.probabilistic_model import DefaultProbabilisticModel
 from semantic_codec.metadata.probabilistic_rules.distance_rule import RegisterReadDistance
@@ -508,8 +508,13 @@ class ProbabilisticRecuperator(Recuperator):
         if inst.ignore or not inst.is_branch:
             return
         jmp_addr = inst.jumping_address
+
+        if jmp_addr is None:
+            # It might be possible that the address is computed dynamically,
+            # therefore the jmp_address will be unknown
+            inst.scores_by_rule['pbd'] = self._model.just_any_jump_is_valid * 2
         # Award high prob to addresses inside this method or to the begin of other methods
-        if jmp_addr >= current_fn and jmp_addr <= self._functions[current_fn][1]:
+        elif jmp_addr >= current_fn and jmp_addr <= self._functions[current_fn][1]:
             inst.scores_by_rule['pbd'] = self._model.branch_to_this_method
         # Award medium-high prob to a branch to the start of other method
         elif jmp_addr in self._functions:

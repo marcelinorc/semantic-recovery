@@ -1,4 +1,5 @@
 import os
+import unittest
 from unittest import TestCase
 
 from pygraph.classes import digraph
@@ -102,6 +103,7 @@ class TestValueDependencySSABuilder(TestCase):
         print(write(value_dep_graph))
         self.assertTrue(value_dep_graph is not None)
 
+    @unittest.skip("This functionality is not used anymore")
     def test_build_simpler_code(self):
         cfg, value_dep_graph = self._build_ssa('data/simple.armasm')
         print(write(cfg))

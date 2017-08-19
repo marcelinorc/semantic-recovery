@@ -1,5 +1,6 @@
 from unittest import TestCase
-from semantic_codec.architecture.arm_instruction import AReg
+
+from semantic_codec.architecture.arm_constants import AReg
 from semantic_codec.architecture.darm_instruction import DARMInstruction
 from semantic_codec.architecture.instruction import Instruction
 
@@ -10,7 +11,7 @@ class TestDARMInstruction(TestCase):
         d = DARMInstruction("03 30 8f e0", 9000, Instruction.HEX_STR)
         self.assertEqual(9000, d.position)
         self.assertEqual(0xe08f3003, d.encoding)
-        self.assertTrue("add" in str(d.darm.instr).lower())
+        self.assertTrue("add" in str(d).lower())
 
     def test_branch_writes_to_pc(self):
         # bl	0x00010544 <_init>

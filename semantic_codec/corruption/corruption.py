@@ -62,8 +62,8 @@ def corrupt_all_bits(lo, hi, instruction):
 def corrupt_all_bits_tuples(tuples, instruction):
     """
     Corrupt all the bits expressed as a list of (hi, lo) tuples in a given instruction.
-    Lazy me, this routine assumes that the hi and lo bits of the tuples do not intersect, i.e. 0, 2 and 1, 3 produces
-    unexpected results
+    Lazy me, this routine assumes that the hi and lo bits of the tuples do not intersect, i.e. having tuples
+    like (0, 2) and (1, 3) which intersects in 1 and 2 produces unexpected results
     :param tuples: Bits to corrupt
     :param instruction: Instruction to corrupt
     :return: the list of corrupted instructions

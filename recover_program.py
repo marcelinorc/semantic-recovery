@@ -226,8 +226,6 @@ if __name__ == "__main__":
     #original_program = TextDisassembleReader(ARM_SIMPLE).read_functions()
     original_program = ElfioTextDisassembleReader(ARM_SIMPLE).read_functions()
 
-
-
     if not use_file:
         if use_packets:
             ll = 0

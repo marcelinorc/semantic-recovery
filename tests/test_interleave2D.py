@@ -15,6 +15,10 @@ class TestInterleave2D(TestCase):
 
     def test_sp(self):
         m = sucesive_packing(2)
+
+        for r in m:
+            print(r)
+
         self.assertEqual(0.0, m[0, 0])
         self.assertEqual(5.0, m[3, 3])
         self.assertEqual(14.0, m[1, 2])
@@ -67,6 +71,8 @@ class TestInterleave2D(TestCase):
 
         # Interleave the data using the computed interleaving order
         d = interleave(data, m, bits_per_interlave)
+
+        self.assertEqual(len(d), packet_count)
 
         # Remove lost packets from the interleaved data
         for r in remove_packets:

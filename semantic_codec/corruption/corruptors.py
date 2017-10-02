@@ -68,9 +68,6 @@ class PacketCorruptor(Corruptor):
         :param program: A dictionary of {address => DARMInstructions}
         :return: The program corrupted in the form of {address => [DARMInstructions]}
         """
-
-
-
         if not self.packet_lost:
             raise RuntimeError('No packet lost information. Cannot corrupt')
 
@@ -91,6 +88,7 @@ class PacketCorruptor(Corruptor):
         k, tuples, e = 0, [], errors[0]
         current = e[0]
 
+        # Create a nice progress bar. TODO: Factor this out so other widgets can be used as well.
         progress_bar = TextProgressBar(iteration=0, total=len(errors),
                                        prefix='Corrupting:',
                                        decimals=0, bar_length=50, print_dist=4)
@@ -110,15 +108,18 @@ class PacketCorruptor(Corruptor):
                 tuples.append((e[1], e[1] + e[2]))
 
             k += 1
-            progress_bar.progress()
             if k < len(errors):
                 e = errors[k]
+
+            # Progress the bar. TODO: Factor this out so other widgets can be used as well.
+            progress_bar.progress()
 
         for v in program.values():
             v.sort(key=lambda x : x.encoding)
 
         if self.save_corrupted_program:
             self._save_corrupted_program(program)
+
         return program
 
 class RandomCorruptor(Corruptor):

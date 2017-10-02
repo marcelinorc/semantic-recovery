@@ -71,6 +71,9 @@ def build_2d_interleave_sp(packets, flat=False):
         # Find a 4^m X 4^m such as 4^m is the closest power of 4 smaller than the packet size
         n = floor(log(packets, 4))
         matrix_size = int(2 ** n)
+        #if matrix_size < 1:
+        #    break
+
         # Compute the number of packets that fits in this matrix
         packets_in_matrix = 4 ** n
 
@@ -87,7 +90,7 @@ def build_2d_interleave_sp(packets, flat=False):
             # Since a matrix only fits 4^n packets, count how many packets we have allotted so far
             current_package_index += packets_in_matrix
 
-            # Append the matrix to the set of matrices
+            # Append the matrix to the resulting set of matrices
             matrices.append(m1)
 
             # Then obtain other matrices of the same size.
@@ -162,9 +165,9 @@ def build_2d_interleave_matrix_blaum(message_size, packet_size, data_width=-1, d
 def interleave(data, interleave_order, word_size=8):
     """
     Interleaves data given an interleave order
-    :param data: Data to interleave
-    :param matrix: Interleaving order
-    :param word_size: Size of the chunk of data that is going to be interleaved. By default is 8 (a byte).
+    :param data: List of integers containing the raw data to interleave.
+    :param matrix: List of inegers containing the interleaving order
+    :param word_size: Number with the size of the chunk of data that is going to be interleaved. By default is 8 (a byte).
     :return: The data interleaved according to the interleave order
     """
     packets = {int(index): BitQueue(word_size) for index in interleave_order}

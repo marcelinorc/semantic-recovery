@@ -5,7 +5,12 @@ Program to store packets into a file
 import os
 import struct
 import sys
+
+from bitarray import bitarray
+
 from semantic_codec.architecture.disassembler_readers import ElfioTextDisassembleReader
+from semantic_codec.compressor.shiftcompressor import ShiftCompressor, SwapCompressor
+from semantic_codec.corruption.corruption import predict_corruption
 from semantic_codec.interleaver.interleaver2d import *
 from semantic_codec.metadata.probabilistic_rules.rules import from_functions_to_list_and_addr
 
@@ -42,21 +47,26 @@ if __name__ == '__main__':
     # Build the 2D interleave order
     m = build_2d_interleave_sp(packet_count, flat=True)
 
-    # Interleave the data using the computed interleaving order
-    v = []
-    packets = interleave(original_program, m, bits_per_interlave)
-
-    if abs(len(packets) - packet_count) > 1:
-        raise RuntimeError('Invalid packet size')
+    # Predict up to 20% if corrupted bytes
+    packet_lost = list(range(floor(packet_count / 5)))
+    errors = predict_corruption(packet_count, bits_per_interlave, len(original_program) * 4, m, packet_lost)
 
     # Remove up to 20 percent of packets
-    for r in range(0, int(packet_count / 5)):
-        del packets[r]
+    compressor = SwapCompressor(errors, original_program)
+    compressor.compress()
 
     # Store the remaining
     output_file = os.path.realpath(os.path.join(os.getcwd(), sys.argv[2]))
     fout = open(output_file, 'wb')
-    for p in packets.values():
-        for b in p.get_bytes():
-            fout.write(struct.pack('<L', b))
+    fout.write(compressor.compressed_buffer)
+    fout.close()
+
+    # Store the remaining
+    output_file = os.path.realpath(os.path.join(os.getcwd(), sys.argv[2])) + 'a100'
+    fout = open(output_file, 'wb')
+    buf = struct.pack('%sI' % len(original_program), *original_program)
+    a = bitarray(endian='big')
+    a.frombytes(buf)
+    b = a.tobytes()
+    fout.write(b)
     fout.close()

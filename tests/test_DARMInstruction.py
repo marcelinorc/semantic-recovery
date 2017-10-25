@@ -9,7 +9,7 @@ class TestDARMInstruction(TestCase):
 
     def test_contruction(self):
         d = DARMInstruction("03 30 8f e0", 9000, Instruction.HEX_STR)
-        self.assertEqual(9000, d.position)
+        self.assertEqual(9000, d.address)
         self.assertEqual(0xe08f3003, d.encoding)
         self.assertTrue("add" in str(d).lower())
 

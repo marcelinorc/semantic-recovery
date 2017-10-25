@@ -180,7 +180,7 @@ class CAPSInstruction(Instruction):
                 #if Bits.is_on(address, 23):
                 #    address |= Bits.set(29, 24)
                 #address = (address << 2)
-                #address += self.position + 8
+                #address += self.address + 8
                 #address &= 0xffffffff
                 #self._jumping_address = address
             return self._jumping_address

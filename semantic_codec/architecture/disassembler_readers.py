@@ -23,7 +23,7 @@ class DisassembleReader (object):
     def read_instructions(self):
         """
         Read a disassemble file
-        :return: A list of instructions sorted by their memory position
+        :return: A list of instructions sorted by their memory address
         """
         pass
 

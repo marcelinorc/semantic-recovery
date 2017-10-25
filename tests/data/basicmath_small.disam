@@ -1,0 +1,766 @@
+.functions
+0x10148;$d
+0x104c4;$a
+0x12164;$d
+0x104f4;$d
+0x1206c;$d
+0x222a8;$d
+0x10500;$a
+0x10500;call_weak_fn
+0x1051c;$d
+0x10420;$a
+0x12064;$a
+0x10428;$a
+0x12068;$a
+0x22178;__JCR_LIST__
+0x10524;$a
+0x10524;deregister_tm_clones
+0x10548;$d
+0x10554;$a
+0x10554;register_tm_clones
+0x10580;$d
+0x222ac;$d
+0x1058c;$a
+0x1058c;__do_global_dtors_aux
+0x105b0;$d
+0x222b0;completed.9231
+0x22174;$d
+0x22174;__do_global_dtors_aux_fini_array_entry
+0x105b4;$a
+0x105b4;frame_dummy
+0x105e0;$d
+0x22170;$d
+0x22170;__frame_dummy_init_array_entry
+0x222b0;$d
+0x12070;$d
+0x105e8;$a
+0x10d6c;$d
+0x10;$d
+0x10e00;$a
+0x114c8;$d
+0x44;$d
+0x114f4;$a
+0x80;$d
+0x115d0;$a
+0x1162c;$d
+0x11638;$a
+0x11694;$d
+0xb0;$d
+0x116a0;$a
+0x108;$d
+0x11a58;$a
+0x1b4;$d
+0x11ec8;$a
+0x204;$d
+0x11ff4;$a
+0x12054;$d
+0x12060;$a
+0x2c8;$d
+0x1216c;$d
+0x1216c;__FRAME_END__
+0x22178;$d
+0x22178;__JCR_END__
+0x22174;__init_array_end
+0x2217c;_DYNAMIC
+0x22170;__init_array_start
+0x2226c;_GLOBAL_OFFSET_TABLE_
+0x1042c;$a
+0x1043c;$d
+0x10440;$a
+0x12060;__libc_csu_fini
+0x11fb8;__aeabi_dcmple
+0x222a8;data_start
+0x11ed8;__cmpdf2
+0x222b0;__bss_start__
+0x11f7c;__aeabi_cdcmple
+0x114f4;usqrt
+0x119a4;__aeabi_f2d
+0x222b4;_bss_end__
+0x222b0;_edata
+0x116ac;__adddf3
+0x12064;_fini
+0x222b4;__bss_end__
+0x11ed8;__eqdf2
+0x116a8;__aeabi_dsub
+0x119f8;__floatdidf
+0x11ed0;__ltdf2
+0x11ec8;__gedf2
+0x1197c;__aeabi_i2d
+0x116a0;__aeabi_drsub
+0x11638;deg2rad
+0x222a8;__data_start
+0x119e4;__aeabi_ul2d
+0x10e00;SolveCubic
+0x222ac;__dso_handle
+0x1206c;_IO_stdin_used
+0x11a58;__aeabi_dmul
+0x11a58;__muldf3
+0x11ff4;__libc_csu_init
+0x116a8;__subdf3
+0x222b4;_end
+0x104c4;_start
+0x115d0;rad2deg
+0x11cc4;__divdf3
+0x11fe0;__aeabi_dcmpgt
+0x222b4;__end__
+0x222b0;__bss_start
+0x11ed0;__ledf2
+0x1197c;__floatsidf
+0x105e8;main
+0x11f7c;__aeabi_cdcmpeq
+0x11f60;__aeabi_cdrcmple
+0x11ed8;__nedf2
+0x119e4;__floatundidf
+0x222b0;__TMC_END__
+0x11ec8;__gtdf2
+0x11f90;__aeabi_dcmpeq
+0x116ac;__aeabi_dadd
+0x11fcc;__aeabi_dcmpge
+0x11958;__floatunsidf
+0x11958;__aeabi_ui2d
+0x10420;_init
+0x11fa4;__aeabi_dcmplt
+0x119a4;__extendsfdf2
+0x119f8;__aeabi_l2d
+0x11cc4;__aeabi_ddiv
+.init
+0x10420;e92d4008;push;{r3, lr}
+0x10424;eb000035;bl;#0x10500
+
+
+.plt
+0x1042c;e52de004;str;lr, [sp, #-4]!
+0x10430;e59fe004;ldr;lr, [pc, #4]
+0x10434;e08fe00e;add;lr, pc, lr
+0x10438;e5bef008;ldr;pc, [lr, #8]!
+0x1043c;11e30;andeq;r1, r1, r0, lsr lr
+0x10440;e28fc600;add;ip, pc, #0
+0x10444;e28cca11;add;ip, ip, #0x11000
+0x10448;e5bcfe30;ldr;pc, [ip, #0xe30]!
+0x1044c;e28fc600;add;ip, pc, #0
+0x10450;e28cca11;add;ip, ip, #0x11000
+0x10454;e5bcfe28;ldr;pc, [ip, #0xe28]!
+0x10458;e28fc600;add;ip, pc, #0
+0x1045c;e28cca11;add;ip, ip, #0x11000
+0x10460;e5bcfe20;ldr;pc, [ip, #0xe20]!
+0x10464;e28fc600;add;ip, pc, #0
+0x10468;e28cca11;add;ip, ip, #0x11000
+0x1046c;e5bcfe18;ldr;pc, [ip, #0xe18]!
+0x10470;e28fc600;add;ip, pc, #0
+0x10474;e28cca11;add;ip, ip, #0x11000
+0x10478;e5bcfe10;ldr;pc, [ip, #0xe10]!
+0x1047c;e28fc600;add;ip, pc, #0
+0x10480;e28cca11;add;ip, ip, #0x11000
+0x10484;e5bcfe08;ldr;pc, [ip, #0xe08]!
+0x10488;e28fc600;add;ip, pc, #0
+0x1048c;e28cca11;add;ip, ip, #0x11000
+0x10490;e5bcfe00;ldr;pc, [ip, #0xe00]!
+0x10494;e28fc600;add;ip, pc, #0
+0x10498;e28cca11;add;ip, ip, #0x11000
+0x1049c;e5bcfdf8;ldr;pc, [ip, #0xdf8]!
+0x104a0;e28fc600;add;ip, pc, #0
+0x104a4;e28cca11;add;ip, ip, #0x11000
+0x104a8;e5bcfdf0;ldr;pc, [ip, #0xdf0]!
+0x104ac;e28fc600;add;ip, pc, #0
+0x104b0;e28cca11;add;ip, ip, #0x11000
+0x104b4;e5bcfde8;ldr;pc, [ip, #0xde8]!
+0x104b8;e28fc600;add;ip, pc, #0
+0x104bc;e28cca11;add;ip, ip, #0x11000
+
+
+.text
+0x104c4;e3a0b000;mov;fp, #0
+0x104c8;e3a0e000;mov;lr, #0
+0x104cc;e49d1004;pop;{r1}
+0x104d0;e1a0200d;mov;r2, sp
+0x104d4;e52d2004;str;r2, [sp, #-4]!
+0x104d8;e52d0004;str;r0, [sp, #-4]!
+0x104dc;e59fc010;ldr;ip, [pc, #0x10]
+0x104e0;e52dc004;str;ip, [sp, #-4]!
+0x104e4;e59f000c;ldr;r0, [pc, #0xc]
+0x104e8;e59f300c;ldr;r3, [pc, #0xc]
+0x104ec;ebffffe2;bl;#0x1047c
+0x104f0;ebffffed;bl;#0x104ac
+0x104f4;12060;andeq;r2, r1, r0, rrx
+0x104f8;105e8;andeq;r0, r1, r8, ror #11
+0x104fc;11ff4;strdeq;r1, r2, [r1], -r4
+0x10500;e59f3014;ldr;r3, [pc, #0x14]
+0x10504;e59f2014;ldr;r2, [pc, #0x14]
+0x10508;e08f3003;add;r3, pc, r3
+0x1050c;e7932002;ldr;r2, [r3, r2]
+0x10510;e3520000;cmp;r2, #0
+0x10514;12fff1e;bxeq;lr
+0x10518;eaffffda;b;#0x10488
+0x1051c;11d5c;andeq;r1, r1, ip, asr sp
+0x10520;38;andeq;r0, r0, r8, lsr r0
+0x10524;e59f001c;ldr;r0, [pc, #0x1c]
+0x10528;e59f301c;ldr;r3, [pc, #0x1c]
+0x1052c;e0433000;sub;r3, r3, r0
+0x10530;e3530006;cmp;r3, #6
+0x10534;912fff1e;bxls;lr
+0x10538;e59f3010;ldr;r3, [pc, #0x10]
+0x1053c;e3530000;cmp;r3, #0
+0x10540;12fff1e;bxeq;lr
+0x10544;e12fff13;bx;r3
+0x10548;222b0;strheq;r2, [r2], -r0
+0x1054c;222b3;strheq;r2, [r2], -r3
+0x10550;0;andeq;r0, r0, r0
+0x10554;e59f0024;ldr;r0, [pc, #0x24]
+0x10558;e59f1024;ldr;r1, [pc, #0x24]
+0x1055c;e0411000;sub;r1, r1, r0
+0x10560;e1a01141;asr;r1, r1, #2
+0x10564;e0811fa1;add;r1, r1, r1, lsr #31
+0x10568;e1b010c1;asrs;r1, r1, #1
+0x1056c;12fff1e;bxeq;lr
+0x10570;e59f3010;ldr;r3, [pc, #0x10]
+0x10574;e3530000;cmp;r3, #0
+0x10578;12fff1e;bxeq;lr
+0x1057c;e12fff13;bx;r3
+0x10580;222b0;strheq;r2, [r2], -r0
+0x10584;222b0;strheq;r2, [r2], -r0
+0x10588;0;andeq;r0, r0, r0
+0x1058c;e92d4010;push;{r4, lr}
+0x10590;e59f4018;ldr;r4, [pc, #0x18]
+0x10594;e5d43000;ldrb;r3, [r4]
+0x10598;e3530000;cmp;r3, #0
+0x1059c;18bd8010;popne;{r4, pc}
+0x105a0;ebffffdf;bl;#0x10524
+0x105a4;e3a03001;mov;r3, #1
+0x105a8;e5c43000;strb;r3, [r4]
+0x105ac;e8bd8010;pop;{r4, pc}
+0x105b0;222b0;strheq;r2, [r2], -r0
+0x105b4;e59f0024;ldr;r0, [pc, #0x24]
+0x105b8;e5903000;ldr;r3, [r0]
+0x105bc;e3530000;cmp;r3, #0
+0x105c0;a000005;beq;#0x105dc
+0x105c4;e59f3018;ldr;r3, [pc, #0x18]
+0x105c8;e3530000;cmp;r3, #0
+0x105cc;a000002;beq;#0x105dc
+0x105d0;e92d4010;push;{r4, lr}
+0x105d4;e12fff33;blx;r3
+0x105d8;e8bd4010;pop;{r4, lr}
+0x105dc;eaffffdc;b;#0x10554
+0x105e0;22178;andeq;r2, r2, r8, ror r1
+0x105e4;0;andeq;r0, r0, r0
+0x105e8;e92d4810;push;{r4, fp, lr}
+0x105ec;e28db008;add;fp, sp, #8
+0x105f0;e24dd0dc;sub;sp, sp, #0xdc
+0x105f4;e3a03000;mov;r3, #0
+0x105f8;e59f476c;ldr;r4, [pc, #0x76c]
+0x105fc;e50b3014;str;r3, [fp, #-0x14]
+0x10600;e50b4010;str;r4, [fp, #-0x10]
+0x10604;e3a03000;mov;r3, #0
+0x10608;e59f4760;ldr;r4, [pc, #0x760]
+0x1060c;e50b301c;str;r3, [fp, #-0x1c]
+0x10610;e50b4018;str;r4, [fp, #-0x18]
+0x10614;e3a03000;mov;r3, #0
+0x10618;e59f4754;ldr;r4, [pc, #0x754]
+0x1061c;e50b3024;str;r3, [fp, #-0x24]
+0x10620;e50b4020;str;r4, [fp, #-0x20]
+0x10624;e3a03000;mov;r3, #0
+0x10628;e59f4748;ldr;r4, [pc, #0x748]
+0x1062c;e50b302c;str;r3, [fp, #-0x2c]
+0x10630;e50b4028;str;r4, [fp, #-0x28]
+0x10634;e3a03000;mov;r3, #0
+0x10638;e59f472c;ldr;r4, [pc, #0x72c]
+0x1063c;e50b3044;str;r3, [fp, #-0x44]
+0x10640;e50b4040;str;r4, [fp, #-0x40]
+0x10644;e3a03000;mov;r3, #0
+0x10648;e59f472c;ldr;r4, [pc, #0x72c]
+0x1064c;e50b304c;str;r3, [fp, #-0x4c]
+0x10650;e50b4048;str;r4, [fp, #-0x48]
+0x10654;e3a03000;mov;r3, #0
+0x10658;e59f4720;ldr;r4, [pc, #0x720]
+0x1065c;e50b3054;str;r3, [fp, #-0x54]
+0x10660;e50b4050;str;r4, [fp, #-0x50]
+0x10664;e3a03000;mov;r3, #0
+0x10668;e59f4708;ldr;r4, [pc, #0x708]
+0x1066c;e50b305c;str;r3, [fp, #-0x5c]
+0x10670;e50b4058;str;r4, [fp, #-0x58]
+0x10674;e3a03000;mov;r3, #0
+0x10678;e59f46ec;ldr;r4, [pc, #0x6ec]
+0x1067c;e50b3064;str;r3, [fp, #-0x64]
+0x10680;e50b4060;str;r4, [fp, #-0x60]
+0x10684;e3a03000;mov;r3, #0
+0x10688;e59f46f4;ldr;r4, [pc, #0x6f4]
+0x1068c;e50b306c;str;r3, [fp, #-0x6c]
+0x10690;e50b4068;str;r4, [fp, #-0x68]
+0x10694;e3a03000;mov;r3, #0
+0x10698;e59f46e8;ldr;r4, [pc, #0x6e8]
+0x1069c;e50b3074;str;r3, [fp, #-0x74]
+0x106a0;e50b4070;str;r4, [fp, #-0x70]
+0x106a4;e3a03000;mov;r3, #0
+0x106a8;e59f46dc;ldr;r4, [pc, #0x6dc]
+0x106ac;e50b307c;str;r3, [fp, #-0x7c]
+0x106b0;e50b4078;str;r4, [fp, #-0x78]
+0x106b4;e3a03000;mov;r3, #0
+0x106b8;e59f46ac;ldr;r4, [pc, #0x6ac]
+0x106bc;e50b3084;str;r3, [fp, #-0x84]
+0x106c0;e50b4080;str;r4, [fp, #-0x80]
+0x106c4;e59f36c4;ldr;r3, [pc, #0x6c4]
+0x106c8;e59f46c4;ldr;r4, [pc, #0x6c4]
+0x106cc;e50b308c;str;r3, [fp, #-0x8c]
+0x106d0;e50b4088;str;r4, [fp, #-0x88]
+0x106d4;e3a03000;mov;r3, #0
+0x106d8;e59f468c;ldr;r4, [pc, #0x68c]
+0x106dc;e50b3094;str;r3, [fp, #-0x94]
+0x106e0;e50b4090;str;r4, [fp, #-0x90]
+0x106e4;e3a03000;mov;r3, #0
+0x106e8;e59f46a8;ldr;r4, [pc, #0x6a8]
+0x106ec;e50b309c;str;r3, [fp, #-0x9c]
+0x106f0;e50b4098;str;r4, [fp, #-0x98]
+0x106f4;e59f36a0;ldr;r3, [pc, #0x6a0]
+0x106f8;e50b30a0;str;r3, [fp, #-0xa0]
+0x106fc;e3a03000;mov;r3, #0
+0x10700;e50b30a4;str;r3, [fp, #-0xa4]
+0x10704;e59f0694;ldr;r0, [pc, #0x694]
+0x10708;ebffff58;bl;#0x10470
+0x1070c;e24b30bc;sub;r3, fp, #0xbc
+0x10710;e58d3014;str;r3, [sp, #0x14]
+0x10714;e24b30c0;sub;r3, fp, #0xc0
+0x10718;e58d3010;str;r3, [sp, #0x10]
+0x1071c;e24b402c;sub;r4, fp, #0x2c
+0x10720;e8940018;ldm;r4, {r3, r4}
+0x10724;e58d3008;str;r3, [sp, #8]
+0x10728;e58d400c;str;r4, [sp, #0xc]
+0x1072c;e24b4024;sub;r4, fp, #0x24
+0x10730;e8940018;ldm;r4, {r3, r4}
+0x10734;e88d0018;stm;sp, {r3, r4}
+0x10738;e24b301c;sub;r3, fp, #0x1c
+0x1073c;e893000c;ldm;r3, {r2, r3}
+0x10740;e24b1014;sub;r1, fp, #0x14
+0x10744;e8910003;ldm;r1, {r0, r1}
+0x10748;eb0001ac;bl;#0x10e00
+0x1074c;e59f0650;ldr;r0, [pc, #0x650]
+0x10750;ebffff3a;bl;#0x10440
+0x10754;e3a03000;mov;r3, #0
+0x10758;e50b3038;str;r3, [fp, #-0x38]
+0x1075c;ea00000c;b;#0x10794
+0x10760;e51b3038;ldr;r3, [fp, #-0x38]
+0x10764;e1a03183;lsl;r3, r3, #3
+0x10768;e24b200c;sub;r2, fp, #0xc
+0x1076c;e0823003;add;r3, r2, r3
+0x10770;e24330b0;sub;r3, r3, #0xb0
+0x10774;e8930018;ldm;r3, {r3, r4}
+0x10778;e1a02003;mov;r2, r3
+0x1077c;e1a03004;mov;r3, r4
+0x10780;e59f0620;ldr;r0, [pc, #0x620]
+0x10784;ebffff2d;bl;#0x10440
+0x10788;e51b3038;ldr;r3, [fp, #-0x38]
+0x1078c;e2833001;add;r3, r3, #1
+0x10790;e50b3038;str;r3, [fp, #-0x38]
+0x10794;e51b30c0;ldr;r3, [fp, #-0xc0]
+0x10798;e51b2038;ldr;r2, [fp, #-0x38]
+0x1079c;e1520003;cmp;r2, r3
+0x107a0;baffffee;blt;#0x10760
+0x107a4;e3a0000a;mov;r0, #0xa
+0x107a8;ebffff3c;bl;#0x104a0
+0x107ac;e24b30bc;sub;r3, fp, #0xbc
+0x107b0;e58d3014;str;r3, [sp, #0x14]
+0x107b4;e24b30c0;sub;r3, fp, #0xc0
+0x107b8;e58d3010;str;r3, [sp, #0x10]
+0x107bc;e24b405c;sub;r4, fp, #0x5c
+0x107c0;e8940018;ldm;r4, {r3, r4}
+0x107c4;e58d3008;str;r3, [sp, #8]
+0x107c8;e58d400c;str;r4, [sp, #0xc]
+0x107cc;e24b4054;sub;r4, fp, #0x54
+0x107d0;e8940018;ldm;r4, {r3, r4}
+0x107d4;e88d0018;stm;sp, {r3, r4}
+0x107d8;e24b304c;sub;r3, fp, #0x4c
+0x107dc;e893000c;ldm;r3, {r2, r3}
+0x107e0;e24b1044;sub;r1, fp, #0x44
+0x107e4;e8910003;ldm;r1, {r0, r1}
+0x107e8;eb000184;bl;#0x10e00
+0x107ec;e59f05b0;ldr;r0, [pc, #0x5b0]
+0x107f0;ebffff12;bl;#0x10440
+0x107f4;e3a03000;mov;r3, #0
+0x107f8;e50b3038;str;r3, [fp, #-0x38]
+0x107fc;ea00000c;b;#0x10834
+0x10800;e51b3038;ldr;r3, [fp, #-0x38]
+0x10804;e1a03183;lsl;r3, r3, #3
+0x10808;e24b200c;sub;r2, fp, #0xc
+0x1080c;e0823003;add;r3, r2, r3
+0x10810;e24330b0;sub;r3, r3, #0xb0
+0x10814;e8930018;ldm;r3, {r3, r4}
+0x10818;e1a02003;mov;r2, r3
+0x1081c;e1a03004;mov;r3, r4
+0x10820;e59f0580;ldr;r0, [pc, #0x580]
+0x10824;ebffff05;bl;#0x10440
+0x10828;e51b3038;ldr;r3, [fp, #-0x38]
+0x1082c;e2833001;add;r3, r3, #1
+0x10830;e50b3038;str;r3, [fp, #-0x38]
+0x10834;e51b30c0;ldr;r3, [fp, #-0xc0]
+0x10838;e51b2038;ldr;r2, [fp, #-0x38]
+0x1083c;e1520003;cmp;r2, r3
+0x10840;baffffee;blt;#0x10800
+0x10844;e3a0000a;mov;r0, #0xa
+0x10848;ebffff14;bl;#0x104a0
+0x1084c;e24b30bc;sub;r3, fp, #0xbc
+0x10850;e58d3014;str;r3, [sp, #0x14]
+0x10854;e24b30c0;sub;r3, fp, #0xc0
+0x10858;e58d3010;str;r3, [sp, #0x10]
+0x1085c;e24b407c;sub;r4, fp, #0x7c
+0x10860;e8940018;ldm;r4, {r3, r4}
+0x10864;e58d3008;str;r3, [sp, #8]
+0x10868;e58d400c;str;r4, [sp, #0xc]
+0x1086c;e24b4074;sub;r4, fp, #0x74
+0x10870;e8940018;ldm;r4, {r3, r4}
+0x10874;e88d0018;stm;sp, {r3, r4}
+0x10878;e24b306c;sub;r3, fp, #0x6c
+0x1087c;e893000c;ldm;r3, {r2, r3}
+0x10880;e24b1064;sub;r1, fp, #0x64
+0x10884;e8910003;ldm;r1, {r0, r1}
+0x10888;eb00015c;bl;#0x10e00
+0x1088c;e59f0510;ldr;r0, [pc, #0x510]
+0x10890;ebfffeea;bl;#0x10440
+0x10894;e3a03000;mov;r3, #0
+0x10898;e50b3038;str;r3, [fp, #-0x38]
+0x1089c;ea00000c;b;#0x108d4
+0x108a0;e51b3038;ldr;r3, [fp, #-0x38]
+0x108a4;e1a03183;lsl;r3, r3, #3
+0x108a8;e24b200c;sub;r2, fp, #0xc
+0x108ac;e0823003;add;r3, r2, r3
+0x108b0;e24330b0;sub;r3, r3, #0xb0
+0x108b4;e8930018;ldm;r3, {r3, r4}
+0x108b8;e1a02003;mov;r2, r3
+0x108bc;e1a03004;mov;r3, r4
+0x108c0;e59f04e0;ldr;r0, [pc, #0x4e0]
+0x108c4;ebfffedd;bl;#0x10440
+0x108c8;e51b3038;ldr;r3, [fp, #-0x38]
+0x108cc;e2833001;add;r3, r3, #1
+0x108d0;e50b3038;str;r3, [fp, #-0x38]
+0x108d4;e51b30c0;ldr;r3, [fp, #-0xc0]
+0x108d8;e51b2038;ldr;r2, [fp, #-0x38]
+0x108dc;e1520003;cmp;r2, r3
+0x108e0;baffffee;blt;#0x108a0
+0x108e4;e3a0000a;mov;r0, #0xa
+0x108e8;ebfffeec;bl;#0x104a0
+0x108ec;e24b30bc;sub;r3, fp, #0xbc
+0x108f0;e58d3014;str;r3, [sp, #0x14]
+0x108f4;e24b30c0;sub;r3, fp, #0xc0
+0x108f8;e58d3010;str;r3, [sp, #0x10]
+0x108fc;e24b409c;sub;r4, fp, #0x9c
+0x10900;e8940018;ldm;r4, {r3, r4}
+0x10904;e58d3008;str;r3, [sp, #8]
+0x10908;e58d400c;str;r4, [sp, #0xc]
+0x1090c;e24b4094;sub;r4, fp, #0x94
+0x10910;e8940018;ldm;r4, {r3, r4}
+0x10914;e88d0018;stm;sp, {r3, r4}
+0x10918;e24b308c;sub;r3, fp, #0x8c
+0x1091c;e893000c;ldm;r3, {r2, r3}
+0x10920;e24b1084;sub;r1, fp, #0x84
+0x10924;e8910003;ldm;r1, {r0, r1}
+0x10928;eb000134;bl;#0x10e00
+0x1092c;e59f0470;ldr;r0, [pc, #0x470]
+0x10930;ebfffec2;bl;#0x10440
+0x10934;e3a03000;mov;r3, #0
+0x10938;e50b3038;str;r3, [fp, #-0x38]
+0x1093c;ea00000c;b;#0x10974
+0x10940;e51b3038;ldr;r3, [fp, #-0x38]
+0x10944;e1a03183;lsl;r3, r3, #3
+0x10948;e24b200c;sub;r2, fp, #0xc
+0x1094c;e0823003;add;r3, r2, r3
+0x10950;e24330b0;sub;r3, r3, #0xb0
+0x10954;e8930018;ldm;r3, {r3, r4}
+0x10958;e1a02003;mov;r2, r3
+0x1095c;e1a03004;mov;r3, r4
+0x10960;e59f0440;ldr;r0, [pc, #0x440]
+0x10964;ebfffeb5;bl;#0x10440
+0x10968;e51b3038;ldr;r3, [fp, #-0x38]
+0x1096c;e2833001;add;r3, r3, #1
+0x10970;e50b3038;str;r3, [fp, #-0x38]
+0x10974;e51b30c0;ldr;r3, [fp, #-0xc0]
+0x10978;e51b2038;ldr;r2, [fp, #-0x38]
+0x1097c;e1520003;cmp;r2, r3
+0x10980;baffffee;blt;#0x10940
+0x10984;e3a0000a;mov;r0, #0xa
+0x10988;ebfffec4;bl;#0x104a0
+0x1098c;e3a03000;mov;r3, #0
+0x10990;e59f43d4;ldr;r4, [pc, #0x3d4]
+0x10994;e50b3014;str;r3, [fp, #-0x14]
+0x10998;e50b4010;str;r4, [fp, #-0x10]
+0x1099c;ea000072;b;#0x10b6c
+0x109a0;e3a03000;mov;r3, #0
+0x109a4;e59f4400;ldr;r4, [pc, #0x400]
+0x109a8;e50b301c;str;r3, [fp, #-0x1c]
+0x109ac;e50b4018;str;r4, [fp, #-0x18]
+0x109b0;ea00005c;b;#0x10b28
+0x109b4;e3a03000;mov;r3, #0
+0x109b8;e59f43f0;ldr;r4, [pc, #0x3f0]
+0x109bc;e50b3024;str;r3, [fp, #-0x24]
+0x109c0;e50b4020;str;r4, [fp, #-0x20]
+0x109c4;ea000046;b;#0x10ae4
+0x109c8;e3a03000;mov;r3, #0
+0x109cc;e59f43e0;ldr;r4, [pc, #0x3e0]
+0x109d0;e50b302c;str;r3, [fp, #-0x2c]
+0x109d4;e50b4028;str;r4, [fp, #-0x28]
+0x109d8;ea000030;b;#0x10aa0
+0x109dc;e24b30bc;sub;r3, fp, #0xbc
+0x109e0;e58d3014;str;r3, [sp, #0x14]
+0x109e4;e24b30c0;sub;r3, fp, #0xc0
+0x109e8;e58d3010;str;r3, [sp, #0x10]
+0x109ec;e24b402c;sub;r4, fp, #0x2c
+0x109f0;e8940018;ldm;r4, {r3, r4}
+0x109f4;e58d3008;str;r3, [sp, #8]
+0x109f8;e58d400c;str;r4, [sp, #0xc]
+0x109fc;e24b4024;sub;r4, fp, #0x24
+0x10a00;e8940018;ldm;r4, {r3, r4}
+0x10a04;e88d0018;stm;sp, {r3, r4}
+0x10a08;e24b301c;sub;r3, fp, #0x1c
+0x10a0c;e893000c;ldm;r3, {r2, r3}
+0x10a10;e24b1014;sub;r1, fp, #0x14
+0x10a14;e8910003;ldm;r1, {r0, r1}
+0x10a18;eb0000f8;bl;#0x10e00
+0x10a1c;e59f0380;ldr;r0, [pc, #0x380]
+0x10a20;ebfffe86;bl;#0x10440
+0x10a24;e3a03000;mov;r3, #0
+0x10a28;e50b3038;str;r3, [fp, #-0x38]
+0x10a2c;ea00000c;b;#0x10a64
+0x10a30;e51b3038;ldr;r3, [fp, #-0x38]
+0x10a34;e1a03183;lsl;r3, r3, #3
+0x10a38;e24b200c;sub;r2, fp, #0xc
+0x10a3c;e0823003;add;r3, r2, r3
+0x10a40;e24330b0;sub;r3, r3, #0xb0
+0x10a44;e8930018;ldm;r3, {r3, r4}
+0x10a48;e1a02003;mov;r2, r3
+0x10a4c;e1a03004;mov;r3, r4
+0x10a50;e59f0350;ldr;r0, [pc, #0x350]
+0x10a54;ebfffe79;bl;#0x10440
+0x10a58;e51b3038;ldr;r3, [fp, #-0x38]
+0x10a5c;e2833001;add;r3, r3, #1
+0x10a60;e50b3038;str;r3, [fp, #-0x38]
+0x10a64;e51b30c0;ldr;r3, [fp, #-0xc0]
+0x10a68;e51b2038;ldr;r2, [fp, #-0x38]
+0x10a6c;e1520003;cmp;r2, r3
+0x10a70;baffffee;blt;#0x10a30
+0x10a74;e3a0000a;mov;r0, #0xa
+0x10a78;ebfffe88;bl;#0x104a0
+0x10a7c;e3a02000;mov;r2, #0
+0x10a80;e59f32e4;ldr;r3, [pc, #0x2e4]
+0x10a84;e24b102c;sub;r1, fp, #0x2c
+0x10a88;e8910003;ldm;r1, {r0, r1}
+0x10a8c;eb000305;bl;#0x116a8
+0x10a90;e1a03000;mov;r3, r0
+0x10a94;e1a04001;mov;r4, r1
+0x10a98;e50b302c;str;r3, [fp, #-0x2c]
+0x10a9c;e50b4028;str;r4, [fp, #-0x28]
+0x10aa0;e3a02000;mov;r2, #0
+0x10aa4;e59f330c;ldr;r3, [pc, #0x30c]
+0x10aa8;e24b102c;sub;r1, fp, #0x2c
+0x10aac;e8910003;ldm;r1, {r0, r1}
+0x10ab0;eb00054a;bl;#0x11fe0
+0x10ab4;e1a03000;mov;r3, r0
+0x10ab8;e3530000;cmp;r3, #0
+0x10abc;1affffc6;bne;#0x109dc
+0x10ac0;e3a02000;mov;r2, #0
+0x10ac4;e59f32f0;ldr;r3, [pc, #0x2f0]
+0x10ac8;e24b1024;sub;r1, fp, #0x24
+0x10acc;e8910003;ldm;r1, {r0, r1}
+0x10ad0;eb0002f5;bl;#0x116ac
+0x10ad4;e1a03000;mov;r3, r0
+0x10ad8;e1a04001;mov;r4, r1
+0x10adc;e50b3024;str;r3, [fp, #-0x24]
+0x10ae0;e50b4020;str;r4, [fp, #-0x20]
+0x10ae4;e3a02000;mov;r2, #0
+0x10ae8;e59f32d0;ldr;r3, [pc, #0x2d0]
+0x10aec;e24b1024;sub;r1, fp, #0x24
+0x10af0;e8910003;ldm;r1, {r0, r1}
+0x10af4;eb00052a;bl;#0x11fa4
+0x10af8;e1a03000;mov;r3, r0
+0x10afc;e3530000;cmp;r3, #0
+0x10b00;1affffb0;bne;#0x109c8
+0x10b04;e3a02000;mov;r2, #0
+0x10b08;e59f325c;ldr;r3, [pc, #0x25c]
+0x10b0c;e24b101c;sub;r1, fp, #0x1c
+0x10b10;e8910003;ldm;r1, {r0, r1}
+0x10b14;eb0002e3;bl;#0x116a8
+0x10b18;e1a03000;mov;r3, r0
+0x10b1c;e1a04001;mov;r4, r1
+0x10b20;e50b301c;str;r3, [fp, #-0x1c]
+0x10b24;e50b4018;str;r4, [fp, #-0x18]
+0x10b28;e3a02000;mov;r2, #0
+0x10b2c;e3a03000;mov;r3, #0
+0x10b30;e24b101c;sub;r1, fp, #0x1c
+0x10b34;e8910003;ldm;r1, {r0, r1}
+0x10b38;eb000528;bl;#0x11fe0
+0x10b3c;e1a03000;mov;r3, r0
+0x10b40;e3530000;cmp;r3, #0
+0x10b44;1affff9a;bne;#0x109b4
+0x10b48;e3a02000;mov;r2, #0
+0x10b4c;e59f3218;ldr;r3, [pc, #0x218]
+0x10b50;e24b1014;sub;r1, fp, #0x14
+0x10b54;e8910003;ldm;r1, {r0, r1}
+0x10b58;eb0002d3;bl;#0x116ac
+0x10b5c;e1a03000;mov;r3, r0
+0x10b60;e1a04001;mov;r4, r1
+0x10b64;e50b3014;str;r3, [fp, #-0x14]
+0x10b68;e50b4010;str;r4, [fp, #-0x10]
+0x10b6c;e3a02000;mov;r2, #0
+0x10b70;e59f3234;ldr;r3, [pc, #0x234]
+0x10b74;e24b1014;sub;r1, fp, #0x14
+0x10b78;e8910003;ldm;r1, {r0, r1}
+0x10b7c;eb000508;bl;#0x11fa4
+0x10b80;e1a03000;mov;r3, r0
+0x10b84;e3530000;cmp;r3, #0
+0x10b88;1affff84;bne;#0x109a0
+0x10b8c;e59f0230;ldr;r0, [pc, #0x230]
+0x10b90;ebfffe36;bl;#0x10470
+0x10b94;e3a03000;mov;r3, #0
+0x10b98;e50b3038;str;r3, [fp, #-0x38]
+0x10b9c;ea00000c;b;#0x10bd4
+0x10ba0;e51b3038;ldr;r3, [fp, #-0x38]
+0x10ba4;e24b20c8;sub;r2, fp, #0xc8
+0x10ba8;e1a01002;mov;r1, r2
+0x10bac;e1a00003;mov;r0, r3
+0x10bb0;eb00024f;bl;#0x114f4
+0x10bb4;e51b30c8;ldr;r3, [fp, #-0xc8]
+0x10bb8;e1a02003;mov;r2, r3
+0x10bbc;e51b1038;ldr;r1, [fp, #-0x38]
+0x10bc0;e59f0200;ldr;r0, [pc, #0x200]
+0x10bc4;ebfffe1d;bl;#0x10440
+0x10bc8;e51b3038;ldr;r3, [fp, #-0x38]
+0x10bcc;e2833001;add;r3, r3, #1
+0x10bd0;e50b3038;str;r3, [fp, #-0x38]
+0x10bd4;e51b3038;ldr;r3, [fp, #-0x38]
+0x10bd8;e3530ffa;cmp;r3, #0x3e8
+0x10bdc;daffffef;ble;#0x10ba0
+0x10be0;e24b30c8;sub;r3, fp, #0xc8
+0x10be4;e1a01003;mov;r1, r3
+0x10be8;e51b00a0;ldr;r0, [fp, #-0xa0]
+0x10bec;eb000240;bl;#0x114f4
+0x10bf0;e51b30c8;ldr;r3, [fp, #-0xc8]
+0x10bf4;e1a02003;mov;r2, r3
+0x10bf8;e51b10a0;ldr;r1, [fp, #-0xa0]
+0x10bfc;e59f01c8;ldr;r0, [pc, #0x1c8]
+0x10c00;ebfffe0e;bl;#0x10440
+0x10c04;e59f01c4;ldr;r0, [pc, #0x1c4]
+0x10c08;ebfffe18;bl;#0x10470
+0x10c0c;e3a03000;mov;r3, #0
+0x10c10;e3a04000;mov;r4, #0
+0x10c14;e50b3034;str;r3, [fp, #-0x34]
+0x10c18;e50b4030;str;r4, [fp, #-0x30]
+0x10c1c;ea00001b;b;#0x10c90
+0x10c20;e59f21ac;ldr;r2, [pc, #0x1ac]
+0x10c24;e59f31ac;ldr;r3, [pc, #0x1ac]
+0x10c28;e24b1034;sub;r1, fp, #0x34
+0x10c2c;e8910003;ldm;r1, {r0, r1}
+0x10c30;eb000388;bl;#0x11a58
+0x10c34;e1a03000;mov;r3, r0
+0x10c38;e1a04001;mov;r4, r1
+0x10c3c;e1a00003;mov;r0, r3
+0x10c40;e1a01004;mov;r1, r4
+0x10c44;e3a02000;mov;r2, #0
+0x10c48;e59f318c;ldr;r3, [pc, #0x18c]
+0x10c4c;eb00041c;bl;#0x11cc4
+0x10c50;e1a03000;mov;r3, r0
+0x10c54;e1a04001;mov;r4, r1
+0x10c58;e88d0018;stm;sp, {r3, r4}
+0x10c5c;e24b3034;sub;r3, fp, #0x34
+0x10c60;e893000c;ldm;r3, {r2, r3}
+0x10c64;e59f0174;ldr;r0, [pc, #0x174]
+0x10c68;ebfffdf4;bl;#0x10440
+0x10c6c;e3a02000;mov;r2, #0
+0x10c70;e59f30f4;ldr;r3, [pc, #0xf4]
+0x10c74;e24b1034;sub;r1, fp, #0x34
+0x10c78;e8910003;ldm;r1, {r0, r1}
+0x10c7c;eb00028a;bl;#0x116ac
+0x10c80;e1a03000;mov;r3, r0
+0x10c84;e1a04001;mov;r4, r1
+0x10c88;e50b3034;str;r3, [fp, #-0x34]
+0x10c8c;e50b4030;str;r4, [fp, #-0x30]
+0x10c90;e3a02000;mov;r2, #0
+0x10c94;e59f3148;ldr;r3, [pc, #0x148]
+0x10c98;e24b1034;sub;r1, fp, #0x34
+0x10c9c;e8910003;ldm;r1, {r0, r1}
+0x10ca0;eb0004c4;bl;#0x11fb8
+0x10ca4;e1a03000;mov;r3, r0
+0x10ca8;e3530000;cmp;r3, #0
+0x10cac;1affffdb;bne;#0x10c20
+0x10cb0;e59f0130;ldr;r0, [pc, #0x130]
+0x10cb4;ebfffded;bl;#0x10470
+0x10cb8;e3a03000;mov;r3, #0
+0x10cbc;e3a04000;mov;r4, #0
+0x10cc0;e50b3034;str;r3, [fp, #-0x34]
+0x10cc4;e50b4030;str;r4, [fp, #-0x30]
+0x10cc8;ea00001b;b;#0x10d3c
+0x10ccc;e3a02000;mov;r2, #0
+0x10cd0;e59f3104;ldr;r3, [pc, #0x104]
+0x10cd4;e24b1034;sub;r1, fp, #0x34
+0x10cd8;e8910003;ldm;r1, {r0, r1}
+0x10cdc;eb00035d;bl;#0x11a58
+0x10ce0;e1a03000;mov;r3, r0
+0x10ce4;e1a04001;mov;r4, r1
+0x10ce8;e1a00003;mov;r0, r3
+0x10cec;e1a01004;mov;r1, r4
+0x10cf0;e59f20dc;ldr;r2, [pc, #0xdc]
+0x10cf4;e59f30dc;ldr;r3, [pc, #0xdc]
+0x10cf8;eb0003f1;bl;#0x11cc4
+0x10cfc;e1a03000;mov;r3, r0
+0x10d00;e1a04001;mov;r4, r1
+0x10d04;e88d0018;stm;sp, {r3, r4}
+0x10d08;e24b3034;sub;r3, fp, #0x34
+0x10d0c;e893000c;ldm;r3, {r2, r3}
+0x10d10;e59f00d4;ldr;r0, [pc, #0xd4]
+0x10d14;ebfffdc9;bl;#0x10440
+0x10d18;e59f20d0;ldr;r2, [pc, #0xd0]
+0x10d1c;e59f30d0;ldr;r3, [pc, #0xd0]
+0x10d20;e24b1034;sub;r1, fp, #0x34
+0x10d24;e8910003;ldm;r1, {r0, r1}
+0x10d28;eb00025f;bl;#0x116ac
+0x10d2c;e1a03000;mov;r3, r0
+0x10d30;e1a04001;mov;r4, r1
+0x10d34;e50b3034;str;r3, [fp, #-0x34]
+0x10d38;e50b4030;str;r4, [fp, #-0x30]
+0x10d3c;e59f20b4;ldr;r2, [pc, #0xb4]
+0x10d40;e59f30b4;ldr;r3, [pc, #0xb4]
+0x10d44;e24b1034;sub;r1, fp, #0x34
+0x10d48;e8910003;ldm;r1, {r0, r1}
+0x10d4c;eb000499;bl;#0x11fb8
+0x10d50;e1a03000;mov;r3, r0
+0x10d54;e3530000;cmp;r3, #0
+0x10d58;1affffdb;bne;#0x10ccc
+0x10d5c;e3a03000;mov;r3, #0
+0x10d60;e1a00003;mov;r0, r3
+0x10d64;e24bd008;sub;sp, fp, #8
+0x10d68;e8bd8810;pop;{r4, fp, pc}
+0x10d6c;3ff00000;svclo;#0xf00000
+0x10d70;c0250000;eorgt;r0, r5, r0
+0x10d74;40400000;submi;r0, r0, r0
+0x10d78;c03e0000;eorsgt;r0, lr, r0
+0x10d7c;c0120000;andsgt;r0, r2, r0
+0x10d80;40310000;eorsmi;r0, r1, r0
+0x10d84;c00c0000;andgt;r0, ip, r0
+0x10d88;40360000;eorsmi;r0, r6, r0
+0x10d8c;c03f0000;eorsgt;r0, pc, r0
+0x10d90;66666666;strbtvs;r6, [r6], -r6, ror #12
+0x10d94;c02b6666;eorgt;r6, fp, r6, ror #12
+0x10d98;c0418000;subgt;r8, r1, r0
+0x10d9c;3fed0169;svclo;#0xed0169
+0x10da0;12070;andeq;r2, r1, r0, ror r0
+0x10da4;12098;muleq;r1, r8, r0
+0x10da8;120a4;andeq;r2, r1, r4, lsr #1
+0x10dac;40240000;eormi;r0, r4, r0
+0x10db0;40140000;andsmi;r0, r4, r0
+0x10db4;bff00000;svclt;#0xf00000
+0x10db8;c0260000;eorgt;r0, r6, r0
+0x10dbc;3fe00000;svclo;#0xe00000
+0x10dc0;402e0000;eormi;r0, lr, r0
+0x10dc4;120a8;andeq;r2, r1, r8, lsr #1
+0x10dc8;120d0;ldrdeq;r2, r3, [r1], -r0
+0x10dcc;120e4;andeq;r2, r1, r4, ror #1
+0x10dd0;120f8;strdeq;r2, r3, [r1], -r8
+0x10dd4;54442d18;strbpl;r2, [r4], #-0xd18
+0x10dd8;400921fb;strdmi;r2, r3, [sb], -fp
+0x10ddc;40668000;rsbmi;r8, r6, r0
+0x10de0;12120;andeq;r2, r1, r0, lsr #2
+0x10de4;40768000;rsbsmi;r8, r6, r0
+0x10de8;12140;andeq;r2, r1, r0, asr #2
+0x10dec;12144;andeq;r2, r1, r4, asr #2
+0x10df0;a2529d39;subsge;sb, r2, #0xe40
+0x10df4;3f91df46;svclo;#0x91df46
+
+
+.fini
+0x12064;e92d4008;push;{r3, lr}
+
+

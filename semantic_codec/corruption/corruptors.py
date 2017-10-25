@@ -57,7 +57,7 @@ class PacketCorruptor(Corruptor):
         corrupted = []
         for inst in program[address]:
             for c_inst in corrupt_all_bits_tuples(tuples, inst.encoding):
-                arm_inst = CAPSInstruction(c_inst, program[address][0].position)
+                arm_inst = CAPSInstruction(c_inst, program[address][0].address)
                 if not arm_inst in corrupted:
                     corrupted.append(arm_inst)
         program[address] = corrupted

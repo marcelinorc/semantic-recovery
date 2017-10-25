@@ -92,7 +92,7 @@ class SolutionQuality(object):
         for k in range(0, len(self._original_program)):
             if self._original_program[k].ignore:
                 continue
-            addr = self._original_program[k].position
+            addr = self._original_program[k].address
             v = self._program[addr]
             min_encoding = sys.maxsize
             for inst in v:

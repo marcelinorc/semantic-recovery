@@ -72,7 +72,7 @@ class ARMControlFlowGraph(digraph):
         # If a branch jumps to the content of a register there is little to do in static analysis,
         # the jump address is unknown. Also if the jumping instruction is beyond the address of the current
         # program, is also unknown
-        # in_memory = self._instructions[0].position <= inst.jumping_address <= self._instructions[-1].position
+        # in_memory = self._instructions[0].address <= inst.jumping_address <= self._instructions[-1].address
         #  len(inst.registers_used()) > 0 or not in_memory
         pass
 
@@ -379,11 +379,11 @@ class CFGBlock(object):
 
     @property
     def first_position(self):
-        return 0 if self._kind else self.first.position
+        return 0 if self._kind else self.first.address
 
     @property
     def last_position(self):
-        return 0 if self._kind else self.last.position
+        return 0 if self._kind else self.last.address
 
     @property
     def first(self):

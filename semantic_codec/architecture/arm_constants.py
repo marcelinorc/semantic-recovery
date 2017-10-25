@@ -29,7 +29,7 @@ class AReg:
     # register used by the instructions that use NO REGisters at all
     NOREG = 18
 
-    STORAGE_NAMES = ["R{}".format(x) for x in range(0, 16)]
+    STORAGE_NAMES = ["R{}".format(x) for x in range(0, NOREG)]
     STORAGE_NAMES.extend(['STORE', 'CPSR'])
     STORAGE_COUNT = len(STORAGE_NAMES)
 

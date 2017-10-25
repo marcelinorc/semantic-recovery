@@ -20,7 +20,7 @@ class TestForwardConstraintSolutionBuilder(TestCase):
         collector.collect(instructions)
         corruptor = RandomCorruptor(30.0, 5, True)
         corruptor.save_corrupted_program = False
-        program = [CAPSInstruction(x.encoding, x.position) for x in instructions]
+        program = [CAPSInstruction(x.encoding, x.address) for x in instructions]
         program = corruptor.corrupt(from_instruction_list_to_dict(program))
         return instructions, program
 

@@ -60,8 +60,8 @@ class MetadataCollector(object):
         # Lazy me
         encodings = []
 
-        dist = [0] * 18
-        defined = [False] * 18
+        dist = [0] * (AReg.STORAGE_COUNT + 1)
+        defined = [False] * (AReg.STORAGE_COUNT + 1)
         storage_mean_dist = {}
 
         for inst in instructions:
@@ -98,8 +98,11 @@ class MetadataCollector(object):
 
             # Count the distances between write and read_instructions of storages
             for s in inst.storages_written():
-                defined[s] = True
-                dist[s] = 0
+                try:
+                    defined[s] = True
+                    dist[s] = 0
+                except IndexError:
+                    print('[ERROR]: Uknown storage when collecting metadata: R{}'.format(s))
 
         # Compute the mean distance between a register being read_instructions and a register being written
         for k in storage_mean_dist:

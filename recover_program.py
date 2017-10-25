@@ -13,6 +13,7 @@ from semantic_codec.solution.solution_quality import SolutionQuality
 
 def print_report(instructions_output_file, original_program, recovered_program):
 
+    depths ={}
 
     errors, recovered, fail_looses, fail_tide = 0, 0, 0, 0
     orig_stdout = sys.stdout
@@ -27,7 +28,7 @@ def print_report(instructions_output_file, original_program, recovered_program):
         print('Original Instruction: {}'.format(original_program[i]))
         instructions = recovered_program[i]
 
-        addr = original_program[i].position
+        addr = original_program[i].address
 
         ori_inst = None
         for inst in instructions:
@@ -77,13 +78,24 @@ def print_report(instructions_output_file, original_program, recovered_program):
                 recovered += 1
                 print(" * OK!")
 
+            count_depth = True
+            this_depth = 0
             for inst in instructions:
                 if inst.ignore:
                     print("X", end="")
                 if inst.encoding == original_program[i].encoding:
                     print("{3} ++ [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, hex(addr)), end="")
+                    count_depth = False
+                    if not this_depth in depths:
+                        depths[this_depth] = 1
+                    else:
+                        depths[this_depth] += 1
                 else:
                     print("{3} -- [{2}] {0!s} : {1:.6f}: --> ".format(inst, inst.score(), inst.encoding, hex(addr)), end="")
+
+                    if count_depth:
+                        this_depth += 1
+
                 for k, v in inst.scores_by_rule.items():
                     print(" {0!s}: {1:.6f} -- ".format(k, v), end="")
                 print("")
@@ -105,6 +117,8 @@ def print_report(instructions_output_file, original_program, recovered_program):
 
     print("ERRORS: {} -- LOSING: {} -- TIDE: {} --RECOVERED: {} -- RATIO: {} ".format(
         errors, fail_looses, fail_tide, recovered, recovered / errors))
+
+    print("DEPTHS: {}".format(depths))
 
     sys.stdout = orig_stdout
 
@@ -143,7 +157,7 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
     # Separe the instructions from the function addresses
     original_program, fns = from_functions_to_list_and_addr(original_program)
     # Clone the original program
-    program = [CAPSInstruction(v.encoding, position=v.position) for v in original_program]
+    program = [CAPSInstruction(v.encoding, position=v.address) for v in original_program]
 
     # Collect the metrics on it
     collector = MetadataCollector()
@@ -205,7 +219,6 @@ def run_recovery(original_program, corruptor, recuperator, passes=1):
     a = SolutionQuality(program, original_program)
     a.report()
 
-
     pass_count += 1
     print_report('instructions{}.txt'.format(pass_count),
         original_program, from_instruction_dict_to_list(program))
@@ -222,7 +235,12 @@ if __name__ == "__main__":
     corruptor = None
 
     # ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/dissasembly.armasm')
-    ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/helloworld_elfiodissasembly.txt')
+    #ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/helloworld_elfiodissasembly.txt')
+    #ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/fft.disam')
+    #ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/dijkstra_small.disam')
+    #ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/crc32.disam')
+    #ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/bitcount.disam')
+    ARM_SIMPLE = os.path.join(os.path.dirname(__file__), 'tests/data/basicmath_small.disam')
     #original_program = TextDisassembleReader(ARM_SIMPLE).read_functions()
     original_program = ElfioTextDisassembleReader(ARM_SIMPLE).read_functions()
 

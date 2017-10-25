@@ -18,7 +18,7 @@ class Instruction(object):
         self._storages_used = None
         self._storages_read = None
         self._storages_written = None
-        self._position = position
+        self._address = position
         self._ssa_read = []
         self._ssa_written = []
         self._jumping_address = None
@@ -71,7 +71,7 @@ class Instruction(object):
                 if Bits.is_on(address, 23):
                     address |= Bits.set(29, 24)
                 address = (address << 2)
-                address += self.position + 8
+                address += self.address + 8
                 address &= 0xffffffff
                 self._jumping_address = address
             return self._jumping_address
@@ -111,11 +111,11 @@ class Instruction(object):
         return self._encoding
 
     @property
-    def position(self):
+    def address(self):
         """
-        Memory position of the instruction
+        Memory address of the instruction
         """
-        return self._position
+        return self._address
 
     def _read_from_memory(self):
         pass
@@ -208,7 +208,7 @@ class Instruction(object):
         """
         # TODO: if needed replace this for a bin-search to increase performance
         for i in instructions:
-            if self.jumping_address == i.position:
+            if self.jumping_address == i.address:
                 return i
         return None
 

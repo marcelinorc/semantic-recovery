@@ -13,8 +13,8 @@ class TestTextDisassembleReader(unittest.TestCase):
         self.assertEqual(24, len(instructions))
         self.assertTrue('push' in str(instructions[0]))
         self.assertTrue('mov' in str(instructions[1]))
-        self.assertEqual(0x00010790, instructions[0].position)
-        self.assertEqual(0x000107ec, instructions[len(instructions) - 1].position)
+        self.assertEqual(0x00010790, instructions[0].address)
+        self.assertEqual(0x000107ec, instructions[len(instructions) - 1].address)
 
     def test_read_hello_world(self):
         instructions = TextDisassembleReader(self.HELLO_PATH).read_instructions()

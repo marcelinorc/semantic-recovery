@@ -19,7 +19,7 @@ class Recuperator(object):
         """
         Builds the recuperator
         :param collector: Metadata collector
-        :param program: Dictionary where the key is the memory position of an instruction
+        :param program: Dictionary where the key is the memory address of an instruction
                         and the value a list of possibles instructions.
         """
         self._collector = collector

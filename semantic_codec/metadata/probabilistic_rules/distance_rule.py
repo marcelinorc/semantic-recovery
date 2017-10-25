@@ -65,7 +65,7 @@ class RegisterReadDistance(RegisterDistanceRule):
 
         # candidate instructions
         candidates = self._program[position]
-        # Scores that each candidates at this position is going to be awarded
+        # Scores that each candidates at this address is going to be awarded
         score = [0] * len(candidates);
 
         updated = False

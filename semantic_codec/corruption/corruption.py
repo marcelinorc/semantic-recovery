@@ -174,7 +174,7 @@ def corrupt_program(program, err_percent, max_amount):
             a = random.randint(1, max_amount)
             for r in corrupt_bits(31, 0, a, program[p][0].encoding):
                 if _encoding_not_in_list(r, program[p]):
-                    program[p].append(CAPSInstruction(r, program[p][0].position))
+                    program[p].append(CAPSInstruction(r, program[p][0].address))
             corrupted_amount -= 1
 
 
@@ -211,7 +211,7 @@ def corrupt_instruction(program, original_instruction, address,
 
     #program[address] = []
     for i in range(1, len(corrupted)):
-        inst = CAPSInstruction(corrupted[i], original_instruction.position)
+        inst = CAPSInstruction(corrupted[i], original_instruction.address)
         if not inst.ignore:
             program[address].append(inst)
 

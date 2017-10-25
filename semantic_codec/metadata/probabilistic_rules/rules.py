@@ -16,11 +16,11 @@ def from_instruction_dict_to_list(program):
 
 def from_instruction_list_to_dict(instructions):
     """
-    Turn the list of instructions into a dictionary indexed by position
+    Turn the list of instructions into a dictionary indexed by address
     """
     result = {}
     for inst in instructions:
-        result[inst.position] = [inst]
+        result[inst.address] = [inst]
     return result
 
 
@@ -33,7 +33,7 @@ def from_functions_to_list_and_addr(functions):
         for inst in f.instructions:
             result.append(inst)
 
-    result.sort(key=lambda x: x.position)
+    result.sort(key=lambda x: x.address)
 
     return result, fns
 
@@ -64,7 +64,7 @@ class Rule(object):
 
     def recover(self, position):
         """
-        Tries to recover an instruction in a given position of a program
+        Tries to recover an instruction in a given address of a program
         :param position: Position where the instruction is
         :param program: Program to recover
         :param model: Probabilistic model

@@ -7,7 +7,7 @@ class TestCAPSInstruction(TestCase):
 
     def test_constructor(self):
         caps = CAPSInstruction(0xe52de004, 0x10550)
-        self.assertEqual(0x10550, caps.position)
+        self.assertEqual(0x10550, caps.address)
         self.assertEqual(str(caps), 'str\tlr, [sp, #-4]!')
         # This is optional, but I need to check
         self.assertEqual(0x10550, caps._cap.address)

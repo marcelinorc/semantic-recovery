@@ -10,13 +10,13 @@ class ElfFunction(object):
 
     def start_addr(self):
         if len(self.instructions) > 0:
-            return self.instructions[0].position
+            return self.instructions[0].address
         else:
             return 0
 
     def final_addr(self):
         if len(self.instructions) > 0:
-            return self.instructions[0].position + self.length_in_bytes() - 4
+            return self.instructions[0].address + self.length_in_bytes() - 4
         else:
             return 0
 

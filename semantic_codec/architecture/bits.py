@@ -103,6 +103,7 @@ class Bits(object):
         Bits.check_range(dest_from, dest_to)
 
         mask = Bits.set(dest_to, dest_from)
+        value_to &= ~ mask
         if src_from > dest_from:
             value_to |= mask & (value_from >> (src_from - dest_from))
         else:

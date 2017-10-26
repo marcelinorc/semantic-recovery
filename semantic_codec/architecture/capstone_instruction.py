@@ -1,34 +1,33 @@
-from capstone import Cs, CS_ARCH_ARM, CS_MODE_ARM
+import struct
+
+from capstone import Cs, CS_ARCH_ARM, CS_MODE_ARM, CS_MODE_LITTLE_ENDIAN, CS_MODE_BIG_ENDIAN
 from capstone.arm_const import ARM_OP_REG, ARM_OP_MEM, ARM_INS_B, ARM_INS_BX, ARM_INS_BLX, ARM_INS_BL, ARM_INS_STR, \
     ARM_INS_STRBT, ARM_OP_IMM
 
 from semantic_codec.architecture.arm_constants import AReg
-from semantic_codec.architecture.bits import Bits
 from semantic_codec.architecture.instruction import Instruction
 
-from libs.darm import darm
-
 class CAPSInstruction(Instruction):
-    def __init__(self, encoding, position, str_format=Instruction.HEX_STR, little_endian=True):
+
+    def __init__(self, encoding, position, str_format=Instruction.HEX_STR, little_endian=False):
         super(CAPSInstruction, self).__init__(encoding, position, str_format, little_endian)
-
-        if encoding.__class__ is str:
-            encoding = int(''.join(encoding.split()), 16)
-
-        md = Cs(CS_ARCH_ARM, CS_MODE_ARM)
+        # CAPSTONE object
+        encoding_bytes = (self._encoding).to_bytes(4, byteorder=self._endianness)
+        endian = CS_MODE_LITTLE_ENDIAN if little_endian else CS_MODE_BIG_ENDIAN
+        md = Cs(CS_ARCH_ARM, CS_MODE_ARM | endian)
         md.detail = True
-
-        endianess = 'little' if little_endian else 'big'
-        encoding_bytes = (encoding).to_bytes(4, byteorder=endianess)
-
         self._cap = None
         for i in md.disasm(encoding_bytes, position):
             self._cap = i
+
 
     def __str__(self):
         if not self._cap:
             return super(CAPSInstruction, self).__str__()
         return '{}\t{}'.format(self._cap.mnemonic, self._cap.op_str)
+
+
+
 
     @property
     def conditional_field(self):

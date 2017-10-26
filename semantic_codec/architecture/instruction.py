@@ -14,7 +14,14 @@ class Instruction(object):
     # Instruction is given as a decimal number
     DEC_STR = 10
 
+    # Regarding Endianness for: 65280
+    # Python hex(FF00) = 65280 = C++ 0xFF00
+    #             Memory
+    # Big Endian:
+
     def __init__(self, encoding, position, str_format=DEC_STR, little_endian=True):
+        # Endiannes of the data given to the instruction
+        self._endianness = 'little' if little_endian else 'big'
         self._storages_used = None
         self._storages_read = None
         self._storages_written = None
@@ -50,6 +57,10 @@ class Instruction(object):
 
     def score(self):
         return self.score_function(self.scores_by_rule, self)
+
+    @property
+    def endianness(self):
+        return self._endianness
 
     @property
     def ignore(self):
@@ -92,7 +103,7 @@ class Instruction(object):
         return self._ssa_written
 
     @staticmethod
-    def _get_register_list(encoding, result = None):
+    def _get_register_list(encoding, result=None):
         if not result:
             result = []
         for x in range(0, 16):
@@ -189,7 +200,6 @@ class Instruction(object):
         Determine if an instruction is branch
         """
         raise RuntimeError("Not implemented")
-
 
     def is_push_pop(self):
         """

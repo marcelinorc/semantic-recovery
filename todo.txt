@@ -1,0 +1,3 @@
+# List of bigs todos in the project:
+
+- Solve the endianness problem

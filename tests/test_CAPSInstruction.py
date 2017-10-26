@@ -5,6 +5,13 @@ from semantic_codec.architecture.capstone_instruction import CAPSInstruction
 
 class TestCAPSInstruction(TestCase):
 
+    def test_encoding(self):
+        from_str = CAPSInstruction('000209b4', 8)
+        from_int = CAPSInstruction(0x000209b4, 8)
+        self.assertEqual(str(from_str), 'strheq\tr0, [r2], -r4')
+        self.assertEqual(str(from_int), 'strheq\tr0, [r2], -r4')
+
+
     def test_constructor(self):
         caps = CAPSInstruction(0xe52de004, 0x10550)
         self.assertEqual(0x10550, caps.address)

@@ -1,3 +1,5 @@
+import re
+
 from semantic_codec.architecture.arm_constants import AReg
 from semantic_codec.architecture.arm_instruction import AOpType
 from semantic_codec.architecture.bits import Bits
@@ -12,6 +14,9 @@ class DARMInstruction(Instruction):
 
     def __init__(self, encoding, position, str_format=Instruction.HEX_STR, little_endian=True):
         super(DARMInstruction, self).__init__(encoding, position, str_format, little_endian)
+
+
+
         self._darm = darm.disasm_armv7(self.encoding)
 
     def __str__(self):

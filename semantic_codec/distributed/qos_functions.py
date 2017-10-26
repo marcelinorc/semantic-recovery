@@ -11,3 +11,4 @@ class MockQoSFunction(object):
             return True
         else:
             self._counter += 1
+            return False

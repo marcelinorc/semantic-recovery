@@ -11,7 +11,7 @@ from semantic_codec.metadata.probabilistic_rules.rules import from_instruction_l
 class TestMetadataCollector(TestCase):
 
     ASM_PATH = os.path.join(os.path.dirname(__file__), 'data/dissasembly.armasm')
-    ASM_LONG_PATH = os.path.join(os.path.dirname(__file__), 'data/helloworld_elfiodissasembly.txt')
+    ASM_LONG_PATH = os.path.join(os.path.dirname(__file__), 'data/helloworld_elfiodissasembly.disam')
 
     def test_corrupted_collect(self):
         # TODO: This is an smoke test

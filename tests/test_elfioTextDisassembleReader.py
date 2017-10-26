@@ -6,7 +6,7 @@ from semantic_codec.architecture.disassembler_readers import ElfioTextDisassembl
 class TestElfioTextDisassembleReader(TestCase):
 
     def test_read(self):
-        fns, instructions = ElfioTextDisassembleReader("data/helloworld_elfiodissasembly.txt").read()
+        fns, instructions = ElfioTextDisassembleReader("data/helloworld_elfiodissasembly.disam").read()
         # Some smoke to start with
         for inst in instructions:
             self.assertFalse(inst.ignore)

@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from semantic_codec.architecture.arm_constants import AReg
+from semantic_codec.architecture.capstone_instruction import CAPSInstruction
 from semantic_codec.architecture.darm_instruction import DARMInstruction
 from semantic_codec.architecture.instruction import Instruction
 

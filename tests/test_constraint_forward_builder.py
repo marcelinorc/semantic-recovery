@@ -15,7 +15,7 @@ class TestForwardConstraintSolutionBuilder(TestCase):
     @staticmethod
     def obtain_corrupted_program():
         # Obtain a program and corrupt it
-        instructions = ElfioTextDisassembleReader("data/helloworld_elfiodissasembly.txt").read()[1]
+        instructions = ElfioTextDisassembleReader("data/helloworld_elfiodissasembly.disam").read()[1]
         collector = MetadataCollector()
         collector.collect(instructions)
         corruptor = RandomCorruptor(30.0, 5, True)

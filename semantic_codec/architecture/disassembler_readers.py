@@ -62,7 +62,11 @@ class ElfioTextDisassembleReader(DisassembleReader):
                 elif section.startswith('init') or section.startswith('text') or \
                         section.startswith('plt') or section.startswith('fini'):
                     line_split = line.split(';')
-                    address, encoding = line_split[0], line_split[1]
+                    try:
+                        address, encoding = line_split[0], line_split[1]
+                    except:
+                        print('[ERROR] Cannot parse line: {}'.format(line))
+                        continue
                     encoding = int(encoding, 16)
                     address = int(address, 16)
                     inst = CAPSInstruction(encoding, position=address)

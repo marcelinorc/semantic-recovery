@@ -1,4 +1,5 @@
 import re
+import struct
 
 from semantic_codec.architecture.arm_constants import AReg
 from semantic_codec.architecture.bits import Bits
@@ -14,14 +15,8 @@ class Instruction(object):
     # Instruction is given as a decimal number
     DEC_STR = 10
 
-    # Regarding Endianness for: 65280
-    # Python hex(FF00) = 65280 = C++ 0xFF00
-    #             Memory
-    # Big Endian:
-
-    def __init__(self, encoding, position, str_format=DEC_STR, little_endian=True):
+    def __init__(self, encoding, position, str_format=HEX_STR):
         # Endiannes of the data given to the instruction
-        self._endianness = 'little' if little_endian else 'big'
         self._storages_used = None
         self._storages_read = None
         self._storages_written = None
@@ -39,10 +34,10 @@ class Instruction(object):
         self._ignore = False
 
         if isinstance(encoding, str):
-            encoding = re.sub(' +', '', encoding)
-            if little_endian and str_format == Instruction.HEX_STR:
-                encoding = Instruction._reverse_endianess(encoding)
-            self._encoding = int(encoding, str_format)
+            self._encoding = int(''.join(encoding.split()), str_format)
+#            encoding = re.sub(' +', '', encoding)
+#           if little_endian and str_format == Instruction.HEX_STR:
+#                encoding = Instruction._reverse_endianess(encoding)
         elif isinstance(encoding, int):
             self._encoding = encoding
         else:
@@ -57,10 +52,6 @@ class Instruction(object):
 
     def score(self):
         return self.score_function(self.scores_by_rule, self)
-
-    @property
-    def endianness(self):
-        return self._endianness
 
     @property
     def ignore(self):
@@ -112,10 +103,14 @@ class Instruction(object):
         return result
 
     @staticmethod
-    def _reverse_endianess(value):
-        a = list(value)
-        l = [a[6:8], a[4:6], a[2:4], a[0:2]]
-        return ''.join([item for sublist in l for item in sublist])
+    def reverse_endianess(value):
+        if isinstance(value, str):
+            value = ''.join(value.split())
+            a = list(value)
+            l = [a[6:8], a[4:6], a[2:4], a[0:2]]
+            return ''.join([item for sublist in l for item in sublist])
+        elif isinstance(value, int):
+            return struct.unpack("<I", struct.pack(">I", value))[0]
 
     @property
     def encoding(self):

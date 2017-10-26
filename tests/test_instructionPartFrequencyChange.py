@@ -33,6 +33,6 @@ class TestInstructionPartFrequencyChange(TestCase):
         qos = MockQoSFunction() # Say yes every fifth change
         changer = InstructionPartFrequencyChanger(program, qos, fc)
         # Try to change the registers
-        #changer.change_registers()
+        changer.change_registers()
         self.fail()
 

@@ -5,6 +5,7 @@ import re
 
 from semantic_codec.architecture.capstone_instruction import CAPSInstruction
 from semantic_codec.architecture.functions import ElfFunction
+from semantic_codec.architecture.instruction import Instruction
 
 
 class DisassembleReader (object):
@@ -86,7 +87,6 @@ class ElfioTextDisassembleReader(DisassembleReader):
     def read_instructions(self):
         return self.read()[1]
 
-
 class TextDisassembleReader(DisassembleReader):
     """
     Reads the instructions in text format from the https://onlinedisassembler.com/static/home/,
@@ -119,7 +119,8 @@ class TextDisassembleReader(DisassembleReader):
             elif len(line) > 0 and line[0] == ' ':
                 e = line.split(":", 1)[1].split("  ", 1)[0].split(" ", 1)
                 f = result[len(result) - 1]
-                f.instructions.append(CAPSInstruction(e[1], position=int(e[0], 16), little_endian=False))
+                encoding = Instruction.reverse_endianess(e[1])
+                f.instructions.append(CAPSInstruction(encoding, position=int(e[0], 16)))
 
         return result
 
@@ -135,7 +136,8 @@ class TextDisassembleReader(DisassembleReader):
         for line in open(self._filename):
             if line[0] == ' ':
                 e = line.rstrip('\n').split(":", 1)[1].split("  ", 1)[0].split(" ", 1)
-                instruction = CAPSInstruction(e[1], position=int(e[0], 16), little_endian=False)
+                encoding = Instruction.reverse_endianess(e[1])
+                instruction = CAPSInstruction(encoding, position=int(e[0], 16))
                 result.append(instruction)
 
         return result

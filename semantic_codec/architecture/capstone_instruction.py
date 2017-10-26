@@ -9,12 +9,12 @@ from semantic_codec.architecture.instruction import Instruction
 
 class CAPSInstruction(Instruction):
 
-    def __init__(self, encoding, position, str_format=Instruction.HEX_STR, little_endian=False):
-        super(CAPSInstruction, self).__init__(encoding, position, str_format, little_endian)
+    def __init__(self, encoding, position):
+        super(CAPSInstruction, self).__init__(encoding, position)
         # CAPSTONE object
-        encoding_bytes = (self._encoding).to_bytes(4, byteorder=self._endianness)
-        endian = CS_MODE_LITTLE_ENDIAN if little_endian else CS_MODE_BIG_ENDIAN
-        md = Cs(CS_ARCH_ARM, CS_MODE_ARM | endian)
+        encoding_bytes = (self._encoding).to_bytes(4, byteorder='little')
+        #endian = CS_MODE_LITTLE_ENDIAN if little_endian else CS_MODE_BIG_ENDIAN
+        md = Cs(CS_ARCH_ARM, CS_MODE_ARM)
         md.detail = True
         self._cap = None
         for i in md.disasm(encoding_bytes, position):
